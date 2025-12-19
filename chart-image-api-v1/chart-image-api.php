@@ -88,10 +88,36 @@ $dataField   = $_GET['data']         ?? null;
 $showFib     = isset($_GET['fib']) && $_GET['fib'] === 'true';
 $periodSeparators = $_GET['period_separators'] ?? null;
 $showHighLow = isset($_GET['high_low']) && $_GET['high_low'] === 'true';
+$streaming   = $_GET['streaming'] ?? null;
+$theme       = $_GET['theme'] ?? 'light';
 
 if (!$apiKey || !$symbol || !$timeframe) {
     header('Content-Type: text/plain', true, 400);
     exit('Missing api_key, symbol, or timeframe');
+}
+
+// Handle streaming modes
+if ($streaming === 'redirect') {
+    // Redirect directly to the streaming page
+    $streamUrl = '/chart-image-api-v1/chart-stream.php?' . http_build_query($_GET);
+    header('Location: ' . $streamUrl);
+    exit;
+} elseif ($streaming === 'url') {
+    // Generate short code and return minified URL
+    $shortCode = substr(md5(json_encode($_GET) . time()), 0, 8);
+    
+    // Store in database
+    $stmt = $pdo->prepare("INSERT OR REPLACE INTO chart_stream_urls (short_code, params) VALUES (?, ?)");
+    $stmt->execute([$shortCode, json_encode($_GET)]);
+    
+    $streamUrl = $BASE_URL . '/chart-image-api-v1/s/' . $shortCode;
+    header('Content-Type: application/json');
+    echo json_encode([
+        'stream' => true,
+        'url' => $streamUrl,
+        'message' => 'Chart streaming enabled. Access the URL to view live updates.'
+    ]);
+    exit;
 }
 
 // Validate API key
@@ -546,22 +572,40 @@ $W   = 1600; $H = 900;
 $img = imagecreatetruecolor($W, $H);
 imageantialias($img, true);
 
+// Theme-based colors
+if ($theme === 'dark') {
+    // Dark theme: dark background matching sidebar
+    $bgColor   = imagecolorallocate($img, 20, 20, 20);  // rgba(20, 20, 20, 0.95)
+    $fgColor   = imagecolorallocate($img,255,255,255);  // White
+    $gridColor = imagecolorallocate($img, 40, 40, 40);  // Dark gray for grid
+    $textColor = imagecolorallocate($img,255,255,255);  // White text
+    $lightGray = imagecolorallocate($img, 60, 60, 60);  // Darker gray
+    $darkGray  = imagecolorallocate($img,180,180,180);  // Lighter gray (inverted)
+} else {
+    // Light theme: white background, black foreground (default)
+    $bgColor   = imagecolorallocate($img,255,255,255);  // White
+    $fgColor   = imagecolorallocate($img,  0,  0,  0);  // Black
+    $gridColor = imagecolorallocate($img,230,230,230);  // Light gray for grid
+    $textColor = imagecolorallocate($img,  0,  0,  0);  // Black text
+    $lightGray = imagecolorallocate($img,230,230,230);
+    $darkGray  = imagecolorallocate($img, 80, 80, 80);
+}
+
+// Common colors (always the same)
 $white     = imagecolorallocate($img,255,255,255);
-$lightGray = imagecolorallocate($img,230,230,230);
-$darkGray  = imagecolorallocate($img, 80, 80, 80);
 $black     = imagecolorallocate($img,  0,  0,  0);
-$upColor   = imagecolorallocate($img, 38,166,154);
-$dnColor   = imagecolorallocate($img,239, 83, 80);
+$upColor   = imagecolorallocate($img, 38,166,154);   // Keep candles as-is
+$dnColor   = imagecolorallocate($img,239, 83, 80);   // Keep candles as-is
 $ema1Col   = imagecolorallocate($img,237,125, 49);
 $ema2Col   = imagecolorallocate($img,165,165,165);
 $atrCol    = imagecolorallocate($img, 75,  0,130);
 $fibCol    = imagecolorallocate($img, 30, 144, 255); // Blue for Fibonacci
 $red       = imagecolorallocate($img,255,  0,  0);
-$separatorCol = imagecolorallocate($img, 100, 100, 100); // Darker gray for better visibility
-$highCol   = imagecolorallocate($img, 0, 150, 0);   // Green for highs
-$lowCol    = imagecolorallocate($img, 200, 0, 200); // Purple for lows
+$separatorCol = imagecolorallocate($img, 100, 100, 100);
+$highCol   = imagecolorallocate($img, 0, 255, 0);   // Bright green for highs
+$lowCol    = imagecolorallocate($img, 255, 0, 255); // Bright magenta for lows
 
-imagefilledrectangle($img,0,0,$W,$H,$white);
+imagefilledrectangle($img,0,0,$W,$H,$bgColor);
 
 //////////////////////////
 // 13) Font size definitions
@@ -702,54 +746,9 @@ if ($periodSeparators && !empty($separatorPositions)) {
 }
 
 //////////////////////////
-// 17) Draw high/low lines for each period segment (EXCLUDING LAST SEGMENT)
+// 17) Calculate Y-scale factor for later use
 //////////////////////////
 $ysf = $chartH / $range;
-
-if ($showHighLow && !empty($periodHighLows)) {
-    foreach ($periodHighLows as $hl) {
-        // Calculate Y positions
-        $yHigh = intval($chartY0 + ($maxP - $hl['high']) * $ysf);
-        $yLow = intval($chartY0 + ($maxP - $hl['low']) * $ysf);
-        
-        // Calculate X positions - start from where high/low occurs
-        $xHighStart = intval($chartX0 + $hl['high_idx'] * $xStep + $xStep/2);
-        $xLowStart = intval($chartX0 + $hl['low_idx'] * $xStep + $xStep/2);
-        $xEnd = intval($chartX0 + $chartW); // End at right side of chart
-        
-        // Draw thick high line (dashed green) - draw multiple lines for thickness
-        for ($offset = -1; $offset <= 1; $offset++) {
-            drawDashedLine($img, $xHighStart, $yHigh + $offset, $xEnd, $yHigh + $offset, $highCol);
-        }
-        
-        // Draw thick low line (dashed purple) - draw multiple lines for thickness
-        for ($offset = -1; $offset <= 1; $offset++) {
-            drawDashedLine($img, $xLowStart, $yLow + $offset, $xEnd, $yLow + $offset, $lowCol);
-        }
-        
-        // Draw high label on the right
-        $highLabel = $hl['label'] . '-HIGH ' . number_format($hl['high'], $precision, '.', '');
-        $highDims = getTextDimensions($highLabel, $fontRegular, $highLowLabelSize);
-        imagettftext($img, $highLowLabelSize, 0,
-            intval($xEnd + 6),
-            intval($yHigh + $highDims['height']/2),
-            $highCol,
-            $fontRegular,
-            $highLabel
-        );
-        
-        // Draw low label on the right
-        $lowLabel = $hl['label'] . '-LOW ' . number_format($hl['low'], $precision, '.', '');
-        $lowDims = getTextDimensions($lowLabel, $fontRegular, $highLowLabelSize);
-        imagettftext($img, $highLowLabelSize, 0,
-            intval($xEnd + 6),
-            intval($yLow + $lowDims['height']/2),
-            $lowCol,
-            $fontRegular,
-            $lowLabel
-        );
-    }
-}
 
 //////////////////////////
 // 18) Draw grid & axes
@@ -757,17 +756,17 @@ if ($showHighLow && !empty($periodHighLows)) {
 // horizontal (price) grid: 10 divisions
 for ($i=0; $i<=10; $i++) {
     $y = intval($chartY0 + $i*$chartH/10);
-    imageline($img,$chartX0,$y,intval($chartX0+$chartW),$y,$lightGray);
+    imageline($img,$chartX0,$y,intval($chartX0+$chartW),$y,$gridColor);
 }
 // vertical (time) grid: 5 divisions
 for ($i=0; $i<=5; $i++) {
     $x = intval($chartX0 + $i*$chartW/5);
-    imageline($img,$x,$chartY0,$x,intval($chartY0+$chartH),$lightGray);
+    imageline($img,$x,$chartY0,$x,intval($chartY0+$chartH),$gridColor);
 }
 // axes borders
 for ($dx=0; $dx<2; $dx++){
-    imageline($img,$chartX0+$dx,$chartY0,$chartX0+$dx,intval($chartY0+$chartH),$darkGray);
-    imageline($img,$chartX0,intval($chartY0+$chartH)-$dx,intval($chartX0+$chartW),intval($chartY0+$chartH)-$dx,$darkGray);
+    imageline($img,$chartX0+$dx,$chartY0,$chartX0+$dx,intval($chartY0+$chartH),$textColor);
+    imageline($img,$chartX0,intval($chartY0+$chartH)-$dx,intval($chartX0+$chartW),intval($chartY0+$chartH)-$dx,$textColor);
 }
 
 //////////////////////////
@@ -776,7 +775,7 @@ for ($dx=0; $dx<2; $dx++){
 $title = "{$symbol} {$timeframe} Chart by flowbase.com";
 $titleDims = getTextDimensions($title, $fontSemiBold, $titleFontSize);
 $titleX = intval(($W - $titleDims['width']) / 2);
-imagettftext($img, $titleFontSize, 0, $titleX, 35, $black, $fontSemiBold, $title);
+imagettftext($img, $titleFontSize, 0, $titleX, 35, $textColor, $fontSemiBold, $title);
 
 //////////////////////////
 // 20) Y-axis labels (price scale on right)
@@ -787,7 +786,7 @@ for ($i=0; $i<=10; $i++){
     $dims = getTextDimensions($lbl, $fontRegular, $labelFontSize);
     $y   = intval($chartY0 + $i*$chartH/10 + $dims['height']/2);
     $x   = intval($chartX0 + $chartW + 10); // Right side of chart
-    imagettftext($img, $labelFontSize, 0, $x, $y, $black, $fontRegular, $lbl);
+    imagettftext($img, $labelFontSize, 0, $x, $y, $textColor, $fontRegular, $lbl);
 }
 
 //////////////////////////
@@ -800,7 +799,7 @@ for ($i=0; $i<$n; $i+=$step) {
     $dims = getTextDimensions($raw, $fontRegular, $xAxisLabelSize);
     $x   = intval($chartX0 + $i*$xStep + $xStep/2 - $dims['width']/2);
     $y   = intval($chartY0 + $chartH + 20);
-    imagettftext($img, $xAxisLabelSize, 0, $x, $y, $black, $fontRegular, $raw);
+    imagettftext($img, $xAxisLabelSize, 0, $x, $y, $textColor, $fontRegular, $raw);
 }
 
 //////////////////////////
@@ -873,11 +872,11 @@ if ($showFib) {
         // Position text on left side
         $fibTextX = intval($chartX0 - $fibDims['width'] - 6);
         
-        // Draw black text (no rectangle background)
+        // Draw text (no rectangle background)
         imagettftext($img, $fibFontSize, 0,
             $fibTextX,
             intval($yFib + $fibDims['height']/2),
-            $black,
+            $textColor,
             $fontRegular,
             $fibLabel
         );
@@ -885,7 +884,54 @@ if ($showFib) {
 }
 
 //////////////////////////
-// 25) Current price line & label with red triangle
+// 25) Draw high/low lines for each period segment (EXCLUDING LAST SEGMENT)
+//////////////////////////
+if ($showHighLow && !empty($periodHighLows)) {
+    foreach ($periodHighLows as $hl) {
+        // Calculate Y positions
+        $yHigh = intval($chartY0 + ($maxP - $hl['high']) * $ysf);
+        $yLow = intval($chartY0 + ($maxP - $hl['low']) * $ysf);
+        
+        // Calculate X positions - draw from segment start to segment end
+        $xStart = intval($chartX0 + $hl['start_idx'] * $xStep);
+        $xEnd = intval($chartX0 + $hl['end_idx'] * $xStep + $xStep);
+        
+        // Draw thick high line (dashed green) - draw multiple lines for thickness
+        for ($offset = -1; $offset <= 1; $offset++) {
+            drawDashedLine($img, $xStart, $yHigh + $offset, $xEnd, $yHigh + $offset, $highCol);
+        }
+        
+        // Draw thick low line (dashed purple) - draw multiple lines for thickness
+        for ($offset = -1; $offset <= 1; $offset++) {
+            drawDashedLine($img, $xStart, $yLow + $offset, $xEnd, $yLow + $offset, $lowCol);
+        }
+        
+        // Draw high label on the right
+        $highLabel = $hl['label'] . '-HIGH ' . number_format($hl['high'], $precision, '.', '');
+        $highDims = getTextDimensions($highLabel, $fontRegular, $highLowLabelSize);
+        imagettftext($img, $highLowLabelSize, 0,
+            intval($xEnd + 6),
+            intval($yHigh + $highDims['height']/2),
+            $highCol,
+            $fontRegular,
+            $highLabel
+        );
+        
+        // Draw low label on the right
+        $lowLabel = $hl['label'] . '-LOW ' . number_format($hl['low'], $precision, '.', '');
+        $lowDims = getTextDimensions($lowLabel, $fontRegular, $highLowLabelSize);
+        imagettftext($img, $highLowLabelSize, 0,
+            intval($xEnd + 6),
+            intval($yLow + $lowDims['height']/2),
+            $lowCol,
+            $fontRegular,
+            $lowLabel
+        );
+    }
+}
+
+//////////////////////////
+// 26) Current price line & label with red triangle
 //////////////////////////
 $yCurrent = intval($chartY0 + ($maxP - $currentPrice) * $ysf);
 $lineCol  = imagecolorallocate($img,200,0,0);
@@ -921,16 +967,16 @@ imagettftext($img, $labelFontSize, 0,
 );
 
 //////////////////////////
-// 26) Bottom text: range display (oldest to newest)
+// 27) Bottom text: range display (oldest to newest)
 //////////////////////////
 // $firstCandle is oldest (leftmost), $lastCandle is newest (rightmost)
 $rangeText = $firstCandle['time'] . ' - ' . $lastCandle['time'];
 $rangeDims = getTextDimensions($rangeText, $fontRegular, $rangeFontSize);
 $rangeX = intval(($W - $rangeDims['width']) / 2);
-imagettftext($img, $rangeFontSize, 0, $rangeX, $H - 20, $black, $fontRegular, $rangeText);
+imagettftext($img, $rangeFontSize, 0, $rangeX, $H - 20, $textColor, $fontRegular, $rangeText);
 
 //////////////////////////
-// 27) Output PNG
+// 28) Output PNG
 //////////////////////////
 header('Content-Type: image/png');
 imagepng($img);

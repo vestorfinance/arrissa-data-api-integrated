@@ -362,6 +362,18 @@ ob_start();
                             <td class="py-4 px-6" style="color: var(--text-secondary);">Show high/low lines for each period segment (true/false)</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">theme</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Chart theme: light (default) or dark (black background, white text)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">streaming</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Streaming mode: <strong>redirect</strong> (opens streaming page) or <strong>url</strong> (returns minified URL)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">pretend_date</code></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">YYYY-MM-DD</td>
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
@@ -375,6 +387,103 @@ ob_start();
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Streaming Examples Section -->
+    <div class="mb-10">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                <i data-feather="activity" style="width: 24px; height: 24px; color: white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">Live Streaming</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Auto-refreshing charts that update every 500ms</p>
+            </div>
+        </div>
+
+        <!-- Mode 1: Redirect -->
+        <div class="mb-6 p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <div class="flex items-center mb-4">
+                <span class="section-badge" style="background-color: var(--accent); color: white;">Mode 1: Redirect</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Direct Browser Redirect</h3>
+            <p class="text-sm mb-4" style="color: var(--text-secondary);">Opens the live streaming page immediately in the browser.</p>
+            
+            <p class="text-xs font-semibold mb-2" style="color: var(--text-primary);">Example URL:</p>
+            <div class="p-4 rounded-xl api-code text-xs overflow-x-auto mb-4" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--input-border);">
+                <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&symbol=EURUSD&timeframe=M1&streaming=redirect</pre>
+            </div>
+            
+            <div class="flex items-start p-4 rounded-xl" style="background-color: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);">
+                <i data-feather="info" style="width: 16px; height: 16px; margin-right: 8px; margin-top: 2px; color: #3b82f6; flex-shrink: 0;"></i>
+                <p class="text-xs" style="color: var(--text-secondary);">Use this mode when you want users to be redirected directly to the streaming page. Perfect for clickable links.</p>
+            </div>
+        </div>
+
+        <!-- Mode 2: URL -->
+        <div class="mb-6 p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <div class="flex items-center mb-4">
+                <span class="section-badge" style="background-color: var(--success); color: white;">Mode 2: URL</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Get Minified Streaming URL</h3>
+            <p class="text-sm mb-4" style="color: var(--text-secondary);">Returns a JSON response with a short, shareable streaming URL.</p>
+            
+            <p class="text-xs font-semibold mb-2" style="color: var(--text-primary);">Example Request:</p>
+            <div class="p-4 rounded-xl api-code text-xs overflow-x-auto mb-3" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--input-border);">
+                <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&symbol=EURUSD&timeframe=M1&streaming=url</pre>
+            </div>
+            
+            <p class="text-xs font-semibold mb-2" style="color: var(--text-primary);">Example Response:</p>
+            <div class="p-4 rounded-xl api-code text-xs overflow-x-auto mb-4" style="background-color: var(--bg-primary); color: var(--success); border: 1px solid var(--input-border);">
+                <pre style="margin: 0;">{
+  "stream": true,
+  "url": "<?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/s/a3f7b2c1",
+  "message": "Chart streaming enabled. Access the URL to view live updates."
+}</pre>
+            </div>
+            
+            <div class="flex items-start p-4 rounded-xl" style="background-color: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);">
+                <i data-feather="info" style="width: 16px; height: 16px; margin-right: 8px; margin-top: 2px; color: #10b981; flex-shrink: 0;"></i>
+                <p class="text-xs" style="color: var(--text-secondary);">Use this mode for API integrations where you need to store or share the streaming URL. The URL is minified for easy sharing.</p>
+            </div>
+        </div>
+
+        <!-- Streaming Features -->
+        <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%); border: 1px solid var(--border);">
+            <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Streaming Features</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-start">
+                    <i data-feather="zap" style="width: 16px; height: 16px; margin-right: 8px; margin-top: 2px; color: var(--accent); flex-shrink: 0;"></i>
+                    <div>
+                        <p class="text-sm font-semibold" style="color: var(--text-primary);">Real-time Updates</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">Charts refresh every 500ms automatically</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <i data-feather="pause-circle" style="width: 16px; height: 16px; margin-right: 8px; margin-top: 2px; color: var(--accent); flex-shrink: 0;"></i>
+                    <div>
+                        <p class="text-sm font-semibold" style="color: var(--text-primary);">Pause/Resume Controls</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">Control streaming with buttons or spacebar</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <i data-feather="maximize" style="width: 16px; height: 16px; margin-right: 8px; margin-top: 2px; color: var(--accent); flex-shrink: 0;"></i>
+                    <div>
+                        <p class="text-sm font-semibold" style="color: var(--text-primary);">Fullscreen Mode</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">View charts in immersive fullscreen</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <i data-feather="bar-chart-2" style="width: 16px; height: 16px; margin-right: 8px; margin-top: 2px; color: var(--accent); flex-shrink: 0;"></i>
+                    <div>
+                        <p class="text-sm font-semibold" style="color: var(--text-primary);">Update Counter</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">Track total number of chart refreshes</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -431,7 +540,10 @@ ob_start();
                     ['title' => 'USDJPY with ATR', 'url' => "{$baseUrl}/chart-image-api-v1/chart-image-api.php?api_key={$apiKey}&symbol=USDJPY&timeframe=H1&atr=14", 'desc' => 'Average True Range indicator'],
                     ['title' => 'Complete Analysis', 'url' => "{$baseUrl}/chart-image-api-v1/chart-image-api.php?api_key={$apiKey}&symbol=EURUSD&timeframe=H4&ema1_period=20&ema2_period=50&atr=14&fib=true", 'desc' => 'EMAs, ATR, and Fibonacci'],
                     ['title' => 'With Period Separators', 'url' => "{$baseUrl}/chart-image-api-v1/chart-image-api.php?api_key={$apiKey}&symbol=EURUSD&timeframe=M15&period_separators=1H,4H", 'desc' => 'Hour and 4-hour markers'],
-                    ['title' => 'High/Low Markers', 'url' => "{$baseUrl}/chart-image-api-v1/chart-image-api.php?api_key={$apiKey}&symbol=GBPUSD&timeframe=H1&high_low=true", 'desc' => 'Period high/low lines'],
+                    ['title' => 'High/Low Markers', 'url' => "{$baseUrl}/chart-image-api-v1/chart-image-api.php?api_key={$apiKey}&symbol=GBPUSD&timeframe=H1&high_low=true&period_separators=day", 'desc' => 'Period high/low lines'],
+                    ['title' => 'Dark Theme', 'url' => "{$baseUrl}/chart-image-api-v1/chart-image-api.php?api_key={$apiKey}&symbol=EURUSD&timeframe=H1&theme=dark&ema1_period=20&ema2_period=50", 'desc' => 'Black background theme'],
+                    ['title' => 'Live Streaming (Direct)', 'url' => "{$baseUrl}/chart-image-api-v1/chart-image-api.php?api_key={$apiKey}&symbol=GBPUSD&timeframe=M1&streaming=redirect", 'desc' => 'Opens streaming page directly'],
+                    ['title' => 'Live Streaming (URL)', 'url' => "{$baseUrl}/chart-image-api-v1/chart-image-api.php?api_key={$apiKey}&symbol=GBPUSD&timeframe=M1&streaming=url", 'desc' => 'Returns minified URL'],
                 ];
                 foreach ($technicalExamples as $example):
                 ?>
@@ -459,7 +571,7 @@ ob_start();
         <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Ready to Generate Charts?</h3>
         <p class="text-sm mb-4" style="color: var(--text-secondary);">All examples use your configured API key and endpoint. Click any example above to view the generated chart.</p>
         <div class="text-xs" style="color: var(--text-secondary);">
-            <p><strong style="color: var(--text-primary);">Features:</strong> 16:9 aspect ratio, professional styling, EMA/ATR indicators, Fibonacci levels, period separators, backtesting support</p>
+            <p><strong style="color: var(--text-primary);">Features:</strong> 16:9 aspect ratio, professional styling, EMA/ATR indicators, Fibonacci levels, period separators, live streaming (500ms refresh), dark/light themes, backtesting support</p>
         </div>
     </div>
 </div>
