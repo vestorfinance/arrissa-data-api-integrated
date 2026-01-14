@@ -252,9 +252,46 @@
                 grid-template-columns: repeat(2, 1fr) !important;
             }
         }
+
+        /* Global Page Loader */
+        #page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease-out;
+        }
+        #page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body style="background-color: var(--bg-primary);">
+    <!-- Global Page Loader -->
+    <div id="page-loader">
+        <div class="loader-spinner"></div>
+        <p style="color: var(--text-secondary); margin-top: 20px; font-size: 14px;">Loading...</p>
+    </div>
+
     <!-- Mobile Header Bar -->
     <header class="mobile-header">
         <button class="hamburger-btn" onclick="toggleMobileSidebar()" aria-label="Toggle menu">
@@ -296,6 +333,10 @@
                     <i data-feather="file-text" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">News API Guide</span>
                 </a>
+                <a href="/similar-scene-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'similar-scene-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'similar-scene-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                    <i data-feather="layers" style="width: 20px; height: 20px;"></i>
+                    <span class="text-base font-medium">Similar Scene API Guide</span>
+                </a>
                 <a href="/event-id-reference" class="sidebar-link <?php echo ($page ?? '') == 'event-id-reference' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'event-id-reference' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="list" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Event ID Reference</span>
@@ -311,6 +352,10 @@
                 <a href="/symbol-info-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'symbol-info-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'symbol-info-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="bar-chart-2" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Symbol Info API Guide</span>
+                </a>
+                <a href="/quarters-theory-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'quarters-theory-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'quarters-theory-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                    <i data-feather="target" style="width: 20px; height: 20px;"></i>
+                    <span class="text-base font-medium">Quarters Theory API Guide</span>
                 </a>
                 <a href="/download-eas" class="sidebar-link <?php echo ($page ?? '') == 'download-eas' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'download-eas' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="download" style="width: 20px; height: 20px;"></i>
@@ -408,6 +453,15 @@
                 feather.replace();
             }
         }
+
+        // Hide page loader when page is fully loaded
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('page-loader');
+            loader.classList.add('hidden');
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 300); // Wait for fade animation to complete
+        });
     </script>
 </body>
 </html>

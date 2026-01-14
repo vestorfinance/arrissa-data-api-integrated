@@ -1,0 +1,8 @@
+NFP
+AHE only dominates if it BEATS.
+If AHE only MEETS, NFP direction wins
+AHE MISS guarantees DIRECTION, not DISTANCE
+Distance depends on:
+HTF structure
+Available liquidity
+Prior expansion state

@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Attempt login
     if (Auth::login($username, $password)) {
-        header('Location: /');
+        header('Location: /dashboard');
         exit;
     } else {
         header('Location: /login?error=invalid');

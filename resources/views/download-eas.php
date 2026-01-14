@@ -335,6 +335,77 @@ ob_start();
         </div>
     </div>
 
+    <div class="divider"></div>
+
+    <!-- Quarters Theory API EA -->
+    <div class="mb-12">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, #9C27B0, #BA68C8);">
+                <i data-feather="target" style="width: 24px; height: 24px; color: white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">Richchild Quarters Theory API Expert Advisor</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Real-time multi-timeframe quarter analysis for precision trading</p>
+            </div>
+        </div>
+
+        <div class="ea-card p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">What This EA Does</h3>
+                    <ul class="space-y-2 text-sm" style="color: var(--text-secondary);">
+                        <li class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0 mt-0.5" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span>Analyzes price position in quarters (0-25%, 25-50%, 50-75%, 75-100%)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0 mt-0.5" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span>Tracks time progression through period quarters (1st, 2nd, 3rd, 4th)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0 mt-0.5" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span>Provides quota values (historical average range ÷ 4) for each timeframe</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0 mt-0.5" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span>Covers 9 timeframes: M15, M30, H1, H4, H6, H12, D1, W1, MN1</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0 mt-0.5" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span>Countdown timers for each timeframe period close</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Download Files</h3>
+                    <div class="space-y-3">
+                        <a href="/expert-advisors/Richchild Quarters Theory Data EA.mq5" download class="block p-4 rounded-xl" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i data-feather="file-text" class="mr-3" style="width: 20px; height: 20px; color: var(--accent);"></i>
+                                    <div>
+                                        <div class="font-semibold text-sm" style="color: var(--text-primary);">Source Code (.mq5) - Optional</div>
+                                        <div class="text-xs" style="color: var(--text-secondary);">Only needed if you want to edit and recompile</div>
+                                    </div>
+                                </div>
+                                <i data-feather="download" style="width: 18px; height: 18px; color: var(--text-secondary);"></i>
+                            </div>
+                        </a>
+                        <div class="p-4 rounded-xl" style="background-color: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning);">
+                            <div class="flex items-start">
+                                <i data-feather="alert-circle" class="mr-3 flex-shrink-0 mt-0.5" style="width: 20px; height: 20px; color: var(--warning);"></i>
+                                <div>
+                                    <div class="font-semibold text-sm mb-1" style="color: var(--text-primary);">No .ex5 file needed</div>
+                                    <div class="text-xs" style="color: var(--text-secondary);">This EA only needs to be compiled from source. Download the .mq5 file, place in MQL5/Experts/, and compile in MetaEditor (F7).</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Important Notes -->
     <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--accent);">
         <div class="flex items-start">

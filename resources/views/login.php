@@ -159,7 +159,6 @@
                             type="text" 
                             name="username" 
                             class="input-field w-full rounded-lg px-4 py-3 text-sm"
-                            placeholder="Enter your username"
                             required
                         >
                     </div>
@@ -173,7 +172,6 @@
                                 name="password" 
                                 id="password"
                                 class="input-field w-full rounded-lg px-4 py-3 text-sm pr-12"
-                                placeholder="Enter your password"
                                 required
                             >
                             <button 
@@ -196,12 +194,6 @@
                     </button>
                 </form>
 
-                <!-- Info -->
-                <div class="mt-6 text-center">
-                    <p class="text-xs" style="color: var(--text-secondary);">
-                        Default credentials: <span style="color: var(--text-primary); font-medium;">admin / admin</span>
-                    </p>
-                </div>
             </div>
         </div>
     </div>

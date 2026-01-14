@@ -35,7 +35,7 @@
 // symbol-info-api.php
 
 // Toggle debug logging
-$debugEnabled = true;
+$debugEnabled = false;
 
 // CORS headers
 header('Access-Control-Allow-Origin: *');

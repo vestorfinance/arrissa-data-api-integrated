@@ -303,19 +303,33 @@ function parseRawTimeString(rawTimeStr) {
   }
 }
 
-// 🔥 PROPER TIMEZONE CONVERSION (NY TO UTC) - HANDLES DST AUTOMATICALLY
+// 🔥 FIXED TIMEZONE CONVERSION - Website stores times in EST (UTC-5) ALWAYS
 function convertNYTimeToUTC(dateStr, timeStr) {
   try {
-    // Use moment-timezone to properly handle DST
-    const nyDateTime = moment.tz(`${dateStr} ${timeStr}`, 'America/New_York');
-    const utcDateTime = nyDateTime.clone().tz('UTC');
+    // IMPORTANT: The website stores ALL times in fixed EST (UTC-5) offset
+    // regardless of DST. Simply add 5 hours to get UTC.
+    // 07:30 EST + 5 hours = 12:30 UTC
+    // 08:30 EST + 5 hours = 13:30 UTC
+    
+    const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+    const utcHours = (hours + 5) % 24;
+    let utcDate = dateStr;
+    
+    // Handle day rollover if adding 5 hours crosses midnight
+    if (hours + 5 >= 24) {
+      const dateMoment = moment(dateStr).add(1, 'day');
+      utcDate = dateMoment.format('YYYY-MM-DD');
+    }
+    
+    const utcTimeStr = `${String(utcHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds || 0).padStart(2, '0')}`;
     
     return {
-      date: utcDateTime.format('YYYY-MM-DD'),
-      time: utcDateTime.format('HH:mm:ss')
+      date: utcDate,
+      time: utcTimeStr
     };
     
   } catch (err) {
+    console.error(`❌ Timezone conversion error: ${err.message}`);
     return { date: dateStr, time: timeStr };
   }
 }
@@ -344,25 +358,36 @@ function parseEventTime(event, lastKnownDate) {
       dateStr = parseRawDateString(event.currentDateStr);
     } else if (lastKnownDate && lastKnownDate.trim() !== '') {
       dateStr = parseRawDateString(lastKnownDate);
-    } else {
-      throw new Error(`CRITICAL: No date available for event "${event.eventName}"`);
+    }
+    
+    // Continue parsing if not already done
+    if (!dateStr) {
+      if (event.currentDateStr && event.currentDateStr.trim() !== '') {
+        dateStr = parseRawDateString(event.currentDateStr);
+      } else if (lastKnownDate && lastKnownDate.trim() !== '') {
+        dateStr = parseRawDateString(lastKnownDate);
+      } else {
+        throw new Error(`CRITICAL: No date available for event "${event.eventName}"`);
+      }
     }
     
     timeStr = parseRawTimeString(event.timeText);
   }
   
-  // 🛡️ STEP 3: Convert NY time to UTC
-  const { date: finalDate, time: finalTime } = convertNYTimeToUTC(dateStr, timeStr);
+  // 🛡️ STEP 3: Convert EST time to UTC (all events: +5 hours)
+  const converted = convertNYTimeToUTC(dateStr, timeStr);
+  // All other events: silent (no debug output)
   
   return {
-    date: finalDate,
-    time: finalTime
+    date: converted.date,
+    time: converted.time
   };
 }
 
 // Unified function to generate unique event IDs
 function generateEventIds(event, date, time) {
-  const baseId = `${event.eventName}-${date}-${time}`;
+  // Include currency to ensure uniqueness across different countries
+  const baseId = `${event.eventName}-${event.currency}-${date}-${time}`;
   const event_id = crypto.createHash('sha1').update(baseId).digest('hex');
   
   const cleanName = event.eventName
@@ -401,47 +426,60 @@ async function saveCurrentWeekEventToDB(event, lastKnownDate) {
   const { date, time } = parseEventTime(event, lastKnownDate);
   const { event_id, consistentId } = generateEventIds(event, date, time);
   
+  // Only log NFP events
+  if (event.eventName.includes('Nonfarm')) {
+    console.log(`💾 SAVING NFP: "${event.eventName}" with date=${date}, time=${time} (should be UTC)`);
+  }
+  
   const db = await getDB();
   try {
     const forecast = toNumber(event.forecastValue);
     const actual = toNumber(event.actualValue);
     const previous = toNumber(event.previousValue);
     
-    // Check for existing events with same name, currency, and date
+    // DEBUG: Log the values being processed
+    if (event.eventName.includes('Nonfarm')) {
+      console.log(`🔍 DEBUG Nonfarm Payrolls:
+        Raw forecastValue: "${event.forecastValue}"
+        Converted forecast: ${forecast}
+        Raw actualValue: "${event.actualValue}"
+        Converted actual: ${actual}
+        Date: ${date}, Time: ${time}`);
+    }
+    
+    // Check for existing events with same name, currency, date AND time
     const existing = await dbGet(db,
       `SELECT event_id FROM economic_events 
-       WHERE event_name = ? AND currency = ? AND event_date = ?`,
-      [event.eventName, event.currency, date]
+       WHERE event_name = ? AND currency = ? AND event_date = ? AND event_time = ?`,
+      [event.eventName, event.currency, date, time]
     );
     
     if (existing) {
-      // REPLACE the existing event with updated data
+      // UPDATE only the data fields, keep the original event_id
       const updateSql = `
         UPDATE economic_events 
-        SET event_time = ?, 
-            forecast_value = ?, 
+        SET forecast_value = ?, 
             actual_value = ?, 
             previous_value = ?, 
-            impact_level = ?,
-            event_id = ?,
-            consistent_event_id = ?
-        WHERE event_name = ? AND currency = ? AND event_date = ?
+            impact_level = ?
+        WHERE event_name = ? AND currency = ? AND event_date = ? AND event_time = ?
       `;
       
       await dbRun(db, updateSql, [
-        time,
         forecast,
         actual,
         previous,
         event.impactLevel,
-        event_id,
-        consistentId,
         event.eventName,
         event.currency,
-        date
+        date,
+        time
       ]);
       
-      console.log(`✅ REPLACED: "${event.eventName}" on ${date} ${time} UTC [${event.impactLevel}]`);
+      if (event.eventName.includes('Nonfarm')) {
+        console.log(`✅ UPDATED Nonfarm with forecast=${forecast}, actual=${actual}`);
+      }
+      // Silent for other events
       return;
     }
     
@@ -466,7 +504,11 @@ async function saveCurrentWeekEventToDB(event, lastKnownDate) {
     ]);
     
   } catch (err) {
-    console.error('Error saving current week event:', err.message);
+    // Only log errors for NFP events
+    if (event.eventName && event.eventName.includes('Nonfarm')) {
+      console.error(`❌ Error saving NFP event: ${err.message}`);
+      console.error(`   Event: "${event.eventName}", Date: ${date}, Time: ${time}, Currency: ${event.currency}`);
+    }
   } finally {
     await dbClose(db);
   }
@@ -487,7 +529,7 @@ async function saveEventToDB(event, lastKnownDate) {
     );
     
     if (existing) {
-      console.log(`Duplicate prevented: "${event.eventName}" on ${date} ${time} UTC already exists`);
+      // Silent: duplicate prevented
       return;
     }
     
@@ -514,10 +556,10 @@ async function saveEventToDB(event, lastKnownDate) {
       consistentId
     ]);
     
-    console.log(`✅ INSERTED: "${event.eventName}" on ${date} ${time} UTC [${event.impactLevel}]`);
+    // Silent for non-NFP events
     
   } catch (err) {
-    console.error('Error saving event:', err.message);
+    // Silent error for non-NFP events
   } finally {
     await dbClose(db);
   }
@@ -632,23 +674,47 @@ async function cleanRecentEventsDatabase() {
 async function createCurrentWeekBrowser() {
   const browser = await puppeteer.launch({ 
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    args: [
+      '--no-sandbox', 
+      '--disable-setuid-sandbox', 
+      '--disable-dev-shm-usage',
+      '--disable-blink-features=AutomationControlled',
+      '--disable-features=IsolateOrigins,site-per-process'
+    ]
   });
   const page = await browser.newPage();
-  await page.setViewport({ width: 1280, height: 800 });
+  
+  // Set more realistic browser fingerprint
+  await page.evaluateOnNewDocument(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => false });
+    Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+    Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+    window.chrome = { runtime: {} };
+  });
+  
+  await page.setViewport({ width: 1920, height: 1080 });
   await page.setRequestInterception(true);
   
   page.on('request', req => {
-    if (['image', 'stylesheet', 'font'].includes(req.resourceType())) {
+    if (['image', 'stylesheet', 'font', 'media'].includes(req.resourceType())) {
       req.abort();
     } else {
       req.continue({
         headers: {
           ...req.headers(),
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
           'Accept-Language': 'en-US,en;q=0.9',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
           'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'none',
+          'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+          'Sec-Ch-Ua-Mobile': '?0',
+          'Sec-Ch-Ua-Platform': '"Windows"',
+          'Cache-Control': 'max-age=0',
           'Referer': 'https://www.google.com/'
         }
       });
@@ -656,12 +722,20 @@ async function createCurrentWeekBrowser() {
   });
 
   console.log('Navigating to economic calendar...');
-  await page.goto('https://sslecal2.forexprostools.com/', { 
-    waitUntil: 'domcontentloaded', 
-    timeout: 90000 
-  });
+  try {
+    await page.goto('https://sslecal2.forexprostools.com/', { 
+      waitUntil: 'domcontentloaded', 
+      timeout: 180000  // Increased to 3 minutes
+    });
+  } catch (error) {
+    console.log('⚠️ Navigation timed out, trying with networkidle2...');
+    await page.goto('https://sslecal2.forexprostools.com/', { 
+      waitUntil: 'networkidle2', 
+      timeout: 180000 
+    });
+  }
   console.log('Page loaded, waiting for table...');
-  await page.waitForSelector('#ecEventsTable', { timeout: 90000 });
+  await page.waitForSelector('#ecEventsTable', { timeout: 120000 });  // Increased to 2 minutes
   return { browser, page };
 }
 
@@ -671,9 +745,9 @@ async function refreshCurrentWeekPage(page, retries = 3) {
     try {
       await page.reload({ 
         waitUntil: 'domcontentloaded', 
-        timeout: 90000 
+        timeout: 180000  // Increased to 3 minutes
       });
-      await page.waitForSelector('#ecEventsTable', { timeout: 90000 });
+      await page.waitForSelector('#ecEventsTable', { timeout: 120000 });  // Increased to 2 minutes
       return true;
     } catch (error) {
       if (attempt === retries) {
@@ -704,7 +778,6 @@ async function extractCurrentWeekEvents(page) {
       if (row.classList.contains('theDay') || row.querySelector('td.theDay')) {
         const dayCell = row.querySelector('td.theDay') || row;
         currentDateStr = dayCell.innerText.trim();
-        console.log(`📅 Found date row: "${currentDateStr}"`);
         return;
       }
 
@@ -736,8 +809,6 @@ async function extractCurrentWeekEvents(page) {
 
       const previousCell = row.querySelector('.prev');
       const previousValue = previousCell ? previousCell.innerText.trim() : "";
-
-      console.log(`📊 Event: "${eventName}", Date: "${currentDateStr}", Time: "${timeText}"`);
 
       events.push({
         timeText,
@@ -852,7 +923,7 @@ async function extractNextWeekEvents(page) {
 }
 
 // History scraper functions
-async function createHistoryBrowser(retries = 3) {
+async function createHistoryBrowser(htmlFilePath, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const browser = await puppeteer.launch({ 
@@ -880,16 +951,17 @@ async function createHistoryBrowser(retries = 3) {
         }
       });
 
-      console.log(`📖 Loading history page (attempt ${attempt}/${retries})...`);
-      await page.goto('http://localhost/history.html', { 
+      console.log(`📖 Loading history file: ${path.basename(htmlFilePath)} (attempt ${attempt}/${retries})...`);
+      const fileUrl = `file:///${htmlFilePath.replace(/\\/g, '/')}`;
+      await page.goto(fileUrl, { 
         waitUntil: 'domcontentloaded',
         timeout: 120000 
       });
       await page.waitForSelector('#economicCalendarData', { timeout: 90000 });
-      console.log('✓ History page loaded successfully');
+      console.log(`✓ History file loaded successfully: ${path.basename(htmlFilePath)}`);
       return { browser, page };
     } catch (err) {
-      console.error(`History browser attempt ${attempt}/${retries} failed: ${err.message}`);
+      console.error(`History browser attempt ${attempt}/${retries} failed for ${path.basename(htmlFilePath)}: ${err.message}`);
       if (attempt === retries) {
         throw err;
       }
@@ -1066,28 +1138,104 @@ async function runHistoryScraper() {
   try {
     console.log("=== History Scraper Started ===");
     
-    const browserData = await createHistoryBrowser();
-    browser = browserData.browser;
-    const page = browserData.page;
-    activeBrowserInstance = browser;
+    // Get all HTML files from the history folder
+    const historyFolder = path.join(__dirname, 'history');
     
-    const events = await extractHistoryEvents(page);
-    console.log(`📖 Found ${events.length} historical events to process`);
+    // Check if history folder exists
+    if (!fs.existsSync(historyFolder)) {
+      console.error(`❌ History folder not found: ${historyFolder}`);
+      console.log('⚠️  Please ensure the history folder exists with HTML files');
+      return;
+    }
     
-    for (const event of events) {
-      if (
-        allowedCurrencies.has(event.currency) &&
-        !event.eventName.startsWith("CFTC") &&
-        requiredImpact.has(event.impactLevel)
-      ) {
-        await saveEventToDB(event, null);
+    // Read all files in the history folder
+    const allFiles = fs.readdirSync(historyFolder);
+    
+    // Filter only .html files
+    const htmlFiles = allFiles.filter(file => file.toLowerCase().endsWith('.html'));
+    
+    if (htmlFiles.length === 0) {
+      console.log('⚠️  No HTML files found in history folder');
+      return;
+    }
+    
+    console.log(`📂 Found ${htmlFiles.length} HTML file(s) in history folder`);
+    htmlFiles.forEach((file, index) => {
+      console.log(`   ${index + 1}. ${file}`);
+    });
+    
+    let totalEventsProcessed = 0;
+    
+    // Process each HTML file one by one
+    for (let i = 0; i < htmlFiles.length; i++) {
+      const htmlFile = htmlFiles[i];
+      const htmlFilePath = path.join(historyFolder, htmlFile);
+      
+      console.log(`\n📄 Processing file ${i + 1}/${htmlFiles.length}: ${htmlFile}`);
+      
+      try {
+        const browserData = await createHistoryBrowser(htmlFilePath);
+        browser = browserData.browser;
+        const page = browserData.page;
+        activeBrowserInstance = browser;
+        
+        const events = await extractHistoryEvents(page);
+        console.log(`📖 Found ${events.length} events in ${htmlFile}`);
+        
+        let fileEventsProcessed = 0;
+        
+        for (const event of events) {
+          if (
+            allowedCurrencies.has(event.currency) &&
+            !event.eventName.startsWith("CFTC") &&
+            requiredImpact.has(event.impactLevel)
+          ) {
+            // All events now use fixed EST (UTC-5) conversion
+            
+            await saveEventToDB(event, null);
+            fileEventsProcessed++;
+          }
+        }
+        
+        totalEventsProcessed += fileEventsProcessed;
+        console.log(`✅ Processed ${fileEventsProcessed} valid events from ${htmlFile}`);
+        
+        // Close browser after processing each file
+        await browser.close();
+        browser = null;
+        activeBrowserInstance = null;
+        
+        // Add a small delay between files to prevent resource exhaustion
+        if (i < htmlFiles.length - 1) {
+          console.log('⏳ Waiting 2 seconds before next file...');
+          await sleep(2000);
+        }
+        
+      } catch (err) {
+        console.error(`❌ Error processing ${htmlFile}: ${err.message}`);
+        console.log(`⚠️  Skipping ${htmlFile} and continuing with next file...`);
+        
+        // Try to close browser if it's still open
+        if (browser) {
+          try {
+            await browser.close();
+          } catch (e) {
+            // Ignore close errors
+          }
+          browser = null;
+          activeBrowserInstance = null;
+        }
+        
+        continue; // Continue with next file
       }
     }
     
-    console.log("=== History Scraper Completed ===");
+    console.log(`\n=== History Scraper Completed ===`);
+    console.log(`📊 Total events processed: ${totalEventsProcessed} from ${htmlFiles.length} file(s)`);
+    
   } catch (err) {
-    console.error('❌ History scraper failed after retries:', err.message);
-    console.log('⚠️  Skipping history scraper - check if http://localhost/history.html is accessible');
+    console.error('❌ History scraper failed:', err.message);
+    console.log('⚠️  Check if history folder exists and contains valid HTML files');
   } finally {
     await releaseBrowserLock(browser, 'HISTORY');
   }

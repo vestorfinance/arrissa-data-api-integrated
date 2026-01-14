@@ -3,7 +3,7 @@ require_once __DIR__ . '/../app/Auth.php';
 
 // If already authenticated, redirect to dashboard
 if (Auth::isAuthenticated()) {
-    header('Location: /');
+    header('Location: /dashboard');
     exit;
 }
 

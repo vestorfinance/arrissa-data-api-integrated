@@ -91,6 +91,21 @@ ob_start();
             </div>
         </a>
 
+        <!-- Similar Scene API Guide -->
+        <a href="/similar-scene-api-guide" class="api-card block rounded-2xl overflow-hidden transition-all duration-200 group" data-keywords="similar scene api historical event occurrences pattern analysis machine learning training backtesting correlation market reaction timeframe m1 m30 h1 h4 d1 symbol xauusd eurusd event matching synchronized ohlc candles" style="background-color: var(--card-bg); border: 1px solid var(--border);" onmouseover="this.style.borderColor='var(--input-border)'; this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.borderColor='var(--border)'; this.style.backgroundColor='var(--card-bg)';">
+            <div class="p-6">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
+                    <i data-feather="layers" class="group-hover-icon" style="width: 24px; height: 24px; color: var(--text-secondary);"></i>
+                </div>
+                <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">Similar Scene API Guide</h3>
+                <p class="text-sm mb-6 leading-relaxed" style="color: var(--text-secondary);">Historical event patterns with synchronized multi-timeframe market data.</p>
+                <button class="inline-flex items-center text-sm font-medium px-4 py-2 rounded-lg transition-all" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);" onmouseover="this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.backgroundColor='var(--input-bg)';">
+                    View Guide
+                    <i data-feather="arrow-right" class="ml-2" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+        </a>
+
         <!-- Chart Image API Guide -->
         <a href="/chart-image-api-guide" class="api-card block rounded-2xl overflow-hidden transition-all duration-200 group" data-keywords="chart image api screenshot capture png jpg jpeg svg canvas visualization graph" style="background-color: var(--card-bg); border: 1px solid var(--border);" onmouseover="this.style.borderColor='var(--input-border)'; this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.borderColor='var(--border)'; this.style.backgroundColor='var(--card-bg)';">
             <div class="p-6">
@@ -133,6 +148,36 @@ ob_start();
                     View Guide
                     <i data-feather="arrow-right" class="ml-2" style="width: 16px; height: 16px;"></i>
                 </button>
+            </div>
+        </a>
+
+        <!-- Quarters Theory API -->
+        <a href="/quarters-theory-api-guide" class="api-card block rounded-2xl overflow-hidden transition-all duration-200 group" data-keywords="quarters theory api richchild price quarters time quarters quota values low percentage high percentage m15 m30 h1 h4 h6 h12 d1 w1 mn1 multi-timeframe confluence entry exit timing support resistance reversal continuation" style="background-color: var(--card-bg); border: 1px solid var(--border);" onmouseover="this.style.borderColor='var(--input-border)'; this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.borderColor='var(--border)'; this.style.backgroundColor='var(--card-bg)';">
+            <div class="p-6">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
+                    <i data-feather="target" class="group-hover-icon" style="width: 24px; height: 24px; color: var(--text-secondary);"></i>
+                </div>
+                <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">Quarters Theory API</h3>
+                <p class="text-sm mb-6 leading-relaxed" style="color: var(--text-secondary);">Multi-timeframe quarter analysis for precision entry/exit timing.</p>
+                <span class="inline-flex items-center text-sm font-medium px-4 py-2 rounded-lg transition-all" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                    View Guide
+                    <i data-feather="arrow-right" class="ml-2" style="width: 16px; height: 16px;"></i>
+                </span>
+            </div>
+        </a>
+
+        <!-- TMA + CG API -->
+        <a href="/tma-cg-api-guide" class="api-card block rounded-2xl overflow-hidden transition-all duration-200 group" data-keywords="tma cg api triangular moving average center of gravity premium discount zone bands deviation fibonacci upper lower equilibrium buy sell" style="background-color: var(--card-bg); border: 1px solid var(--border);" onmouseover="this.style.borderColor='var(--input-border)'; this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.borderColor='var(--border)'; this.style.backgroundColor='var(--card-bg)';">
+            <div class="p-6">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
+                    <i data-feather="activity" class="group-hover-icon" style="width: 24px; height: 24px; color: var(--text-secondary);"></i>
+                </div>
+                <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">TMA + CG API</h3>
+                <p class="text-sm mb-6 leading-relaxed" style="color: var(--text-secondary);">Premium/discount zone detection with dynamic TMA bands.</p>
+                <span class="inline-flex items-center text-sm font-medium px-4 py-2 rounded-lg transition-all" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                    View Guide
+                    <i data-feather="arrow-right" class="ml-2" style="width: 16px; height: 16px;"></i>
+                </span>
             </div>
         </a>
     </div>

@@ -100,6 +100,10 @@ ob_start();
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: var(--success);"></i>
                             <span><strong style="color: var(--text-primary);">Future Events:</strong> Automatic TBD handling for scheduled events</span>
                         </div>
+                        <div class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span><strong style="color: var(--text-primary);">Timezone Conversion:</strong> Convert UTC data to any timezone</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -263,11 +267,35 @@ ob_start();
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">Override "now" date for relative period calculations</td>
                         </tr>
-                        <tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">pretend_now_time</code></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">HH:MM</td>
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">Override "now" time for relative period calculations</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">time_zone</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Convert event dates/times from UTC to specified timezone (e.g., NY, LA, LON, TYO, SYD, or full names like America/New_York)</td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">must_have</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Return only events with specified non-null values (comma-separated: forecast_value, actual_value, previous_value)</td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">avoid_duplicates</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Set to "true" to remove duplicate events with the same consistent_event_id</td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">ignore_weekends</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Set to "true" to skip weekends for trading days. If today is Friday, "tomorrow" becomes Monday; if today is Monday, "yesterday" becomes Friday</td>
                         </tr>
                     </tbody>
                 </table>
@@ -454,6 +482,8 @@ ob_start();
                     ['title' => 'Future Events', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&period=future&future_limit=tomorrow", 'desc' => "Tomorrow's scheduled events"],
                     ['title' => 'Next Week Events', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&period=future&future_limit=next-week", 'desc' => 'Next week forecast'],
                     ['title' => 'All Today Events', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&period=today&spit_out=all", 'desc' => 'Past & future for today'],
+                    ['title' => 'NY Timezone', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&period=today&time_zone=NY", 'desc' => 'Today in New York time'],
+                    ['title' => 'London Timezone', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&period=today&time_zone=LON", 'desc' => 'Today in London time'],
                 ];
                 foreach ($advancedExamples as $example):
                 ?>
@@ -504,6 +534,14 @@ ob_start();
                         <i data-feather="chevron-right" class="mr-2 flex-shrink-0 mt-0.5" style="width: 14px; height: 14px; color: var(--warning);"></i>
                         <span>Use currency_exclude to remove unwanted currencies from broad queries</span>
                     </li>
+                    <li class="flex items-start">
+                        <i data-feather="chevron-right" class="mr-2 flex-shrink-0 mt-0.5" style="width: 14px; height: 14px; color: var(--warning);"></i>
+                        <span>Use <code style="background-color: var(--input-bg); padding: 2px 6px; border-radius: 4px;">avoid_duplicates=true</code> to get only one event per consistent_event_id</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i data-feather="chevron-right" class="mr-2 flex-shrink-0 mt-0.5" style="width: 14px; height: 14px; color: var(--warning);"></i>
+                        <span>Use <code style="background-color: var(--input-bg); padding: 2px 6px; border-radius: 4px;">ignore_weekends=true</code> with "yesterday" or "tomorrow" to skip non-trading days</span>
+                    </li>
                 </ul>
             </div>
 
@@ -519,7 +557,7 @@ ob_start();
                     </li>
                     <li class="flex items-start">
                         <i data-feather="chevron-right" class="mr-2 flex-shrink-0 mt-0.5" style="width: 14px; height: 14px; color: var(--danger);"></i>
-                        <span>All timestamps are in UTC timezone</span>
+                        <span>All timestamps are stored in UTC timezone (use time_zone parameter to convert)</span>
                     </li>
                     <li class="flex items-start">
                         <i data-feather="chevron-right" class="mr-2 flex-shrink-0 mt-0.5" style="width: 14px; height: 14px; color: var(--danger);"></i>
@@ -538,7 +576,7 @@ ob_start();
         <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Start Analyzing Economic Events</h3>
         <p class="text-sm mb-4" style="color: var(--text-secondary);">All examples use your configured API key and endpoint. Click any example above to test in real-time.</p>
         <div class="text-xs" style="color: var(--text-secondary);">
-            <p><strong style="color: var(--text-primary);">Features:</strong> Flexible periods, currency filtering, event grouping, future event handling, custom time ranges</p>
+            <p><strong style="color: var(--text-primary);">Features:</strong> Flexible periods, currency filtering, event grouping, future event handling, custom time ranges, timezone conversion</p>
         </div>
     </div>
 </div>

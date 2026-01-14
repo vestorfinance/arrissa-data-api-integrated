@@ -73,6 +73,29 @@ function parseCustomPeriod($period, $now) {
     return false;
 }
 
+// Helper: skip weekends for trading days
+function skipWeekends($date, $direction = 'forward') {
+    $dayOfWeek = (int)$date->format('w');
+    
+    if ($direction === 'forward') {
+        // Skip Saturday (6) and Sunday (0)
+        if ($dayOfWeek === 6) {
+            $date->modify('+2 days');
+        } elseif ($dayOfWeek === 0) {
+            $date->modify('+1 day');
+        }
+    } else {
+        // Skip Sunday (0) and Saturday (6)
+        if ($dayOfWeek === 0) {
+            $date->modify('-2 days');
+        } elseif ($dayOfWeek === 6) {
+            $date->modify('-1 day');
+        }
+    }
+    
+    return $date;
+}
+
 // Helper: parse custom future limit format like "next-3-days", "next-2-weeks", etc.
 function parseCustomFutureLimit($futureLimit, $now) {
     if (preg_match('/^next-(\d+)-(hours?|days?|weeks?|months?|years?)$/i', $futureLimit, $matches)) {
@@ -111,6 +134,75 @@ function parseCustomFutureLimit($futureLimit, $now) {
     return false;
 }
 
+// Helper: convert UTC datetime to specified timezone
+function convertToTimezone($utcDate, $utcTime, $targetTimezone, $debug = false) {
+    $debugInfo = [];
+    
+    try {
+        // Map shorthand timezone names
+        $timezoneMap = [
+            'NY' => 'America/New_York',
+            'LA' => 'America/Los_Angeles',
+            'LON' => 'Europe/London',
+            'TYO' => 'Asia/Tokyo',
+            'SYD' => 'Australia/Sydney'
+        ];
+        
+        // Get the full timezone name
+        $tzName = $timezoneMap[strtoupper($targetTimezone)] ?? $targetTimezone;
+        
+        if ($debug) {
+            $debugInfo['input_utc_date'] = $utcDate;
+            $debugInfo['input_utc_time'] = $utcTime;
+            $debugInfo['target_timezone_shorthand'] = $targetTimezone;
+            $debugInfo['target_timezone_full'] = $tzName;
+        }
+        
+        // Create DateTime from UTC
+        $utcDateTime = new DateTime($utcDate . ' ' . $utcTime, new DateTimeZone('UTC'));
+        
+        if ($debug) {
+            $debugInfo['utc_datetime'] = $utcDateTime->format('Y-m-d H:i:s T (P)');
+        }
+        
+        // Convert to target timezone
+        $targetTz = new DateTimeZone($tzName);
+        $utcDateTime->setTimezone($targetTz);
+        
+        if ($debug) {
+            $debugInfo['converted_datetime'] = $utcDateTime->format('Y-m-d H:i:s T (P)');
+        }
+        
+        $result = [
+            'date' => $utcDateTime->format('Y-m-d'),
+            'time' => $utcDateTime->format('H:i:s')
+        ];
+        
+        if ($debug) {
+            $debugInfo['output_date'] = $result['date'];
+            $debugInfo['output_time'] = $result['time'];
+            $result['debug'] = $debugInfo;
+        }
+        
+        return $result;
+    } catch (Exception $e) {
+        // Return original values if conversion fails
+        $result = [
+            'date' => $utcDate,
+            'time' => $utcTime
+        ];
+        
+        if ($debug) {
+            $result['debug'] = [
+                'error' => $e->getMessage(),
+                'fallback_used' => true
+            ];
+        }
+        
+        return $result;
+    }
+}
+
 // Retrieve GET parameters
 $api_key           = $_GET['api_key'] ?? null;
 $start_date        = $_GET['start_date'] ?? null;
@@ -122,10 +214,17 @@ $currency          = $_GET['currency'] ?? null;
 $currency_exclude  = $_GET['currency_exclude'] ?? null;
 $event_id          = $_GET['event_id'] ?? null;
 $display           = $_GET['display'] ?? null;
-$pretend_date      = $_GET['pretend_now_date'] ?? null;
-$pretend_time      = $_GET['pretend_now_time'] ?? null;
+$pretend_date      = $_GET['pretend_date'] ?? null;
+$pretend_time      = $_GET['pretend_time'] ?? null;
 $future_limit      = $_GET['future_limit'] ?? null;
 $spit_out          = $_GET['spit_out'] ?? null;
+$time_zone         = $_GET['time_zone'] ?? null;
+$must_have         = $_GET['must_have'] ?? null;
+$debug             = $_GET['debug'] ?? null;
+$avoid_duplicates  = $_GET['avoid_duplicates'] ?? null;
+$ignore_weekends   = $_GET['ignore_weekends'] ?? null;
+$impact            = $_GET['impact'] ?? null;
+$tbd               = ($_GET['tbd'] ?? '') === 'true';
 
 // If no period is provided, require explicit date parameters (time is optional)
 if (empty($period) && (!$start_date || !$end_date)) {
@@ -151,108 +250,233 @@ if ($pretend_date) {
     if (substr_count($timePart, ':') === 1) {
         $timePart .= ':00';
     }
-    $now = DateTime::createFromFormat(
-        'Y-m-d H:i:s',
-        "{$pretend_date} {$timePart}",
-        new DateTimeZone('UTC')
-    );
+    
+    // If timezone is specified, interpret pretend time in that timezone first
+    if (!empty($time_zone)) {
+        // Map shorthand timezone names
+        $timezoneMap = [
+            'NY' => 'America/New_York',
+            'LA' => 'America/Los_Angeles',
+            'LON' => 'Europe/London',
+            'TYO' => 'Asia/Tokyo',
+            'SYD' => 'Australia/Sydney'
+        ];
+        $tzName = $timezoneMap[strtoupper($time_zone)] ?? $time_zone;
+        
+        try {
+            // Create DateTime in the specified timezone
+            $now = DateTime::createFromFormat(
+                'Y-m-d H:i:s',
+                "{$pretend_date} {$timePart}",
+                new DateTimeZone($tzName)
+            );
+            // Convert to UTC for internal calculations
+            $now->setTimezone(new DateTimeZone('UTC'));
+        } catch (Exception $e) {
+            // Fallback to UTC if timezone is invalid
+            $now = DateTime::createFromFormat(
+                'Y-m-d H:i:s',
+                "{$pretend_date} {$timePart}",
+                new DateTimeZone('UTC')
+            );
+        }
+    } else {
+        // No timezone specified, treat pretend time as UTC
+        $now = DateTime::createFromFormat(
+            'Y-m-d H:i:s',
+            "{$pretend_date} {$timePart}",
+            new DateTimeZone('UTC')
+        );
+    }
 } else {
     $now = new DateTime('now', new DateTimeZone('UTC'));
+}
+
+// Determine the working timezone for period calculations
+$workingTimezone = 'UTC';
+if (!empty($time_zone)) {
+    $timezoneMap = [
+        'NY' => 'America/New_York',
+        'LA' => 'America/Los_Angeles',
+        'LON' => 'Europe/London',
+        'TYO' => 'Asia/Tokyo',
+        'SYD' => 'Australia/Sydney'
+    ];
+    $workingTimezone = $timezoneMap[strtoupper($time_zone)] ?? $time_zone;
 }
 
 // Determine boundaries using the period parameter if provided; otherwise, use explicit date/time.
 if (!empty($period)) {
     $period_lc = strtolower(trim($period));
     
+    // Convert $now to working timezone for period calculations
+    $nowInUserTz = clone $now;
+    if ($workingTimezone !== 'UTC') {
+        try {
+            $nowInUserTz->setTimezone(new DateTimeZone($workingTimezone));
+        } catch (Exception $e) {
+            // Keep UTC if timezone is invalid
+        }
+    }
+    
     // First, try to parse custom period format
-    $customPeriod = parseCustomPeriod($period_lc, $now);
+    $customPeriod = parseCustomPeriod($period_lc, $nowInUserTz);
     if ($customPeriod !== false) {
         $start = $customPeriod['start'];
         $end = $customPeriod['end'];
+        // Convert back to UTC for database query
+        if ($workingTimezone !== 'UTC') {
+            $start->setTimezone(new DateTimeZone('UTC'));
+            $end->setTimezone(new DateTimeZone('UTC'));
+        }
     } else {
-        // Handle predefined periods
+        // Handle predefined periods (calculate in user's timezone)
         switch ($period_lc) {
             case 'today':
-                $start = (clone $now)->setTime(0, 0, 0);
+                $start = (clone $nowInUserTz)->setTime(0, 0, 0);
                 if (!empty($spit_out) && strtolower($spit_out) === 'all') {
-                    $end = (clone $now)->setTime(23, 59, 59);
+                    $end = (clone $nowInUserTz)->setTime(23, 59, 59);
                 } else {
-                    $end = clone $now;
+                    $end = clone $nowInUserTz;
+                }
+                // Convert to UTC for database query
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
                 }
                 break;
             case 'yesterday':
-                $start = (clone $now)->modify('-1 day')->setTime(0, 0, 0);
+                $start = (clone $nowInUserTz)->modify('-1 day')->setTime(0, 0, 0);
+                if (!empty($ignore_weekends) && strtolower($ignore_weekends) === 'true') {
+                    $start = skipWeekends($start, 'backward');
+                }
                 $end   = (clone $start)->setTime(23, 59, 59);
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             case 'this-week':
-                $today     = (clone $now)->setTime(0, 0, 0);
+                $today     = (clone $nowInUserTz)->setTime(0, 0, 0);
                 $dayOfWeek = (int)$today->format('w');
                 $start     = (clone $today)->modify("-{$dayOfWeek} days")->setTime(0, 0, 0);
                 if (!empty($spit_out) && strtolower($spit_out) === 'all') {
                     $end = (clone $start)->modify('+6 days')->setTime(23, 59, 59);
                 } else {
-                    $end = clone $now;
+                    $end = clone $nowInUserTz;
+                }
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
                 }
                 break;
             case 'last-week':
-                $today     = (clone $now)->setTime(0, 0, 0);
+                $today     = (clone $nowInUserTz)->setTime(0, 0, 0);
                 $dayOfWeek = (int)$today->format('w');
                 $start     = (clone $today)->modify('-' . ($dayOfWeek + 7) . ' days')->setTime(0, 0, 0);
                 $end       = (clone $start)->modify('+6 days')->setTime(23, 59, 59);
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             case 'this-month':
-                $start = DateTime::createFromFormat('Y-m-d H:i:s', $now->format('Y-m-01 00:00:00'), new DateTimeZone('UTC'));
+                $start = DateTime::createFromFormat('Y-m-d H:i:s', $nowInUserTz->format('Y-m-01 00:00:00'), new DateTimeZone($workingTimezone));
                 if (!empty($spit_out) && strtolower($spit_out) === 'all') {
-                    $end = DateTime::createFromFormat('Y-m-d H:i:s', $now->format('Y-m-t 23:59:59'), new DateTimeZone('UTC'));
+                    $end = DateTime::createFromFormat('Y-m-d H:i:s', $nowInUserTz->format('Y-m-t 23:59:59'), new DateTimeZone($workingTimezone));
                 } else {
-                    $end = clone $now;
+                    $end = clone $nowInUserTz;
+                }
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
                 }
                 break;
             case 'last-month':
-                $start = (clone $now)->modify('first day of last month')->setTime(0, 0, 0);
-                $end   = (clone $now)->modify('last day of last month')->setTime(23, 59, 59);
+                $start = (clone $nowInUserTz)->modify('first day of last month')->setTime(0, 0, 0);
+                $end   = (clone $nowInUserTz)->modify('last day of last month')->setTime(23, 59, 59);
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             case 'last-3-months':
-                $end   = clone $now;
-                $start = (clone $now)->modify('-3 months')->setTime(0, 0, 0);
+                $end   = clone $nowInUserTz;
+                $start = (clone $nowInUserTz)->modify('-3 months')->setTime(0, 0, 0);
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             case 'last-6-months':
-                $end   = clone $now;
-                $start = (clone $now)->modify('-6 months')->setTime(0, 0, 0);
+                $end   = clone $nowInUserTz;
+                $start = (clone $nowInUserTz)->modify('-6 months')->setTime(0, 0, 0);
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             case 'last-7-days':
-                $end   = clone $now;
-                $start = (clone $now)->modify('-7 days')->setTime(0, 0, 0);
+                $end   = clone $nowInUserTz;
+                $start = (clone $nowInUserTz)->modify('-7 days')->setTime(0, 0, 0);
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             case 'last-14-days':
-                $end   = clone $now;
-                $start = (clone $now)->modify('-14 days')->setTime(0, 0, 0);
+                $end   = clone $nowInUserTz;
+                $start = (clone $nowInUserTz)->modify('-14 days')->setTime(0, 0, 0);
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             case 'last-30-days':
-                $end   = clone $now;
-                $start = (clone $now)->modify('-30 days')->setTime(0, 0, 0);
+                $end   = clone $nowInUserTz;
+                $start = (clone $nowInUserTz)->modify('-30 days')->setTime(0, 0, 0);
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             case 'this-year':
-                $year  = $now->format('Y');
-                $start = new DateTime("{$year}-01-01 00:00:00", new DateTimeZone('UTC'));
+                $year  = $nowInUserTz->format('Y');
+                $start = new DateTime("{$year}-01-01 00:00:00", new DateTimeZone($workingTimezone));
                 if (!empty($spit_out) && strtolower($spit_out) === 'all') {
-                    $end = new DateTime("{$year}-12-31 23:59:59", new DateTimeZone('UTC'));
+                    $end = new DateTime("{$year}-12-31 23:59:59", new DateTimeZone($workingTimezone));
                 } else {
-                    $end = clone $now;
+                    $end = clone $nowInUserTz;
+                }
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
                 }
                 break;
             case 'last-12-months':
-                $end   = clone $now;
-                $start = (clone $now)->modify('-12 months')->setTime(0, 0, 0);
+                $end   = clone $nowInUserTz;
+                $start = (clone $nowInUserTz)->modify('-12 months')->setTime(0, 0, 0);
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             case 'last-2-years':
-                $year  = $now->format('Y');
-                $start = new DateTime(($year - 2) . "-01-01 00:00:00", new DateTimeZone('UTC'));
-                $end   = new DateTime(($year - 1) . "-12-31 23:59:59", new DateTimeZone('UTC'));
+                $year  = $nowInUserTz->format('Y');
+                $start = new DateTime(($year - 2) . "-01-01 00:00:00", new DateTimeZone($workingTimezone));
+                $end   = new DateTime(($year - 1) . "-12-31 23:59:59", new DateTimeZone($workingTimezone));
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             case 'future':
-                $start = clone $now;
-                $end   = new DateTime("9999-12-31 23:59:59", new DateTimeZone('UTC'));
+                $start = clone $nowInUserTz;
+                $end   = new DateTime("9999-12-31 23:59:59", new DateTimeZone($workingTimezone));
+                if ($workingTimezone !== 'UTC') {
+                    $start->setTimezone(new DateTimeZone('UTC'));
+                    $end->setTimezone(new DateTimeZone('UTC'));
+                }
                 break;
             default:
                 echo json_encode(["vestor_data" => ["error" => "Invalid period parameter: {$period}"]], JSON_PRETTY_PRINT);
@@ -265,38 +489,66 @@ if (!empty($period)) {
         $fl = strtolower($future_limit);
         
         // First, try to parse custom future limit format
-        $customFutureLimit = parseCustomFutureLimit($fl, $now);
+        $customFutureLimit = parseCustomFutureLimit($fl, $nowInUserTz);
         if ($customFutureLimit !== false) {
             $start = $customFutureLimit['start'];
             $end = $customFutureLimit['end'];
+            // Convert to UTC for database query
+            if ($workingTimezone !== 'UTC') {
+                $start->setTimezone(new DateTimeZone('UTC'));
+                $end->setTimezone(new DateTimeZone('UTC'));
+            }
         } else {
-            // Handle predefined future limits
+            // Handle predefined future limits (calculate in user's timezone)
             switch ($fl) {
                 case 'today':
-                    $start = clone $now;
-                    $end   = (clone $now)->setTime(23, 59, 59);
+                    $start = clone $nowInUserTz;
+                    $end   = (clone $nowInUserTz)->setTime(23, 59, 59);
+                    if ($workingTimezone !== 'UTC') {
+                        $start->setTimezone(new DateTimeZone('UTC'));
+                        $end->setTimezone(new DateTimeZone('UTC'));
+                    }
                     break;
                 case 'tomorrow':
-                    $start = (clone $now)->modify('+1 day')->setTime(0, 0, 0);
+                    $start = (clone $nowInUserTz)->modify('+1 day')->setTime(0, 0, 0);
+                    if (!empty($ignore_weekends) && strtolower($ignore_weekends) === 'true') {
+                        $start = skipWeekends($start, 'forward');
+                    }
                     $end   = (clone $start)->setTime(23, 59, 59);
+                    if ($workingTimezone !== 'UTC') {
+                        $start->setTimezone(new DateTimeZone('UTC'));
+                        $end->setTimezone(new DateTimeZone('UTC'));
+                    }
                     break;
                 case 'next-2-days':
-                    $start = (clone $now)->modify('+1 day')->setTime(0, 0, 0);
+                    $start = (clone $nowInUserTz)->modify('+1 day')->setTime(0, 0, 0);
                     $end   = (clone $start)->modify('+1 day')->setTime(23, 59, 59);
+                    if ($workingTimezone !== 'UTC') {
+                        $start->setTimezone(new DateTimeZone('UTC'));
+                        $end->setTimezone(new DateTimeZone('UTC'));
+                    }
                     break;
                 case 'this-week':
-                    $today        = (clone $now)->setTime(0, 0, 0);
+                    $today        = (clone $nowInUserTz)->setTime(0, 0, 0);
                     $dayOfWeek    = (int)$today->format('w');
                     $daysToEndSat = 6 - $dayOfWeek;
-                    $start        = clone $now;
+                    $start        = clone $nowInUserTz;
                     $end          = (clone $today)->modify("+{$daysToEndSat} days")->setTime(23, 59, 59);
+                    if ($workingTimezone !== 'UTC') {
+                        $start->setTimezone(new DateTimeZone('UTC'));
+                        $end->setTimezone(new DateTimeZone('UTC'));
+                    }
                     break;
                 case 'next-week':
-                    $today            = (clone $now)->setTime(0, 0, 0);
+                    $today            = (clone $nowInUserTz)->setTime(0, 0, 0);
                     $dayOfWeek        = (int)$today->format('w');
                     $daysToNextSunday = ($dayOfWeek === 0 ? 7 : 7 - $dayOfWeek);
                     $start            = (clone $today)->modify("+{$daysToNextSunday} days")->setTime(0, 0, 0);
                     $end              = (clone $start)->modify('+6 days')->setTime(23, 59, 59);
+                    if ($workingTimezone !== 'UTC') {
+                        $start->setTimezone(new DateTimeZone('UTC'));
+                        $end->setTimezone(new DateTimeZone('UTC'));
+                    }
                     break;
                 default:
                     echo json_encode(["vestor_data" => ["error" => "Invalid future_limit parameter: {$future_limit}"]], JSON_PRETTY_PRINT);
@@ -362,10 +614,60 @@ try {
         $sql .= " AND consistent_event_id IN (" . implode(',', $placeholders) . ")";
     }
 
+    if (!empty($must_have)) {
+        $mustHaveFields = array_map('trim', explode(',', $must_have));
+        $validFields = ['forecast_value', 'actual_value', 'previous_value'];
+        
+        foreach ($mustHaveFields as $field) {
+            if (in_array($field, $validFields)) {
+                $sql .= " AND {$field} IS NOT NULL AND {$field} != ''";
+            }
+        }
+    }
+
+    if (!empty($impact)) {
+        $impactLevels = array_map('trim', explode(',', $impact));
+        $impactPlaceholders = [];
+        foreach ($impactLevels as $i => $level) {
+            $key = ":imp{$i}";
+            $impactPlaceholders[] = $key;
+            $params[$key] = ucfirst(strtolower($level));
+        }
+        $sql .= " AND impact_level IN (" . implode(',', $impactPlaceholders) . ")";
+    }
+
     $sql  .= " ORDER BY event_date, event_time";
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     $events = $stmt->fetchAll();
+
+    // Apply TBD replacement if requested (before debug capture)
+    if ($tbd) {
+        foreach ($events as &$event) {
+            $event['actual_value'] = 'TBD';
+        }
+        unset($event);
+    }
+
+    // Store original database values for debug BEFORE any processing
+    if (!empty($debug)) {
+        foreach ($events as &$ev) {
+            $ev['original_database_record'] = [
+                'event_id' => $ev['event_id'],
+                'event_name' => $ev['event_name'],
+                'event_date' => $ev['event_date'],
+                'event_time' => $ev['event_time'],
+                'currency' => $ev['currency'],
+                'forecast_value' => $ev['forecast_value'],
+                'actual_value' => $ev['actual_value'],
+                'previous_value' => $ev['previous_value'],
+                'impact_level' => $ev['impact_level'],
+                'consistent_event_id' => $ev['consistent_event_id'],
+                'stored_timezone' => 'UTC'
+            ];
+        }
+        unset($ev);
+    }
 
     // For all future events, ensure actual_value is 'TBD'
     foreach ($events as &$ev) {
@@ -373,8 +675,34 @@ try {
         if ($eventDT > $now) {
             $ev['actual_value'] = 'TBD';
         }
+        
+        // Convert timezone if time_zone parameter is provided
+        if (!empty($time_zone)) {
+            $converted = convertToTimezone($ev['event_date'], $ev['event_time'], $time_zone, !empty($debug));
+            $ev['event_date'] = $converted['date'];
+            $ev['event_time'] = $converted['time'];
+            
+            // Add debug info to event if debug mode is enabled
+            if (!empty($debug) && isset($converted['debug'])) {
+                $ev['timezone_conversion_debug'] = $converted['debug'];
+            }
+        }
     }
     unset($ev);
+
+    // Remove duplicates based on consistent_event_id if avoid_duplicates is true
+    if (!empty($avoid_duplicates) && strtolower($avoid_duplicates) === 'true') {
+        $seen = [];
+        $uniqueEvents = [];
+        foreach ($events as $ev) {
+            $consistentId = $ev['consistent_event_id'];
+            if (!isset($seen[$consistentId])) {
+                $seen[$consistentId] = true;
+                $uniqueEvents[] = $ev;
+            }
+        }
+        $events = $uniqueEvents;
+    }
 
     // Build output
     if (!empty($event_id)) {

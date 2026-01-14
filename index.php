@@ -54,13 +54,18 @@ if ($uri === '/api/run-events-scrapper') {
     exit;
 }
 
+// Handle front page (no auth required)
+if ($uri === '/') {
+    include __DIR__ . '/front.php';
+    exit;
+}
+
 // Require authentication for all other pages
 require_once __DIR__ . '/app/Auth.php';
 Auth::check();
 
 // Route handling
 switch ($uri) {
-    case '/':
     case '/dashboard':
         $page = 'dashboard';
         break;
@@ -69,6 +74,9 @@ switch ($uri) {
         break;
     case '/news-api-guide':
         $page = 'news-api-guide';
+        break;
+    case '/similar-scene-api-guide':
+        $page = 'similar-scene-api-guide';
         break;
     case '/event-id-reference':
         $page = 'event-id-reference';
@@ -81,6 +89,12 @@ switch ($uri) {
         break;
     case '/symbol-info-api-guide':
         $page = 'symbol-info-api-guide';
+        break;
+    case '/quarters-theory-api-guide':
+        $page = 'quarters-theory-api-guide';
+        break;
+    case '/tma-cg-api-guide':
+        $page = 'tma-cg-api-guide';
         break;
     case '/download-eas':
         $page = 'download-eas';

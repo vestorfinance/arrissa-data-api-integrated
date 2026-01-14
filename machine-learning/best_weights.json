@@ -1,0 +1,151 @@
+{
+  "accuracy": 0.5391304347826087,
+  "timestamp": "2026-01-09T20:45:28.546404",
+  "weights": {
+    "VPRWG": {
+      "weight": 9,
+      "positive": "higher",
+      "name": "Nonfarm Payrolls"
+    },
+    "ZBEYU": {
+      "weight": 9,
+      "positive": "higher",
+      "name": "Avg Hourly Earnings MoM"
+    },
+    "GKORG": {
+      "weight": 9,
+      "positive": "higher",
+      "name": "Avg Hourly Earnings YoY"
+    },
+    "JCDYM": {
+      "weight": 8,
+      "positive": "lower",
+      "name": "Unemployment Rate"
+    },
+    "LUXEM": {
+      "weight": 6,
+      "positive": "lower",
+      "name": "Initial Jobless Claims"
+    },
+    "EEWPQ": {
+      "weight": 5,
+      "positive": "lower",
+      "name": "Participation Rate"
+    },
+    "PIIRP": {
+      "weight": 5,
+      "positive": "lower",
+      "name": "Continuing Jobless Claims"
+    },
+    "YHIYY": {
+      "weight": 4,
+      "positive": "higher",
+      "name": "ADP Nonfarm Employment"
+    },
+    "MXSBY": {
+      "weight": 4,
+      "positive": "higher",
+      "name": "JOLTS Job Openings"
+    },
+    "ASXLP": {
+      "weight": 10,
+      "positive": "higher",
+      "name": "CPI MoM"
+    },
+    "YFVMV": {
+      "weight": 10,
+      "positive": "higher",
+      "name": "Core CPI MoM"
+    },
+    "FCHGZ": {
+      "weight": 9,
+      "positive": "higher",
+      "name": "PCE Deflator MoM"
+    },
+    "RQUMP": {
+      "weight": 9,
+      "positive": "higher",
+      "name": "Core PCE Price Index MoM"
+    },
+    "ISFDE": {
+      "weight": 7,
+      "positive": "higher",
+      "name": "CPI YoY"
+    },
+    "YPAXY": {
+      "weight": 7,
+      "positive": "higher",
+      "name": "Core CPI YoY"
+    },
+    "LUNIH": {
+      "weight": 7,
+      "positive": "higher",
+      "name": "PPI MoM"
+    },
+    "LIFLX": {
+      "weight": 7,
+      "positive": "higher",
+      "name": "Core PPI MoM"
+    },
+    "HKJPS": {
+      "weight": 6,
+      "positive": "higher",
+      "name": "PCE Deflator YoY"
+    },
+    "WDLPA": {
+      "weight": 6,
+      "positive": "higher",
+      "name": "Core PCE Price Index YoY"
+    },
+    "ZORRY": {
+      "weight": 10,
+      "positive": "higher",
+      "name": "FOMC Press Conference"
+    },
+    "HMUGW": {
+      "weight": 9,
+      "positive": "higher",
+      "name": "FOMC Statement"
+    },
+    "ZVAPL": {
+      "weight": 8,
+      "positive": "higher",
+      "name": "Fed Interest Rate Decision"
+    },
+    "ALMVK": {
+      "weight": 8,
+      "positive": "higher",
+      "name": "Fed Chair Powell Speaks"
+    },
+    "BRHWF": {
+      "weight": 8,
+      "positive": "higher",
+      "name": "Fed Chair Powell Testifies"
+    },
+    "BZLYI": {
+      "weight": 8,
+      "positive": "higher",
+      "name": "FOMC Economic Projections"
+    },
+    "IEDWO": {
+      "weight": 7,
+      "positive": "higher",
+      "name": "FOMC Meeting Minutes"
+    },
+    "XWBVZ": {
+      "weight": 6,
+      "positive": "higher",
+      "name": "Fed Monetary Policy Report"
+    },
+    "ZJOIV": {
+      "weight": 6,
+      "positive": "higher",
+      "name": "Feds Balance Sheet"
+    },
+    "FLPVV": {
+      "weight": 5,
+      "positive": "higher",
+      "name": "Beige Book"
+    }
+  }
+}

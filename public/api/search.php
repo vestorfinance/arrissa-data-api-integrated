@@ -84,6 +84,13 @@ try {
             'icon' => 'file-text'
         ],
         [
+            'title' => 'Similar Scene API',
+            'keywords' => 'similar scene api historical event occurrences pattern analysis machine learning training backtesting correlation market reaction timeframe m1 m30 h1 h4 d1 symbol xauusd eurusd event matching synchronized ohlc candles multi-timeframe scenario replay matching events',
+            'description' => 'Historical event patterns with synchronized multi-timeframe market data',
+            'url' => '/similar-scene-api-guide',
+            'icon' => 'layers'
+        ],
+        [
             'title' => 'Event ID Reference',
             'keywords' => 'event id reference consistent economic calendar forex news usd eur gbp jpy aud cad chf nzd currencies nfp gdp cpi inflation interest rate fomc fed ecb boe pmi manufacturing services retail sales employment unemployment',
             'description' => 'Complete event ID lookup table',
