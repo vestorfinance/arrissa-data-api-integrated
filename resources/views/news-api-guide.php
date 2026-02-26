@@ -253,7 +253,7 @@ ob_start();
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">future_limit</code></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
-                            <td class="py-4 px-6" style="color: var(--text-secondary);">Limit future events scope (e.g., today, tomorrow, next-week)</td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Limit future events scope. Named: <code>today</code>, <code>tomorrow</code>, <code>next-2-days</code>, <code>this-week</code>, <code>next-week</code>, <code>next-2-weeks</code>, <code>next-month</code>. Dynamic: <code>next-7-days</code>, <code>next-3-weeks</code>, <code>next-2-months</code>, <code>next-6-hours</code></td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">spit_out</code></td>
@@ -503,6 +503,124 @@ ob_start();
         </div>
     </div>
 
+    <!-- cURL Examples Section -->
+    <div class="mb-10">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, var(--accent), var(--success));">
+                <i data-feather="terminal" style="width: 24px; height: 24px; color: white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">cURL Examples</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Copy and paste these commands into your terminal</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Period-Based -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Period-Based Queries</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Today's USD Events</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&currency=USD&period=today&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&currency=USD&period=today"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">This Week EUR Events</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&currency=EUR&period=this-week&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&currency=EUR&period=this-week"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Last 7 Days (Minimal Format)</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&period=last-7-days&display=min&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&period=last-7-days&display=min"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Filtering -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Advanced Filtering</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Exclude USD & GBP</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&currency_exclude=USD,GBP&period=last-month&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&currency_exclude=USD,GBP&period=last-month"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Future Events - Tomorrow</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&period=future&future_limit=tomorrow&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&period=future&future_limit=tomorrow"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">NY Timezone - Today</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&period=today&time_zone=NY&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&period=today&time_zone=NY"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Range -->
+            <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Custom Date Range</h3>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-semibold" style="color: var(--text-secondary);">Full Year 2025</label>
+                        <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&start_date=2025-01-01&end_date=2025-12-31&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                            <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                        <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/news-api-v1/news-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&start_date=2025-01-01&end_date=2025-12-31"</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Best Practices Section -->
     <div class="mb-10">
         <div class="flex items-center mb-6">
@@ -583,6 +701,12 @@ ob_start();
 
 <script>
     feather.replace();
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard!');
+        });
+    }
 </script>
 
 <?php

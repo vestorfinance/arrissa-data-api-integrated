@@ -131,6 +131,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 //--------------------------------------------
 $symbol = $_GET['symbol'] ?? null;
 $timeframe = $_GET['timeframe'] ?? 'M1';
+$pretend_date = $_GET['pretend_date'] ?? '';
+$pretend_time = $_GET['pretend_time'] ?? '';
 
 if ($symbol) {
     // Authenticate API request
@@ -143,7 +145,9 @@ if ($symbol) {
     $requestData = [
         'request_id' => $request_id,
         'symbol' => $symbol,
-        'timeframe' => $timeframe
+        'timeframe' => $timeframe,
+        'pretend_date' => $pretend_date,
+        'pretend_time' => $pretend_time
     ];
 
     // Store request

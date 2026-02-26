@@ -277,6 +277,119 @@ ob_start();
 
     <div class="divider"></div>
 
+    <!-- cURL Examples Section -->
+    <div class="mb-12">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, var(--accent), var(--success));">
+                <i data-feather="terminal" style="width: 24px; height: 24px; color: white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">cURL Examples</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Copy and paste these commands into your terminal</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Basic Chart Generation -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Basic Chart Generation</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">EURUSD Daily Chart - Last 30 Candles</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=D1&count=30&quot; --output eurusd-chart.png')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=D1&count=30" --output eurusd-chart.png</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">XAUUSD (Gold) H1 Chart - Last 50 Candles</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=XAUUSD&timeframe=H1&count=50&quot; --output gold-chart.png')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=XAUUSD&timeframe=H1&count=50" --output gold-chart.png</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- With Moving Averages -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Charts with Moving Averages</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">EURUSD with 20 EMA</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&count=100&ema_1=20&quot; --output eurusd-ema.png')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&count=100&ema_1=20" --output eurusd-ema.png</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">GBPUSD with Triple EMAs (20, 50, 200)</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=GBPUSD&timeframe=H1&count=200&ema_1=20&ema_2=50&ema_3=200&quot; --output gbpusd-triple-ema.png')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=GBPUSD&timeframe=H1&count=200&ema_1=20&ema_2=50&ema_3=200" --output gbpusd-triple-ema.png</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- With Multiple Indicators -->
+            <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4 flex items-center" style="color: var(--text-primary);">
+                    <span>Advanced: Multiple Indicators</span>
+                    <span class="ml-2 section-badge" style="background-color: var(--accent); color: white;">ADVANCED</span>
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">EURUSD with EMAs + Bollinger Bands + RSI</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&count=100&ema_1=20&ema_2=50&bb=20,0,2.0&rsi=14&quot; --output eurusd-full-analysis.png')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&count=100&ema_1=20&ema_2=50&bb=20,0,2.0&rsi=14" --output eurusd-full-analysis.png</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Custom Size Chart (1280x720)</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=BTCUSD&timeframe=H4&count=50&width=1280&height=720&ema_1=20&quot; --output btcusd-custom.png')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/chart-image-api-v1/chart-image-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=BTCUSD&timeframe=H4&count=50&width=1280&height=720&ema_1=20" --output btcusd-custom.png</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
     <!-- Core Parameters Section -->
     <div class="mb-10">
         <div class="flex items-center mb-6">
@@ -578,6 +691,12 @@ ob_start();
 
 <script>
     feather.replace();
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard!');
+        });
+    }
 </script>
 
 <?php

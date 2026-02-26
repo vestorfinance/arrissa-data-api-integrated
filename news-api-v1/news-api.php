@@ -98,6 +98,7 @@ function skipWeekends($date, $direction = 'forward') {
 
 // Helper: parse custom future limit format like "next-3-days", "next-2-weeks", etc.
 function parseCustomFutureLimit($futureLimit, $now) {
+    // Format: next-{number}-{unit}  e.g. next-7-days, next-2-weeks, next-3-months
     if (preg_match('/^next-(\d+)-(hours?|days?|weeks?|months?|years?)$/i', $futureLimit, $matches)) {
         $number = (int)$matches[1];
         $unit = strtolower(rtrim($matches[2], 's')); // Remove 's' to normalize
@@ -550,6 +551,23 @@ if (!empty($period)) {
                         $end->setTimezone(new DateTimeZone('UTC'));
                     }
                     break;
+                case 'next-2-weeks':
+                    $start = clone $nowInUserTz;
+                    $end   = (clone $nowInUserTz)->modify('+2 weeks')->setTime(23, 59, 59);
+                    if ($workingTimezone !== 'UTC') {
+                        $start->setTimezone(new DateTimeZone('UTC'));
+                        $end->setTimezone(new DateTimeZone('UTC'));
+                    }
+                    break;
+                case 'next-month':
+                    // First day of next calendar month → last day of next calendar month
+                    $start = (clone $nowInUserTz)->modify('first day of next month')->setTime(0, 0, 0);
+                    $end   = (clone $start)->modify('last day of this month')->setTime(23, 59, 59);
+                    if ($workingTimezone !== 'UTC') {
+                        $start->setTimezone(new DateTimeZone('UTC'));
+                        $end->setTimezone(new DateTimeZone('UTC'));
+                    }
+                    break;
                 default:
                     echo json_encode(["vestor_data" => ["error" => "Invalid future_limit parameter: {$future_limit}"]], JSON_PRETTY_PRINT);
                     exit;
@@ -582,10 +600,22 @@ try {
     // Authenticate before running query
     authenticate();
 
-    // Build SQL - SQLite uses || for concatenation
+    // Build SQL - Compare dates and times separately for better compatibility
     $sql    = "SELECT * FROM economic_events 
-               WHERE (event_date || ' ' || event_time) BETWEEN :start AND :end";
-    $params = [':start' => $start_datetime, ':end' => $end_datetime];
+               WHERE (event_date > :start_date OR (event_date = :start_date AND event_time >= :start_time))
+               AND (event_date < :end_date OR (event_date = :end_date AND event_time <= :end_time))";
+    
+    $startDate = substr($start_datetime, 0, 10);
+    $startTime = substr($start_datetime, 11, 8);
+    $endDate = substr($end_datetime, 0, 10);
+    $endTime = substr($end_datetime, 11, 8);
+    
+    $params = [
+        ':start_date' => $startDate,
+        ':start_time' => $startTime,
+        ':end_date' => $endDate,
+        ':end_time' => $endTime
+    ];
 
     if (!empty($currency)) {
         $sql                .= " AND currency = :currency";

@@ -5,32 +5,22 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2026, Arrissa Technologies, Flowbase."
 #property link      "https://flowbase.store"
-#property version   "1.2"
+#property version   "2.0"
 #property strict
 
 //--- input parameters for period range calculation
 input int InpPeriodsLookback = 30;        // Periods to look back for average calculation
 input bool InpIgnoreSunday = true;        // Ignore Sundays in calculation (for traditional markets)
 input bool InpDebugMode = false;          // Enable debug output
-input int PrintIntervalSeconds = 60;      // Print interval in seconds
 
 //--- input parameters for API
 input string InpApiUrl = "http://localhost/quarters-theory-api-v1/quarters-theory-api.php"; // API URL
 input bool InpEnableApi = true;           // Enable API communication
 input int InpApiPollingSeconds = 2;       // API polling interval in seconds
 
-//--- input parameters for indicator operation
-input int DayStartHour = 0;               // Day start hour (broker time)
+//--- global variables (no longer need InpRangeTimeframe - each TF calculates independently)
 
-//--- global variables
-ENUM_TIMEFRAMES InpRangeTimeframe = PERIOD_H4; // Current timeframe for range calculation
-ENUM_TIMEFRAMES SavedRangeTimeframe = PERIOD_H4; // Saved timeframe to persist across chart changes
-
-// Dynamic quota variables
-double g_averagePeriodRange = 0.0;
-double g_dynamicQuotaValue = 0.0;
-int g_totalPeriodsAnalyzed = 0;
-bool g_calculationComplete = false;
+// Dynamic quota variables (removed - each timeframe calculates independently)
 
 // Timeframe data storage
 struct TimeframeData
@@ -47,15 +37,48 @@ struct TimeframeData
 
 TimeframeData tf_data[];
 
-// File handling constants
-string SETTINGS_FILENAME = "DynamicRange_Settings.txt";
-
-// Print control variables
-datetime last_print_time = 0;
+// File handling removed - no settings file needed
 
 // API control variables
 datetime last_api_poll_time = 0;
 bool api_processing_lock = false;  // Prevent overlapping API requests
+
+// Pretend date/time variables (for historical snapshots)
+datetime g_pretend_datetime = 0;  // 0 means use real time
+bool g_use_pretend_time = false;
+
+// Debug data structure
+struct DebugInfo
+{
+    string timeframe;
+    int bars_scanned;
+    int bars_skipped_future;
+    int bars_skipped_past;
+    int bars_skipped_outside_period;
+    int bars_processed;
+    datetime first_bar_time;
+    datetime last_bar_time;
+    datetime period_start;
+    datetime period_end;
+    datetime end_time;
+    double result_high;
+    double result_low;
+    bool fallback_used;
+};
+
+DebugInfo g_debug_data[];
+
+//+------------------------------------------------------------------+
+//| Get Effective Current Time (pretend or real)                     |
+//+------------------------------------------------------------------+
+datetime GetEffectiveCurrentTime()
+{
+    if(g_use_pretend_time && g_pretend_datetime > 0)
+    {
+        return g_pretend_datetime;
+    }
+    return TimeCurrent();
+}
 
 //+------------------------------------------------------------------+
 //| Debug Print Function                                             |
@@ -73,46 +96,18 @@ void DebugPrint(string message)
 //+------------------------------------------------------------------+
 int OnInit()
 {
-    // Reset calculation flag
-    g_calculationComplete = false;
-    
-    // Load saved timeframe from file
-    LoadTimeframeFromFile();
-    InpRangeTimeframe = SavedRangeTimeframe;
-    
     if(InpDebugMode)
         Print("Richchild Quarters Theory EA initialized");
     
-    DebugPrint("Analysis Timeframe: " + EnumToString(InpRangeTimeframe));
-    DebugPrint("Periods lookback: " + IntegerToString(InpPeriodsLookback) + " periods of " + EnumToString(InpRangeTimeframe));
-    DebugPrint("Day starts at: " + IntegerToString(DayStartHour) + ":00");
+    DebugPrint("Periods lookback: " + IntegerToString(InpPeriodsLookback) + " periods per timeframe");
     
     // Initialize timeframe data array
     InitializeTimeframeData();
     
-    // Wait for data availability and calculate quota
-    DebugPrint("Calculating Average Period Range for " + EnumToString(InpRangeTimeframe) + "...");
-    
-    if(!WaitForDataAvailability())
-    {
-        DebugPrint("WARNING: Data not immediately available. Will retry in OnTick.");
-        g_averagePeriodRange = 100.0;
-        g_dynamicQuotaValue = 25.0;
-        g_totalPeriodsAnalyzed = 0;
-        g_calculationComplete = false;
-    }
-    else
-    {
-        CalculateDynamicQuota();
-    }
-    
-    // Initialize print timer
-    last_print_time = TimeCurrent();
-    
     // Initialize API polling timer
     last_api_poll_time = TimeCurrent();
     
-    // Set timer to trigger every second for reliable printing
+    // Set timer to trigger every second
     EventSetTimer(1);
     
     return(INIT_SUCCEEDED);
@@ -126,9 +121,6 @@ void OnDeinit(const int reason)
     // Kill the timer
     EventKillTimer();
     
-    // Save current timeframe selection to file
-    SaveTimeframeToFile();
-    
     if(InpDebugMode)
         Print("Richchild Quarters Theory EA deinitialized");
 }
@@ -138,19 +130,7 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
 {
-    // Retry calculation if not complete
-    if(!g_calculationComplete)
-    {
-        DebugPrint("Retrying quota calculation in OnTick...");
-        if(WaitForDataAvailability())
-        {
-            CalculateDynamicQuota();
-            if(g_calculationComplete)
-            {
-                DebugPrint("Quota calculation completed successfully in OnTick");
-            }
-        }
-    }
+    // EA runs on timer, not on tick
 }
 
 //+------------------------------------------------------------------+
@@ -158,110 +138,13 @@ void OnTick()
 //+------------------------------------------------------------------+
 void OnTimer()
 {
-    // Retry calculation if not complete
-    if(!g_calculationComplete)
-    {
-        if(WaitForDataAvailability())
-        {
-            CalculateDynamicQuota();
-        }
-    }
-    
-    // Only proceed if calculation is complete
-    if(!g_calculationComplete || g_averagePeriodRange <= 0 || g_dynamicQuotaValue <= 0)
-    {
-        return;
-    }
-    
-    // Check if it's time to print
-    datetime current_time = TimeCurrent();
-    if(current_time - last_print_time >= PrintIntervalSeconds)
-    {
-        last_print_time = current_time;
-        
-        // Update all timeframe data
-        UpdateAllTimeframeData();
-        
-        // Print the data
-        PrintAllTimeframeData();
-    }
-    
     // Check if it's time to poll API
+    datetime current_time = TimeCurrent();
     if(InpEnableApi && current_time - last_api_poll_time >= InpApiPollingSeconds)
     {
         last_api_poll_time = current_time;
         PollApiForRequests();
     }
-}
-
-//+------------------------------------------------------------------+
-//| Print all timeframe information                                  |
-//+------------------------------------------------------------------+
-void PrintAllTimeframeData()
-{
-    if(!InpDebugMode)
-        return;
-        
-    Print("============================================");
-    Print("Richchild Quarters Theory Data - ", TimeToString(TimeCurrent(), TIME_DATE|TIME_MINUTES));
-    Print("Analysis Timeframe: ", EnumToString(InpRangeTimeframe));
-    Print("Average Range: ", DoubleToString(g_averagePeriodRange, 1), " pts | Quota: ", DoubleToString(g_dynamicQuotaValue, 1), " pts");
-    Print("--------------------------------------------");
-    Print("TF       L%      H%    Quarter   Countdown");
-    Print("--------------------------------------------");
-    
-    // Filter timeframes - remove M1 and M5, start from M15
-    string timeframe_names[] = {"M15", "M30", "H1", "H4", "H6", "H12", "D1", "W1", "MN1"};
-    int tf_indices[] = {2, 3, 4, 5, 6, 7, 8, 9, 10};
-    
-    for(int i = 0; i < ArraySize(timeframe_names); i++)
-    {
-        int tf_index = tf_indices[i];
-        
-        string display_text = StringFormat(
-            "%-4s %6.0f%% %6.0f%%   %-9s %s",
-            timeframe_names[i],
-            tf_data[tf_index].low_percentage,
-            tf_data[tf_index].high_percentage,
-            tf_data[tf_index].time_quarter,
-            tf_data[tf_index].countdown
-        );
-        
-        Print(display_text);
-    }
-    
-    Print("============================================");
-}
-
-//+------------------------------------------------------------------+
-//| Wait for data availability                                       |
-//+------------------------------------------------------------------+
-bool WaitForDataAvailability()
-{
-    int max_attempts = 5;
-    int attempt = 0;
-    
-    while(attempt < max_attempts)
-    {
-        MqlRates test_rates[];
-        int copied = CopyRates(_Symbol, InpRangeTimeframe, 0, 10, test_rates);
-        
-        if(copied > 0)
-        {
-            DebugPrint("Data available after " + IntegerToString(attempt + 1) + " attempts");
-            return true;
-        }
-        
-        attempt++;
-        if(attempt < max_attempts)
-        {
-            DebugPrint("Data not available, attempt " + IntegerToString(attempt) + "/" + IntegerToString(max_attempts) + ". Waiting...");
-            Sleep(200);
-        }
-    }
-    
-    DebugPrint("WARNING: Could not verify data availability after " + IntegerToString(max_attempts) + " attempts");
-    return false;
 }
 
 //+------------------------------------------------------------------+
@@ -283,82 +166,12 @@ void InitializeTimeframeData()
     tf_data[10].timeframe = PERIOD_MN1;
     
     // Calculate historical average quota for EACH timeframe at init
+    // Following indicator logic: CalculateQuotaForTimeframe
     for(int i = 0; i < 11; i++)
     {
         tf_data[i].quota_value = CalculateQuotaForTimeframe(tf_data[i].timeframe);
+        DebugPrint(EnumToString(tf_data[i].timeframe) + " quota: " + DoubleToString(tf_data[i].quota_value, 1));
     }
-}
-
-//+------------------------------------------------------------------+
-//| Load timeframe setting from file                                |
-//+------------------------------------------------------------------+
-void LoadTimeframeFromFile()
-{
-    string filename = SETTINGS_FILENAME;
-    int file_handle = FileOpen(filename, FILE_READ|FILE_TXT|FILE_COMMON);
-    
-    if(file_handle != INVALID_HANDLE)
-    {
-        if(!FileIsEnding(file_handle))
-        {
-            string line = FileReadString(file_handle);
-            if(StringFind(line, "TIMEFRAME=") == 0)
-            {
-                string tf_string = StringSubstr(line, 10);
-                ENUM_TIMEFRAMES loaded_tf = StringToTimeframe(tf_string);
-                if(loaded_tf != PERIOD_CURRENT)
-                {
-                    SavedRangeTimeframe = loaded_tf;
-                    DebugPrint("Loaded timeframe from file: " + EnumToString(SavedRangeTimeframe));
-                }
-            }
-        }
-        FileClose(file_handle);
-    }
-    else
-    {
-        DebugPrint("Settings file not found, using default timeframe: " + EnumToString(SavedRangeTimeframe));
-    }
-}
-
-//+------------------------------------------------------------------+
-//| Save timeframe setting to file                                  |
-//+------------------------------------------------------------------+
-void SaveTimeframeToFile()
-{
-    string filename = SETTINGS_FILENAME;
-    int file_handle = FileOpen(filename, FILE_WRITE|FILE_TXT|FILE_COMMON);
-    
-    if(file_handle != INVALID_HANDLE)
-    {
-        FileWriteString(file_handle, "TIMEFRAME=" + EnumToString(InpRangeTimeframe));
-        FileClose(file_handle);
-        DebugPrint("Saved timeframe to file: " + EnumToString(InpRangeTimeframe));
-    }
-    else
-    {
-        DebugPrint("Error saving timeframe to file. Error code: " + IntegerToString(GetLastError()));
-    }
-}
-
-//+------------------------------------------------------------------+
-//| Convert string to timeframe                                     |
-//+------------------------------------------------------------------+
-ENUM_TIMEFRAMES StringToTimeframe(string tf_string)
-{
-    if(tf_string == "PERIOD_M1") return PERIOD_M1;
-    if(tf_string == "PERIOD_M5") return PERIOD_M5;
-    if(tf_string == "PERIOD_M15") return PERIOD_M15;
-    if(tf_string == "PERIOD_M30") return PERIOD_M30;
-    if(tf_string == "PERIOD_H1") return PERIOD_H1;
-    if(tf_string == "PERIOD_H4") return PERIOD_H4;
-    if(tf_string == "PERIOD_H6") return PERIOD_H6;
-    if(tf_string == "PERIOD_H12") return PERIOD_H12;
-    if(tf_string == "PERIOD_D1") return PERIOD_D1;
-    if(tf_string == "PERIOD_W1") return PERIOD_W1;
-    if(tf_string == "PERIOD_MN1") return PERIOD_MN1;
-    
-    return PERIOD_CURRENT;
 }
 
 //+------------------------------------------------------------------+
@@ -366,7 +179,7 @@ ENUM_TIMEFRAMES StringToTimeframe(string tf_string)
 //+------------------------------------------------------------------+
 string CalculateCountdown(ENUM_TIMEFRAMES timeframe)
 {
-    datetime current_time = TimeCurrent();
+    datetime current_time = GetEffectiveCurrentTime();
     datetime period_start = GetPeriodStart(timeframe);
     datetime period_end = GetPeriodEnd(timeframe);
     
@@ -468,7 +281,7 @@ void UpdateAllTimeframeData()
             tf_data[i].high_percentage = (high_quotas / 4.0) * 100.0;
             
             // Calculate TIME quarter position
-            datetime current_time = TimeCurrent();
+            datetime current_time = GetEffectiveCurrentTime();
             double time_progress = (double)(current_time - period_start) / (double)(period_end - period_start);
             time_progress = MathMax(0.0, MathMin(1.0, time_progress));
             
@@ -495,7 +308,7 @@ void UpdateAllTimeframeData()
 //+------------------------------------------------------------------+
 datetime GetPeriodStart(ENUM_TIMEFRAMES timeframe)
 {
-    datetime current_time = TimeCurrent();
+    datetime current_time = GetEffectiveCurrentTime();
     MqlDateTime dt;
     TimeToStruct(current_time, dt);
     
@@ -584,7 +397,7 @@ datetime GetPeriodEnd(ENUM_TIMEFRAMES timeframe)
 }
 
 //+------------------------------------------------------------------+
-//| Calculate quota for any timeframe                               |
+//| Calculate quota for any timeframe (FOLLOWS INDICATOR LOGIC)     |
 //+------------------------------------------------------------------+
 double CalculateQuotaForTimeframe(ENUM_TIMEFRAMES timeframe)
 {
@@ -594,6 +407,7 @@ double CalculateQuotaForTimeframe(ENUM_TIMEFRAMES timeframe)
     
     if(copied <= 0) 
     {
+        // Fallback to current range / 4 if data not available
         datetime period_start = GetPeriodStart(timeframe);
         datetime period_end = GetPeriodEnd(timeframe);
         double high = GetPeriodHighLowForTimeframe(period_start, period_end, timeframe, true);
@@ -601,14 +415,17 @@ double CalculateQuotaForTimeframe(ENUM_TIMEFRAMES timeframe)
         double range_in_points = (high - low) / _Point;
         double fallback_quota = range_in_points / 4.0;
         
+        DebugPrint(EnumToString(timeframe) + " fallback quota: " + DoubleToString(fallback_quota, 1));
         return fallback_quota;
     }
     
     double totalRange = 0.0;
     int validPeriods = 0;
     
+    // CRITICAL: Start from i=1 to skip current incomplete bar (INDICATOR LOGIC)
     for(int i = 1; i < copied; i++)
     {
+        // Only skip Sunday for intraday timeframes (not weekly/monthly)
         if(InpIgnoreSunday && timeframe < PERIOD_W1)
         {
             MqlDateTime dt;
@@ -630,138 +447,12 @@ double CalculateQuotaForTimeframe(ENUM_TIMEFRAMES timeframe)
     {
         double avgRange = totalRange / validPeriods;
         double quota = avgRange / 4.0;
+        
+        DebugPrint(EnumToString(timeframe) + " quota: avg=" + DoubleToString(avgRange, 1) + " / 4 = " + DoubleToString(quota, 1) + " (" + IntegerToString(validPeriods) + " periods)");
         return quota;
     }
     
-    return 25.0;
-}
-
-//+------------------------------------------------------------------+
-//| Calculate Dynamic Quota Value                                   |
-//+------------------------------------------------------------------+
-void CalculateDynamicQuota()
-{
-    g_calculationComplete = false;
-    
-    DebugPrint("=== CALCULATING DYNAMIC QUOTA ===");
-    DebugPrint("Lookback: " + IntegerToString(InpPeriodsLookback) + " periods");
-    DebugPrint("Timeframe: " + EnumToString(InpRangeTimeframe));
-    
-    int periods_to_request = InpPeriodsLookback + 50;
-    int attempts = 0;
-    int copied = 0;
-    MqlRates rates[];
-    
-    while(attempts < 15 && copied <= 0)
-    {
-        ResetLastError();
-        copied = CopyRates(_Symbol, InpRangeTimeframe, 0, periods_to_request, rates);
-        int error_code = GetLastError();
-        
-        if(copied <= 0)
-        {
-            if(error_code == 4401)
-            {
-                DebugPrint("History data not available. Requesting data...");
-                SeriesInfoInteger(_Symbol, InpRangeTimeframe, SERIES_TERMINAL_FIRSTDATE);
-                SeriesInfoInteger(_Symbol, InpRangeTimeframe, SERIES_LASTBAR_DATE);
-            }
-            
-            Sleep(500);
-            attempts++;
-        }
-    }
-    
-    if(copied <= 0)
-    {
-        DebugPrint("ERROR: Could not copy rates after " + IntegerToString(attempts) + " attempts");
-        
-        switch(InpRangeTimeframe)
-        {
-            case PERIOD_M1:
-            case PERIOD_M5:
-            case PERIOD_M15:
-            case PERIOD_M30:
-                g_averagePeriodRange = 50.0;
-                g_dynamicQuotaValue = 12.5;
-                break;
-            case PERIOD_H1:
-            case PERIOD_H4:
-            case PERIOD_H6:
-            case PERIOD_H12:
-                g_averagePeriodRange = 100.0;
-                g_dynamicQuotaValue = 25.0;
-                break;
-            default:
-                g_averagePeriodRange = 200.0;
-                g_dynamicQuotaValue = 50.0;
-                break;
-        }
-        
-        g_totalPeriodsAnalyzed = 0;
-        g_calculationComplete = true;
-        return;
-    }
-    
-    double symbolPoint = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-    if(symbolPoint <= 0)
-    {
-        DebugPrint("ERROR: Invalid symbol point value");
-        return;
-    }
-    
-    double totalRange = 0.0;
-    int validPeriods = 0;
-    
-    string symbol_name = _Symbol;
-    bool isContinuousMarket = (StringFind(symbol_name, "BTC") >= 0 || 
-                              StringFind(symbol_name, "ETH") >= 0 || 
-                              StringFind(symbol_name, "CRYPTO") >= 0 ||
-                              StringFind(symbol_name, "Volatility") >= 0);
-    
-    for(int i = 0; i < copied && validPeriods < InpPeriodsLookback; i++)
-    {
-        MqlDateTime dt;
-        TimeToStruct(rates[i].time, dt);
-        
-        if(InpIgnoreSunday && !isContinuousMarket && dt.day_of_week == 0)
-            continue;
-        
-        if(rates[i].high <= 0 || rates[i].low <= 0 || rates[i].high < rates[i].low)
-            continue;
-        
-        double periodRange = (rates[i].high - rates[i].low) / symbolPoint;
-        
-        if(periodRange <= 0)
-            continue;
-        
-        totalRange += periodRange;
-        validPeriods++;
-    }
-    
-    if(validPeriods > 0 && totalRange > 0)
-    {
-        g_averagePeriodRange = totalRange / validPeriods;
-        g_dynamicQuotaValue = g_averagePeriodRange / 4.0;
-        g_totalPeriodsAnalyzed = validPeriods;
-        
-        if(g_averagePeriodRange > 0 && g_dynamicQuotaValue > 0)
-        {
-            g_calculationComplete = true;
-            
-            DebugPrint("=== QUOTA CALCULATION RESULTS ===");
-            DebugPrint("Valid periods: " + IntegerToString(validPeriods));
-            DebugPrint("Average range: " + DoubleToString(g_averagePeriodRange, 1) + " points");
-            DebugPrint("Quota value: " + DoubleToString(g_dynamicQuotaValue, 1) + " points");
-        }
-    }
-    else
-    {
-        g_averagePeriodRange = 100.0;
-        g_dynamicQuotaValue = 25.0;
-        g_totalPeriodsAnalyzed = 0;
-        g_calculationComplete = true;
-    }
+    return 25.0; // Safe fallback
 }
 
 //+------------------------------------------------------------------+
@@ -918,10 +609,43 @@ void ProcessApiRequest(string request_json)
         return;
     }
     
+    // Parse pretend parameters if provided
+    string pretend_date = ExtractJsonValue(request_json, "pretend_date");
+    string pretend_time = ExtractJsonValue(request_json, "pretend_time");
+    
+    // Reset pretend time settings
+    g_use_pretend_time = false;
+    g_pretend_datetime = 0;
+    
+    // If pretend parameters are provided, parse and set them
+    if(pretend_date != "")
+    {
+        string datetime_string = pretend_date;
+        if(pretend_time != "")
+        {
+            datetime_string += " " + pretend_time;
+        }
+        else
+        {
+            datetime_string += " 00:00";
+        }
+        
+        g_pretend_datetime = StringToTime(datetime_string);
+        if(g_pretend_datetime > 0)
+        {
+            g_use_pretend_time = true;
+            DebugPrint("Using pretend time: " + datetime_string + " (" + TimeToString(g_pretend_datetime, TIME_DATE|TIME_MINUTES) + ")");
+        }
+    }
+    
     DebugPrint("Request for symbol: " + requested_symbol);
     
     // Calculate data for the requested symbol
     string quarters_json = BuildQuartersJsonForSymbol(requested_symbol);
+    
+    // Reset pretend time after processing
+    g_use_pretend_time = false;
+    g_pretend_datetime = 0;
     
     // Send data to API
     SendDataToApi(request_id, requested_symbol, quarters_json);
@@ -932,21 +656,63 @@ void ProcessApiRequest(string request_json)
 //+------------------------------------------------------------------+
 string BuildQuartersJsonForSymbol(string symbol)
 {
-    // Get current price for the symbol
-    double current_price = SymbolInfoDouble(symbol, SYMBOL_BID);
+    // Clear debug data
+    if(InpDebugMode)
+    {
+        ArrayResize(g_debug_data, 0);
+    }
+    
+    // Get current or historical price for the symbol
+    double current_price;
+    string price_debug = "";
+    if(g_use_pretend_time && g_pretend_datetime > 0)
+    {
+        // At pretend time, use CLOSE of the last COMPLETED bar before pretend moment
+        // Find the bar at or just before pretend time
+        int shift = iBarShift(symbol, PERIOD_M1, g_pretend_datetime, true);
+        
+        if(shift >= 0)
+        {
+            datetime bar_time = iTime(symbol, PERIOD_M1, shift);
+            
+            // If bar opened exactly at pretend time, it's the NEW bar (not yet formed)
+            // So we need the CLOSE of the PREVIOUS bar (shift + 1)
+            if(bar_time == g_pretend_datetime)
+            {
+                // Use close of previous completed bar
+                current_price = iClose(symbol, PERIOD_M1, shift + 1);
+                price_debug = "Exact time: using close of bar at " + TimeToString(iTime(symbol, PERIOD_M1, shift + 1), TIME_DATE|TIME_MINUTES);
+            }
+            else
+            {
+                // Pretend time is during this bar - use close of this completed bar
+                current_price = iClose(symbol, PERIOD_M1, shift);
+                price_debug = "During bar: using close of bar at " + TimeToString(bar_time, TIME_DATE|TIME_MINUTES);
+            }
+            
+            if(InpDebugMode)
+            {
+                DebugPrint("Current Price Selection: " + price_debug + " = " + DoubleToString(current_price, (int)SymbolInfoInteger(symbol, SYMBOL_DIGITS)));
+            }
+        }
+        else
+        {
+            // Fallback to current bid if historical price not found
+            current_price = SymbolInfoDouble(symbol, SYMBOL_BID);
+            if(InpDebugMode) DebugPrint("Current Price: Fallback to current bid = " + DoubleToString(current_price, (int)SymbolInfoInteger(symbol, SYMBOL_DIGITS)));
+        }
+    }
+    else
+    {
+        current_price = SymbolInfoDouble(symbol, SYMBOL_BID);
+    }
     double point = SymbolInfoDouble(symbol, SYMBOL_POINT);
     int digits = (int)SymbolInfoInteger(symbol, SYMBOL_DIGITS);
     
     string json = "{";
-    json += "\"timestamp\":\"" + TimeToString(TimeCurrent(), TIME_DATE|TIME_MINUTES) + "\",";
-    json += "\"analysis_timeframe\":\"" + EnumToString(InpRangeTimeframe) + "\",";
-    
-    // Calculate average range for this symbol
-    double avg_range = CalculateAverageRangeForSymbol(symbol, InpRangeTimeframe);
-    double quota = avg_range / 4.0;
-    
-    json += "\"average_range\":" + DoubleToString(avg_range, 1) + ",";
-    json += "\"quota_value\":" + DoubleToString(quota, 1) + ",";
+    json += "\"timestamp\":\"" + TimeToString(GetEffectiveCurrentTime(), TIME_DATE|TIME_MINUTES) + "\",";
+    json += "\"current_price\":" + DoubleToString(current_price, digits) + ",";
+    json += "\"price_selection\":\"" + price_debug + "\",";
     json += "\"timeframes\":[";
     
     // Timeframes to analyze
@@ -964,12 +730,15 @@ string BuildQuartersJsonForSymbol(string symbol)
         datetime period_end = GetPeriodEnd(tf);
         
         // Get high/low for this period and symbol
-        double high = GetPeriodHighLowForSymbol(symbol, period_start, period_end, tf, true);
-        double low = GetPeriodHighLowForSymbol(symbol, period_start, period_end, tf, false);
+        double high = GetPeriodHighLowForSymbol(symbol, period_start, period_end, tf, true, current_price);
+        double low = GetPeriodHighLowForSymbol(symbol, period_start, period_end, tf, false, current_price);
         
-        // Calculate quota for this timeframe
+        // Calculate quota for THIS SPECIFIC TIMEFRAME (following indicator logic)
         double tf_quota = CalculateAverageRangeForSymbol(symbol, tf) / 4.0;
         double quota_price = tf_quota * point;
+        
+        // Also calculate average range for this timeframe
+        double avg_range = CalculateAverageRangeForSymbol(symbol, tf);
         
         // Calculate percentages
         double low_percentage = 50.0;
@@ -987,7 +756,7 @@ string BuildQuartersJsonForSymbol(string symbol)
         }
         
         // Calculate time quarter
-        datetime current_time = TimeCurrent();
+        datetime current_time = GetEffectiveCurrentTime();
         double time_progress = (double)(current_time - period_start) / (double)(period_end - period_start);
         time_progress = MathMax(0.0, MathMin(1.0, time_progress));
         
@@ -1008,11 +777,43 @@ string BuildQuartersJsonForSymbol(string symbol)
         json += "\"high_percentage\":" + DoubleToString(high_percentage, 0) + ",";
         json += "\"time_quarter\":\"" + time_quarter + "\",";
         json += "\"countdown\":\"" + countdown + "\",";
+        json += "\"average_range\":" + DoubleToString(avg_range, 1) + ",";
         json += "\"quota_value\":" + DoubleToString(tf_quota, 1);
         json += "}";
     }
     
     json += "]";
+    
+    // Add debug information if in debug mode
+    if(InpDebugMode && ArraySize(g_debug_data) > 0)
+    {
+        json += ",\"debug\":[";
+        
+        for(int d = 0; d < ArraySize(g_debug_data); d++)
+        {
+            if(d > 0) json += ",";
+            
+            json += "{";
+            json += "\"timeframe\":\"" + g_debug_data[d].timeframe + "\",";
+            json += "\"bars_scanned\":" + IntegerToString(g_debug_data[d].bars_scanned) + ",";
+            json += "\"bars_skipped_future\":" + IntegerToString(g_debug_data[d].bars_skipped_future) + ",";
+            json += "\"bars_skipped_past\":" + IntegerToString(g_debug_data[d].bars_skipped_past) + ",";
+            json += "\"bars_skipped_outside_period\":" + IntegerToString(g_debug_data[d].bars_skipped_outside_period) + ",";
+            json += "\"bars_processed\":" + IntegerToString(g_debug_data[d].bars_processed) + ",";
+            json += "\"first_bar_time\":\"" + TimeToString(g_debug_data[d].first_bar_time, TIME_DATE|TIME_MINUTES) + "\",";
+            json += "\"last_bar_time\":\"" + TimeToString(g_debug_data[d].last_bar_time, TIME_DATE|TIME_MINUTES) + "\",";
+            json += "\"period_start\":\"" + TimeToString(g_debug_data[d].period_start, TIME_DATE|TIME_MINUTES) + "\",";
+            json += "\"period_end\":\"" + TimeToString(g_debug_data[d].period_end, TIME_DATE|TIME_MINUTES) + "\",";
+            json += "\"end_time\":\"" + TimeToString(g_debug_data[d].end_time, TIME_DATE|TIME_MINUTES) + "\",";
+            json += "\"result_high\":" + DoubleToString(g_debug_data[d].result_high, digits) + ",";
+            json += "\"result_low\":" + DoubleToString(g_debug_data[d].result_low, digits) + ",";
+            json += "\"fallback_used\":" + (g_debug_data[d].fallback_used ? "true" : "false");
+            json += "}";
+        }
+        
+        json += "]";
+    }
+    
     json += "}";
     
     return json;
@@ -1025,7 +826,23 @@ double CalculateAverageRangeForSymbol(string symbol, ENUM_TIMEFRAMES timeframe)
 {
     MqlRates rates[];
     int periods_to_request = InpPeriodsLookback + 50;
-    int copied = CopyRates(symbol, timeframe, 0, periods_to_request, rates);
+    
+    // When using pretend time, get bars from BEFORE pretend moment
+    int copied;
+    if(g_use_pretend_time && g_pretend_datetime > 0)
+    {
+        // Find the bar at pretend time and copy from there backward
+        int start_bar = iBarShift(symbol, timeframe, g_pretend_datetime, true);
+        if(start_bar < 0) start_bar = 0;
+        
+        // Copy historical bars starting from pretend time bar
+        copied = CopyRates(symbol, timeframe, start_bar, periods_to_request, rates);
+    }
+    else
+    {
+        // Normal mode: get recent bars
+        copied = CopyRates(symbol, timeframe, 0, periods_to_request, rates);
+    }
     
     if(copied <= 0)
     {
@@ -1038,8 +855,15 @@ double CalculateAverageRangeForSymbol(string symbol, ENUM_TIMEFRAMES timeframe)
     double totalRange = 0.0;
     int validPeriods = 0;
     
-    for(int i = 1; i < copied && validPeriods < InpPeriodsLookback; i++)
+    // When using pretend time with historical bars, start from i=0
+    // When in normal mode, also start from i=0 for completed periods
+    // (matches original indicator logic)
+    for(int i = 0; i < copied && validPeriods < InpPeriodsLookback; i++)
     {
+        // Skip bars at or after pretend time
+        if(g_use_pretend_time && rates[i].time >= g_pretend_datetime)
+            continue;
+            
         if(InpIgnoreSunday && timeframe < PERIOD_W1)
         {
             MqlDateTime dt;
@@ -1066,63 +890,119 @@ double CalculateAverageRangeForSymbol(string symbol, ENUM_TIMEFRAMES timeframe)
 //+------------------------------------------------------------------+
 //| Get Period High or Low for specific symbol                      |
 //+------------------------------------------------------------------+
-double GetPeriodHighLowForSymbol(string symbol, datetime period_start, datetime period_end, ENUM_TIMEFRAMES timeframe, bool get_high)
+double GetPeriodHighLowForSymbol(string symbol, datetime period_start, datetime period_end, ENUM_TIMEFRAMES timeframe, bool get_high, double current_price)
 {
     double result = get_high ? 0 : DBL_MAX;
     
-    // Try using CopyRates for the period
-    if(timeframe == PERIOD_W1 || timeframe == PERIOD_MN1)
+    // Debug tracking
+    int bars_scanned = 0;
+    int bars_skipped_future = 0;
+    int bars_skipped_past = 0;
+    int bars_skipped_outside_period = 0;
+    int bars_processed = 0;
+    datetime first_bar_processed = 0;
+    datetime last_bar_processed = 0;
+    
+    // Use M1 bars to scan for high/low (same as original GetPeriodHighLowForTimeframe logic)
+    ENUM_TIMEFRAMES scan_tf = PERIOD_M1;
+    
+    // When using pretend time, only scan bars that existed before pretend moment
+    datetime end_time = g_use_pretend_time ? g_pretend_datetime : TimeCurrent();
+    
+    // Find starting bar index based on end_time
+    // In MT5, bar 0 = most recent, higher indices = older bars
+    // So we need to start from the bar at end_time and scan backward (increasing indices)
+    int start_bar = 0;
+    if(g_use_pretend_time)
     {
-        MqlRates rates[];
-        int bars_to_copy = (int)((period_end - period_start) / PeriodSeconds(timeframe)) + 5;
-        int copied = CopyRates(symbol, timeframe, period_start, bars_to_copy, rates);
+        // Find the bar that was forming at pretend time (or the closest bar before it)
+        start_bar = iBarShift(symbol, scan_tf, g_pretend_datetime, true);
+        if(start_bar < 0) start_bar = 0;  // Fallback if bar not found
+    }
+    
+    // Scan M1 bars for high/low within the period
+    int total_bars = iBars(symbol, scan_tf);
+    int max_bars = MathMin(total_bars - start_bar, 10000);  // Limit scan from starting point
+    bool found_any = false;
+    
+    for(int i = start_bar; i < start_bar + max_bars; i++)
+    {
+        datetime bar_time = iTime(symbol, scan_tf, i);
+        bars_scanned++;
         
-        if(copied > 0)
+        // Stop if bar time is invalid
+        if(bar_time == 0)
+            break;
+        
+        // Stop if bar is too old (before period start)
+        if(bar_time < period_start)
         {
-            for(int i = 0; i < copied; i++)
-            {
-                if(rates[i].time >= period_start && rates[i].time < period_end)
-                {
-                    if(get_high)
-                    {
-                        if(rates[i].high > result) result = rates[i].high;
-                    }
-                    else
-                    {
-                        if(rates[i].low < result) result = rates[i].low;
-                    }
-                }
-            }
+            bars_skipped_past++;
+            break;
+        }
+            
+        // Skip bars that start at or after end_time (not formed yet at pretend moment)
+        if(bar_time >= end_time)
+        {
+            bars_skipped_future++;
+            continue;
+        }
+            
+        // Skip bars outside our period (after period end)
+        if(bar_time >= period_end)
+        {
+            bars_skipped_outside_period++;
+            continue;
+        }
+        
+        // Track first and last processed bars
+        if(bars_processed == 0)
+            first_bar_processed = bar_time;
+        last_bar_processed = bar_time;
+        
+        bars_processed++;
+        found_any = true;
+        
+        if(get_high)
+        {
+            double high_price = iHigh(symbol, scan_tf, i);
+            if(high_price > result) result = high_price;
+        }
+        else
+        {
+            double low_price = iLow(symbol, scan_tf, i);
+            if(low_price < result) result = low_price;
         }
     }
     
-    // Optimized fallback: use the timeframe's own bars instead of M1 for much faster processing
-    if((get_high && result == 0) || (!get_high && result == DBL_MAX))
+    bool fallback_used = false;
+    
+    // If no bars found in period (period just started), use current price
+    if(!found_any || (get_high && result == 0) || (!get_high && result == DBL_MAX))
     {
-        result = get_high ? 0 : DBL_MAX;
-        
-        // Use the timeframe we're analyzing instead of M1 - MUCH faster
-        ENUM_TIMEFRAMES scan_tf = (timeframe == PERIOD_W1 || timeframe == PERIOD_MN1) ? PERIOD_H4 : timeframe;
-        int total_bars = iBars(symbol, scan_tf);
-        int max_bars = MathMin(total_bars, 500);  // Reduced from 2000 and using higher timeframe
-        
-        for(int i = 0; i < max_bars; i++)
-        {
-            datetime bar_time = iTime(symbol, scan_tf, i);
-            if(bar_time == 0 || bar_time < period_start) break;
-            if(bar_time >= period_end) continue;
-            
-            if(get_high)
-            {
-                double high_price = iHigh(symbol, scan_tf, i);
-                if(high_price > result) result = high_price;
-            }
-            else
-            {
-                double low_price = iLow(symbol, scan_tf, i);
-                if(low_price < result) result = low_price;
-            }
-        }
+        result = current_price;
+        fallback_used = true;
+    }
+    
+    // Store debug info if in debug mode
+    if(InpDebugMode)
+    {
+        int idx = ArraySize(g_debug_data);
+        ArrayResize(g_debug_data, idx + 1);
+        g_debug_data[idx].timeframe = EnumToString(timeframe) + (get_high ? "_HIGH" : "_LOW");
+        g_debug_data[idx].bars_scanned = bars_scanned;
+        g_debug_data[idx].bars_skipped_future = bars_skipped_future;
+        g_debug_data[idx].bars_skipped_past = bars_skipped_past;
+        g_debug_data[idx].bars_skipped_outside_period = bars_skipped_outside_period;
+        g_debug_data[idx].bars_processed = bars_processed;
+        g_debug_data[idx].first_bar_time = first_bar_processed;
+        g_debug_data[idx].last_bar_time = last_bar_processed;
+        g_debug_data[idx].period_start = period_start;
+        g_debug_data[idx].period_end = period_end;
+        g_debug_data[idx].end_time = end_time;
+        g_debug_data[idx].result_high = get_high ? result : 0;
+        g_debug_data[idx].result_low = get_high ? 0 : result;
+        g_debug_data[idx].fallback_used = fallback_used;
     }
     
     return result;

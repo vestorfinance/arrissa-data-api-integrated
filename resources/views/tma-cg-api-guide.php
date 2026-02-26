@@ -319,9 +319,29 @@ ob_start();
             <!-- XAUUSD Example -->
             <div class="p-6 rounded-2xl example-card" style="background-color: var(--card-bg); border: 1px solid var(--border);">
                 <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Gold (XAUUSD) M1</h3>
-                <div class="p-3 rounded-lg mb-4" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
-                    <code style="color: var(--text-primary);"><?= htmlspecialchars($baseUrl) ?>/tma-cg-api-v1/tma-cg-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=XAUUSD&timeframe=M1</code>
+                
+                <!-- HTTP URL -->
+                <div class="mb-3">
+                    <label class="text-xs font-semibold mb-2 block" style="color: var(--text-secondary);">HTTP URL</label>
+                    <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                        <code style="color: var(--text-primary);"><?= htmlspecialchars($baseUrl) ?>/tma-cg-api-v1/tma-cg-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=XAUUSD&timeframe=M1</code>
+                    </div>
                 </div>
+                
+                <!-- cURL Command -->
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-semibold" style="color: var(--text-secondary);">cURL Command</label>
+                        <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/tma-cg-api-v1/tma-cg-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=XAUUSD&timeframe=M1&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                            <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                        <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/tma-cg-api-v1/tma-cg-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=XAUUSD&timeframe=M1"</code>
+                    </div>
+                </div>
+                
                 <button onclick="testTmaApi('XAUUSD', 'M1')" class="w-full py-3 rounded-xl font-medium transition-all" style="background: linear-gradient(135deg, #9C27B0, #BA68C8); color: white;">
                     <i data-feather="play" class="inline mr-2" style="width: 16px; height: 16px;"></i>
                     Test Now
@@ -332,9 +352,29 @@ ob_start();
             <!-- EURUSD Example -->
             <div class="p-6 rounded-2xl example-card" style="background-color: var(--card-bg); border: 1px solid var(--border);">
                 <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Euro (EURUSD) H1</h3>
-                <div class="p-3 rounded-lg mb-4" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
-                    <code style="color: var(--text-primary);"><?= htmlspecialchars($baseUrl) ?>/tma-cg-api-v1/tma-cg-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1</code>
+                
+                <!-- HTTP URL -->
+                <div class="mb-3">
+                    <label class="text-xs font-semibold mb-2 block" style="color: var(--text-secondary);">HTTP URL</label>
+                    <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                        <code style="color: var(--text-primary);"><?= htmlspecialchars($baseUrl) ?>/tma-cg-api-v1/tma-cg-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1</code>
+                    </div>
                 </div>
+                
+                <!-- cURL Command -->
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-semibold" style="color: var(--text-secondary);">cURL Command</label>
+                        <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/tma-cg-api-v1/tma-cg-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                            <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                        <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/tma-cg-api-v1/tma-cg-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1"</code>
+                    </div>
+                </div>
+                
                 <button onclick="testTmaApi('EURUSD', 'H1')" class="w-full py-3 rounded-xl font-medium transition-all" style="background: linear-gradient(135deg, #9C27B0, #BA68C8); color: white;">
                     <i data-feather="play" class="inline mr-2" style="width: 16px; height: 16px;"></i>
                     Test Now

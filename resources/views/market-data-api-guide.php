@@ -506,6 +506,142 @@ ob_start();
 
     <div class="divider"></div>
 
+    <!-- cURL Examples Section -->
+    <div class="mb-12">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, var(--accent), var(--success));">
+                <i data-feather="terminal" style="width: 24px; height: 24px; color: white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">cURL Examples</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Copy and paste these commands into your terminal</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Basic Candle Data -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Basic Candle Data</h3>
+                <div class="space-y-4">
+                    <!-- Example 1 -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">EURUSD M5 - Last 50 Candles</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=M5&count=50&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=M5&count=50"</code>
+                        </div>
+                    </div>
+                    <!-- Example 2 -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">EURUSD M5 - With Volume</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=M5&count=50&candle-volume=true&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=M5&count=50&candle-volume=true"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moving Averages -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Moving Averages</h3>
+                <div class="space-y-4">
+                    <!-- Triple EMA -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Triple EMA (20,50,200)</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&count=200&ema_1=20&ema_2=50&ema_3=200&candle-volume=true&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&count=200&ema_1=20&ema_2=50&ema_3=200&candle-volume=true"</code>
+                        </div>
+                    </div>
+                    <!-- Mixed MA Types -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Mixed MA Types (EMA, SMA, LWMA)</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=GBPUSD&timeframe=H1&count=200&ma_1=e,20&ma_2=s,50&ma_3=l,100&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=GBPUSD&timeframe=H1&count=200&ma_1=e,20&ma_2=s,50&ma_3=l,100"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oscillators -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Oscillators & Momentum</h3>
+                <div class="space-y-4">
+                    <!-- RSI + Stochastic -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">RSI + Stochastic</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&count=100&rsi=14&stoch=14,3,3&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&count=100&rsi=14&stoch=14,3,3"</code>
+                        </div>
+                    </div>
+                    <!-- Multiple RSI -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Multiple RSI Periods (9, 14, 21)</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=GBPUSD&timeframe=H1&count=100&rsi=9&rsi1=14&rsi2=21&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=GBPUSD&timeframe=H1&count=100&rsi=9&rsi1=14&rsi2=21"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complete Strategy -->
+            <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4 flex items-center" style="color: var(--text-primary);">
+                    <span>Complete Trading Strategy</span>
+                    <span class="ml-2 section-badge" style="background-color: var(--accent); color: white;">ADVANCED</span>
+                </h3>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-semibold" style="color: var(--text-secondary);">Golden Cross Strategy - EMA 20>50>200 + ATR + Volume</label>
+                        <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&count=200&ema_1=20&ema_2=50&ema_3=200&atr=14&candle-volume=true&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                            <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                        <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=H1&count=200&ema_1=20&ema_2=50&ema_3=200&atr=14&candle-volume=true"</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
     <!-- Best Practices Section -->
     <div class="mb-10">
         <div class="flex items-center mb-6">
@@ -621,6 +757,12 @@ ob_start();
 
 <script>
     feather.replace();
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard!');
+        });
+    }
 </script>
 
 <?php

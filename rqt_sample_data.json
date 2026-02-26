@@ -1,0 +1,107 @@
+[
+  {
+    "arrissa_data": {
+      "request_id": "RQT_Data_quarters_      17673192000.73644215",
+      "symbol": "XAUUSD",
+      "quarters_data": {
+        "timestamp": "2026.01.02 02:00",
+        "analysis_timeframe": "PERIOD_D1",
+        "average_range": 87056,
+        "quota_value": 21764,
+        "timeframes": [
+          {
+            "timeframe": "M15",
+            "high": 4348.026,
+            "low": 4348.026,
+            "low_percentage": 50,
+            "high_percentage": -50,
+            "time_quarter": "2nd",
+            "countdown": "15:00",
+            "quota_value": 2521.4
+          },
+          {
+            "timeframe": "M30",
+            "high": 4348.026,
+            "low": 4348.026,
+            "low_percentage": 50,
+            "high_percentage": -50,
+            "time_quarter": "2nd",
+            "countdown": "30:00",
+            "quota_value": 3600.3
+          },
+          {
+            "timeframe": "H1",
+            "high": 4348.026,
+            "low": 4348.026,
+            "low_percentage": 50,
+            "high_percentage": -50,
+            "time_quarter": "2nd",
+            "countdown": "01:00",
+            "quota_value": 8401.6
+          },
+          {
+            "timeframe": "H4",
+            "high": 4356.230,
+            "low": 4341.340,
+            "low_percentage": 28,
+            "high_percentage": -34,
+            "time_quarter": "2nd",
+            "countdown": "02:00",
+            "quota_value": 5980.0
+          },
+          {
+            "timeframe": "H6",
+            "high": 4356.230,
+            "low": 4341.340,
+            "low_percentage": 15,
+            "high_percentage": -19,
+            "time_quarter": "2nd",
+            "countdown": "04:00",
+            "quota_value": 10915.4
+          },
+          {
+            "timeframe": "H12",
+            "high": 4356.230,
+            "low": 4341.340,
+            "low_percentage": 15,
+            "high_percentage": -19,
+            "time_quarter": "1st",
+            "countdown": "10:00",
+            "quota_value": 11024.4
+          },
+          {
+            "timeframe": "D1",
+            "high": 4356.230,
+            "low": 4341.340,
+            "low_percentage": 7,
+            "high_percentage": -9,
+            "time_quarter": "1st",
+            "countdown": "22:00",
+            "quota_value": 23182.7
+          },
+          {
+            "timeframe": "W1",
+            "high": 4548.524,
+            "low": 4274.403,
+            "low_percentage": 79,
+            "high_percentage": -216,
+            "time_quarter": "3rd",
+            "countdown": "1D 22:00",
+            "quota_value": 23216.2
+          },
+          {
+            "timeframe": "MN1",
+            "high": 4356.230,
+            "low": 4327.683,
+            "low_percentage": 6,
+            "high_percentage": -3,
+            "time_quarter": "1st",
+            "countdown": "29D 22:00",
+            "quota_value": 79287.4
+          }
+        ]
+      },
+      "timestamp": "2026.01.02 02:00:00"
+    }
+  }
+]

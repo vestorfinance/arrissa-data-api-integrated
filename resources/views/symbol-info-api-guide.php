@@ -209,7 +209,104 @@ ob_start();
     </div>
 
     <div class="divider"></div>
+    <!-- cURL Examples Section -->
+    <div class="mb-12">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, var(--accent), var(--success));">
+                <i data-feather="terminal" style="width: 24px; height: 24px; color: white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">cURL Examples</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Copy and paste these commands into your terminal</p>
+            </div>
+        </div>
 
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Basic Analysis -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Basic Symbol Analysis</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Daily Average - EURUSD</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/symbol-info-api-v1/symbol-info-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=D1&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/symbol-info-api-v1/symbol-info-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=D1"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">4-Hour Analysis - GBPUSD</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/symbol-info-api-v1/symbol-info-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=GBPUSD&timeframe=H4&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/symbol-info-api-v1/symbol-info-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=GBPUSD&timeframe=H4"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Lookback -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Custom Lookback Period</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">50 Candles - Gold H1</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/symbol-info-api-v1/symbol-info-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=XAUUSD&timeframe=H1&lookback=50&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/symbol-info-api-v1/symbol-info-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=XAUUSD&timeframe=H1&lookback=50"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Include Sunday Data - USDJPY M15</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/symbol-info-api-v1/symbol-info-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=USDJPY&timeframe=M15&ignore_sunday=false&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/symbol-info-api-v1/symbol-info-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=USDJPY&timeframe=M15&ignore_sunday=false"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced: Backtesting -->
+            <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4 flex items-center" style="color: var(--text-primary);">
+                    <span>Backtesting with Pretend Date/Time</span>
+                    <span class="ml-2 section-badge" style="background-color: var(--accent); color: white;">ADVANCED</span>
+                </h3>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-semibold" style="color: var(--text-secondary);">Historical Analysis - January 15, 2024</label>
+                        <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/symbol-info-api-v1/symbol-info-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=D1&pretend_date=2024.01.15&pretend_time=12:00&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                            <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                        <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/symbol-info-api-v1/symbol-info-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&symbol=EURUSD&timeframe=D1&pretend_date=2024.01.15&pretend_time=12:00"</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
     <!-- Basic Examples -->
     <div class="mb-12">
         <div class="flex items-center mb-6">
@@ -674,6 +771,12 @@ function copyURL(url) {
         notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background-color: var(--success); color: white; padding: 12px 24px; border-radius: 8px; z-index: 9999; font-size: 14px; font-weight: 500;';
         document.body.appendChild(notification);
         setTimeout(() => notification.remove(), 2000);
+    });
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
     });
 }
 

@@ -1,8 +1,0 @@
-{
-  "method": "Prototype Classifier",
-  "train_accuracy": 0.5331010452961672,
-  "test_accuracy": 0.32075471698113206,
-  "up_prototype": 2.342079207920792,
-  "down_prototype": -2.3229151291512915,
-  "decision_boundary": 0.00958203938475033
-}

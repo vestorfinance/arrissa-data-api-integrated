@@ -170,10 +170,22 @@ if ($symbol) {
     $reqFile = "$queueDir/{$request_id}.req.json";
     $resFile = "$queueDir/{$request_id}.res.json";
 
+    // Get pretend parameters if provided
+    $pretend_date = $_GET['pretend_date'] ?? null;
+    $pretend_time = $_GET['pretend_time'] ?? null;
+
     $requestData = [
         'request_id' => $request_id,
         'symbol' => $symbol
     ];
+
+    // Add pretend parameters if provided
+    if ($pretend_date) {
+        $requestData['pretend_date'] = $pretend_date;
+    }
+    if ($pretend_time) {
+        $requestData['pretend_time'] = $pretend_time;
+    }
 
     // Store request WITHOUT arrissa_data wrapper (internal communication)
     file_put_contents($reqFile, json_encode($requestData, JSON_UNESCAPED_SLASHES));

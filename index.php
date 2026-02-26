@@ -48,9 +48,63 @@ if ($uri === '/api/search') {
     exit;
 }
 
-// Handle events scrapper API (requires auth)
-if ($uri === '/api/run-events-scrapper') {
-    include __DIR__ . '/public/api/run-events-scrapper.php';
+// Handle URL fetch API (requires api_key)
+if ($uri === '/api/url-api') {
+    include __DIR__ . '/url-api-v1/url-api.php';
+    exit;
+}
+
+// Handle sync events API (requires auth)
+if ($uri === '/api/sync-events') {
+    include __DIR__ . '/public/api/sync-events.php';
+    exit;
+}
+
+// Handle update events API — syncs from last known update + all future (requires auth)
+if ($uri === '/api/update-events') {
+    include __DIR__ . '/public/api/update-events.php';
+    exit;
+}
+
+// Handle run-cron API — trigger smart event sync via HTTP (api_key auth, usable from n8n etc.)
+if ($uri === '/api/run-cron') {
+    include __DIR__ . '/public/api/run-cron.php';
+    exit;
+}
+
+// Handle truncate events API (requires auth)
+if ($uri === '/api/truncate-events') {
+    include __DIR__ . '/public/api/truncate-events.php';
+    exit;
+}
+
+// Handle economic events API (no auth required)
+if ($uri === '/api/economic-events') {
+    include __DIR__ . '/news-api-v1/economic-events.php';
+    exit;
+}
+
+// Handle TMP categories API (requires api_key)
+if ($uri === '/api/tmp-categories') {
+    include __DIR__ . '/public/api/tmp-categories.php';
+    exit;
+}
+
+// Handle TMP tool capabilities API (requires api_key)
+if ($uri === '/api/tmp-tool-capabilities') {
+    include __DIR__ . '/public/api/tmp-tool-capabilities.php';
+    exit;
+}
+
+// Handle TMP get-tool API (requires api_key + search_phrase)
+if ($uri === '/api/tmp-get-tool') {
+    include __DIR__ . '/public/api/tmp-get-tool.php';
+    exit;
+}
+
+// Handle TMP admin CRUD API (requires session auth)
+if ($uri === '/api/tmp-admin') {
+    include __DIR__ . '/public/api/tmp-admin.php';
     exit;
 }
 
@@ -96,11 +150,17 @@ switch ($uri) {
     case '/tma-cg-api-guide':
         $page = 'tma-cg-api-guide';
         break;
+    case '/url-api-guide':
+        $page = 'url-api-guide';
+        break;
+    case '/tmp-guide':
+        $page = 'tmp-guide';
+        break;
+    case '/tmp-manage':
+        $page = 'tmp-manage';
+        break;
     case '/download-eas':
         $page = 'download-eas';
-        break;
-    case '/run-events-scrapper':
-        $page = 'run-events-scrapper';
         break;
     case '/markets':
         $page = 'markets';
@@ -119,6 +179,12 @@ switch ($uri) {
         break;
     case '/settings':
         $page = 'settings';
+        break;
+    case '/economic-calendar':
+        $page = 'economic-calendar';
+        break;
+    case '/manage-events':
+        $page = 'manage-events';
         break;
     default:
         $page = 'dashboard';

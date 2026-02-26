@@ -166,6 +166,21 @@ ob_start();
             </div>
         </a>
 
+        <!-- URL API -->
+        <a href="/url-api-guide" class="api-card block rounded-2xl overflow-hidden transition-all duration-200 group" data-keywords="url api fetch scrape web page content html text extract title body http https bearer token basic auth session cookie custom headers proxy request external" style="background-color: var(--card-bg); border: 1px solid var(--border);" onmouseover="this.style.borderColor='var(--input-border)'; this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.borderColor='var(--border)'; this.style.backgroundColor='var(--card-bg)';">
+            <div class="p-6">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
+                    <i data-feather="globe" class="group-hover-icon" style="width: 24px; height: 24px; color: var(--text-secondary);"></i>
+                </div>
+                <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">URL API Guide</h3>
+                <p class="text-sm mb-6 leading-relaxed" style="color: var(--text-secondary);">Fetch and extract text content from any URL with multi-method authentication support.</p>
+                <button class="inline-flex items-center text-sm font-medium px-4 py-2 rounded-lg transition-all" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);" onmouseover="this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.backgroundColor='var(--input-bg)';">
+                    View Guide
+                    <i data-feather="arrow-right" class="ml-2" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+        </a>
+
         <!-- TMA + CG API -->
         <a href="/tma-cg-api-guide" class="api-card block rounded-2xl overflow-hidden transition-all duration-200 group" data-keywords="tma cg api triangular moving average center of gravity premium discount zone bands deviation fibonacci upper lower equilibrium buy sell" style="background-color: var(--card-bg); border: 1px solid var(--border);" onmouseover="this.style.borderColor='var(--input-border)'; this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.borderColor='var(--border)'; this.style.backgroundColor='var(--card-bg)';">
             <div class="p-6">

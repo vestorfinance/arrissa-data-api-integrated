@@ -282,14 +282,144 @@ ob_start();
                         <td class="px-6 py-4 text-sm" style="color: var(--success);">✅ Yes</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Trading symbol (e.g., "EURUSD", "GBPUSD")</td>
                     </tr>
-                    <tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
                         <td class="px-6 py-4"><code class="text-sm" style="color: #9C27B0;">api_key</code></td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--success);">✅ Yes</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Your API authentication key</td>
                     </tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td class="px-6 py-4"><code class="text-sm" style="color: #FF9800;">pretend_date</code></td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">❌ No</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Historical date (YYYY-MM-DD format, e.g., "2026-01-02") for backtesting</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4"><code class="text-sm" style="color: #FF9800;">pretend_time</code></td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">❌ No</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Historical time (H:MM or HH:MM format, e.g., "8:00" or "14:30") for backtesting</td>
+                    </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- cURL Examples Section -->
+    <div class="mb-12">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, #9C27B0, #BA68C8);">
+                <i data-feather="terminal" style="width: 24px; height: 24px; color: white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">cURL Examples</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Copy and paste these commands into your terminal</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Basic Quarters Analysis -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Basic Quarters Analysis</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Get Quarters Data for EURUSD</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=EURUSD&api_key=<?= htmlspecialchars($apiKey) ?>&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=EURUSD&api_key=<?= htmlspecialchars($apiKey) ?>"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Get Quarters Data for XAUUSD (Gold)</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=XAUUSD&api_key=<?= htmlspecialchars($apiKey) ?>&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=XAUUSD&api_key=<?= htmlspecialchars($apiKey) ?>"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Get Quarters Data for GBPUSD</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=GBPUSD&api_key=<?= htmlspecialchars($apiKey) ?>&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=GBPUSD&api_key=<?= htmlspecialchars($apiKey) ?>"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Get Quarters Data for USDJPY</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=USDJPY&api_key=<?= htmlspecialchars($apiKey) ?>&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=USDJPY&api_key=<?= htmlspecialchars($apiKey) ?>"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Analysis Example -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">
+                    <span style="background: linear-gradient(135deg, #FF9800, #FFA726); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        🕐 Historical Analysis (Backtesting)
+                    </span>
+                </h3>
+                <div class="mb-4 p-4 rounded-lg" style="background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 167, 38, 0.1)); border-left: 3px solid #FF9800;">
+                    <p class="text-sm mb-2" style="color: var(--text-primary);"><strong>New Feature!</strong> Analyze historical quarters data for backtesting your strategies.</p>
+                    <p class="text-xs" style="color: var(--text-secondary);">Use <code>pretend_date</code> and <code>pretend_time</code> parameters to get quarters data as if it was that specific historical moment.</p>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Historical Analysis - January 2nd, 2026 at 8:00 AM</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=EURUSD&api_key=<?= htmlspecialchars($apiKey) ?>&pretend_date=2026-01-02&pretend_time=8:00&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=EURUSD&api_key=<?= htmlspecialchars($apiKey) ?>&pretend_date=2026-01-02&pretend_time=8:00"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Historical Analysis - December 25th, 2025 at 14:30</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=XAUUSD&api_key=<?= htmlspecialchars($apiKey) ?>&pretend_date=2025-12-25&pretend_time=14:30&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/quarters-theory-api-v1/quarters-theory-api.php?symbol=XAUUSD&api_key=<?= htmlspecialchars($apiKey) ?>&pretend_date=2025-12-25&pretend_time=14:30"</code>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs" style="color: var(--text-secondary);">
+                        <strong>💡 Use Cases:</strong>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li>Backtest your trading strategy on historical quarters data</li>
+                            <li>Analyze how quarters theory worked at specific past events</li>
+                            <li>Validate strategy performance on historical price action</li>
+                            <li>Study quarter patterns during NFP, FOMC, or other major events</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -627,6 +757,12 @@ function testAPI(element, url) {
             responseDiv.innerHTML = '<div style="padding: 12px; background-color: rgba(244, 67, 54, 0.1); border-radius: 8px; border: 1px solid #F44336; color: #F44336;"><i data-feather="alert-circle" style="width: 14px; height: 14px; display: inline;"></i> Error: ' + error.message + '</div>';
             feather.replace();
         });
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+    });
 }
 
 feather.replace();

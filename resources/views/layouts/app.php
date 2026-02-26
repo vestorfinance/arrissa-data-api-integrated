@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<?php
+require_once __DIR__ . '/../../../app/FooterGuard.php';
+require_once __DIR__ . '/../../../app/SidebarGuard.php';
+FooterGuard::verify();
+SidebarGuard::verify();
+?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $title ?? 'Arrissa Data API'; ?></title>
@@ -214,7 +220,7 @@
             
             aside {
                 position: fixed;
-                left: -288px;
+                left: -320px;
                 top: 0;
                 height: 100%;
                 z-index: 999;
@@ -308,7 +314,7 @@
 
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-72 flex flex-col" style="background-color: var(--bg-primary); border-right: 1px solid var(--border);">
+        <aside id="sidebar" class="w-80 flex flex-col" style="background-color: var(--bg-primary); border-right: 1px solid var(--border);">
             <!-- Logo -->
             <div class="p-7" style="border-bottom: 1px solid var(--border);">
                 <div class="flex items-center space-x-3">
@@ -329,18 +335,38 @@
                     <i data-feather="trending-up" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Market Data API Guide</span>
                 </a>
-                <a href="/news-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'news-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'news-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
-                    <i data-feather="file-text" style="width: 20px; height: 20px;"></i>
-                    <span class="text-base font-medium">News API Guide</span>
-                </a>
-                <a href="/similar-scene-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'similar-scene-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'similar-scene-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
-                    <i data-feather="layers" style="width: 20px; height: 20px;"></i>
-                    <span class="text-base font-medium">Similar Scene API Guide</span>
-                </a>
-                <a href="/event-id-reference" class="sidebar-link <?php echo ($page ?? '') == 'event-id-reference' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'event-id-reference' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
-                    <i data-feather="list" style="width: 20px; height: 20px;"></i>
-                    <span class="text-base font-medium">Event ID Reference</span>
-                </a>
+                <?php
+                    $newsSubPages = ['news-api-guide', 'manage-events', 'similar-scene-api-guide', 'event-id-reference'];
+                    $newsGroupOpen = in_array($page ?? '', $newsSubPages);
+                ?>
+                <!-- News API group -->
+                <div class="mb-1">
+                    <button onclick="toggleNavGroup('news-group')" class="sidebar-link w-full flex items-center justify-between px-4 py-3 rounded-full <?php echo $newsGroupOpen ? 'active' : ''; ?>" style="color: <?php echo $newsGroupOpen ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; background: none; border: none; cursor: pointer;">
+                        <span class="flex items-center space-x-3">
+                            <i data-feather="file-text" style="width: 20px; height: 20px;"></i>
+                            <span class="text-base font-medium">News API Guide</span>
+                        </span>
+                        <i data-feather="chevron-down" id="news-group-chevron" style="width: 16px; height: 16px; transition: transform 0.2s; <?php echo $newsGroupOpen ? 'transform: rotate(180deg);' : ''; ?>"></i>
+                    </button>
+                    <div id="news-group" style="<?php echo $newsGroupOpen ? '' : 'display:none;'; ?> padding-left: 1rem; margin-top: 2px; border-left: 2px solid var(--border); margin-left: 1.5rem;">
+                        <a href="/news-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'news-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'news-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; font-size: 0.9rem;">
+                            <i data-feather="book-open" style="width: 16px; height: 16px;"></i>
+                            <span class="font-medium">API Guide</span>
+                        </a>
+                        <a href="/manage-events" class="sidebar-link <?php echo ($page ?? '') == 'manage-events' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'manage-events' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; font-size: 0.9rem;">
+                            <i data-feather="calendar" style="width: 16px; height: 16px;"></i>
+                            <span class="font-medium">Manage Events</span>
+                        </a>
+                        <a href="/similar-scene-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'similar-scene-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'similar-scene-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; font-size: 0.9rem;">
+                            <i data-feather="layers" style="width: 16px; height: 16px;"></i>
+                            <span class="font-medium">Similar Scene API</span>
+                        </a>
+                        <a href="/event-id-reference" class="sidebar-link <?php echo ($page ?? '') == 'event-id-reference' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'event-id-reference' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; font-size: 0.9rem;">
+                            <i data-feather="hash" style="width: 16px; height: 16px;"></i>
+                            <span class="font-medium">Event ID Reference</span>
+                        </a>
+                    </div>
+                </div>
                 <a href="/chart-image-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'chart-image-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'chart-image-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="image" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Chart Image API Guide</span>
@@ -357,14 +383,38 @@
                     <i data-feather="target" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Quarters Theory API Guide</span>
                 </a>
+                <a href="/url-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'url-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'url-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                    <i data-feather="globe" style="width: 20px; height: 20px;"></i>
+                    <span class="text-base font-medium">URL API Guide</span>
+                </a>
+                <?php
+                    $tmpSubPages = ['tmp-guide', 'tmp-manage'];
+                    $tmpGroupOpen = in_array($page ?? '', $tmpSubPages);
+                ?>
+                <div class="mb-1">
+                    <button onclick="toggleNavGroup('tmp-group')" class="sidebar-link w-full flex items-center justify-between px-4 py-3 rounded-full <?php echo $tmpGroupOpen ? 'active' : ''; ?>" style="color: <?php echo $tmpGroupOpen ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; background: none; border: none; cursor: pointer;">
+                        <span class="flex items-center space-x-3">
+                            <i data-feather="cpu" style="width: 20px; height: 20px;"></i>
+                            <span class="text-base font-medium">TMP Protocol</span>
+                        </span>
+                        <i data-feather="chevron-down" id="tmp-group-chevron" style="width: 16px; height: 16px; transition: transform 0.2s; <?php echo $tmpGroupOpen ? 'transform: rotate(180deg);' : ''; ?>"></i>
+                    </button>
+                    <div id="tmp-group" style="<?php echo $tmpGroupOpen ? '' : 'display:none;'; ?> padding-left: 1rem; margin-top: 2px; border-left: 2px solid var(--border); margin-left: 1.5rem;">
+                        <a href="/tmp-guide" class="sidebar-link <?php echo ($page ?? '') == 'tmp-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'tmp-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; font-size: 0.9rem;">
+                            <i data-feather="book-open" style="width: 16px; height: 16px;"></i>
+                            <span class="font-medium">TMP Guide</span>
+                        </a>
+                        <a href="/tmp-manage" class="sidebar-link <?php echo ($page ?? '') == 'tmp-manage' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'tmp-manage' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; font-size: 0.9rem;">
+                            <i data-feather="sliders" style="width: 16px; height: 16px;"></i>
+                            <span class="font-medium">TMP Manage</span>
+                        </a>
+                    </div>
+                </div>
                 <a href="/download-eas" class="sidebar-link <?php echo ($page ?? '') == 'download-eas' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'download-eas' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="download" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Download EAs</span>
                 </a>
-                <a href="/run-events-scrapper" class="sidebar-link <?php echo ($page ?? '') == 'run-events-scrapper' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'run-events-scrapper' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
-                    <i data-feather="refresh-cw" style="width: 20px; height: 20px;"></i>
-                    <span class="text-base font-medium">Run Events Scrapper</span>
-                </a>
+                <?php SidebarGuard::render(); ?>
             </nav>
 
             <!-- Settings -->
@@ -386,15 +436,25 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto" style="background-color: var(--bg-primary);">
-            <div class="min-h-full">
+        <main class="flex-1 overflow-y-auto flex flex-col" style="background-color: var(--bg-primary);">
+            <div class="flex-1">
                 <?php echo $content ?? ''; ?>
             </div>
+            <?php FooterGuard::render(); ?>
         </main>
     </div>
     <script>
         feather.replace();
-        
+
+        // Nav group expand/collapse
+        function toggleNavGroup(id) {
+            const panel   = document.getElementById(id);
+            const chevron = document.getElementById(id + '-chevron');
+            const open    = panel.style.display !== 'none';
+            panel.style.display  = open ? 'none' : '';
+            chevron.style.transform = open ? '' : 'rotate(180deg)';
+        }
+
         // Mobile Sidebar Toggle Functions
         function toggleMobileSidebar() {
             const sidebar = document.getElementById('sidebar');

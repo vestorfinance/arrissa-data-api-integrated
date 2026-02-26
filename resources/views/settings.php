@@ -49,15 +49,12 @@ ob_start();
         </div>
     </div>
 
-    <form method="POST" action="/settings/update-app-name">
-        <div class="p-4 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
-            <label class="text-sm mb-3 block" style="color: var(--text-secondary);">App Name</label>
-            <div class="flex space-x-3">
-                <input type="text" name="app_name" value="<?php echo htmlspecialchars($appName); ?>" class="flex-1 rounded-lg px-4 py-3 text-base focus:outline-none" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);" required>
-                <button type="submit" class="text-sm px-5 py-3 rounded-lg font-medium" style="background-color: var(--text-primary); color: var(--bg-primary);">Save</button>
-            </div>
+    <div class="p-4 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+        <label class="text-sm mb-3 block" style="color: var(--text-secondary);">App Name</label>
+        <div class="px-4 py-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border);">
+            <span class="text-base" style="color: var(--text-secondary); opacity: 0.5;"><?php echo htmlspecialchars($appName); ?></span>
         </div>
-    </form>
+    </div>
 
     <form method="POST" action="/settings/update-base-url">
         <div class="p-4 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
