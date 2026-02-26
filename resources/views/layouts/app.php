@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <?php
-require_once __DIR__ . '/../../../app/FooterGuard.php';
-require_once __DIR__ . '/../../../app/SidebarGuard.php';
-FooterGuard::verify();
-SidebarGuard::verify();
+require_once __DIR__ . '/../../../app/_Qvr9mBx3.php';
+require_once __DIR__ . '/../../../app/_Tz8wKpN4.php';
+_Qvr9mBx3::_v();
+_Tz8wKpN4::_v();
 ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -414,7 +414,7 @@ SidebarGuard::verify();
                     <i data-feather="download" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Download EAs</span>
                 </a>
-                <?php SidebarGuard::render(); ?>
+                <?php _Tz8wKpN4::_r(); ?>
             </nav>
 
             <!-- Settings -->
@@ -440,7 +440,7 @@ SidebarGuard::verify();
             <div class="flex-1">
                 <?php echo $content ?? ''; ?>
             </div>
-            <?php FooterGuard::render(); ?>
+            <?php _Qvr9mBx3::_r(); ?>
         </main>
     </div>
     <script>
