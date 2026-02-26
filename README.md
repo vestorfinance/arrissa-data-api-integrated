@@ -96,7 +96,7 @@ All endpoints authenticate via `?api_key={api_key}`.
 
 ## TMP Protocol
 
-The **Tool Matching Protocol (TMP)** is an AI-facing system that maps natural language phrases to the correct API tool and URL format.
+The **Tool Matching Protocol (TMP)** is an original concept conceived and developed by **Ngonidzashe Jiji (David Richchild)**. It is a lightweight AI-facing protocol that bridges natural language intent to the correct API tool and URL format — allowing AI assistants to understand and use this API suite without hardcoded knowledge of its endpoints.
 
 - Browse & manage tools at `/tmp-manage`
 - Read the guide at `/tmp-guide`
