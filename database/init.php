@@ -93,13 +93,18 @@ try {
 
     // ── Default settings ──────────────────────────────────────────────────────
     $defaults = [
-        'app_name'     => 'Arrissa Data API',
-        'api_key'      => 'arr_' . bin2hex(random_bytes(8)),
-        'app_base_url' => 'http://localhost',
+        'app_name'            => 'Arrissa Data API',
+        'api_key'             => 'arr_' . bin2hex(random_bytes(8)),
+        'app_base_url'        => 'http://localhost',
+        'events_last_updated' => '',
     ];
     foreach ($defaults as $key => $value) {
         $db->exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('$key', '$value')");
     }
+
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_tools_category ON tools(category_id)");
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_tools_enabled   ON tools(enabled)");
+    $db->exec("CREATE INDEX IF NOT EXISTS idx_tools_search    ON tools(search_phrase)");
 
     // ── TMP Categories ────────────────────────────────────────────────────────
     $tmpCategories = [
