@@ -98,6 +98,21 @@ ob_start();
         </div>
     </form>
 
+    <!-- Pull Updates -->
+    <div class="p-4 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+        <div class="flex justify-between items-center">
+            <div>
+                <div class="text-sm font-medium" style="color: var(--text-primary);">App Updates</div>
+                <div class="text-xs mt-0.5" style="color: var(--text-secondary);">Pull latest code from the Git repository</div>
+            </div>
+            <button id="updateBtn" onclick="pullUpdates()" class="text-sm px-5 py-2.5 rounded-lg font-medium flex items-center gap-2" style="background-color: var(--text-primary); color: var(--bg-primary);">
+                <i data-feather="download-cloud" style="width: 15px; height: 15px;"></i>
+                Pull Updates
+            </button>
+        </div>
+        <div id="updateOutput" style="display:none;" class="mt-3 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap break-all" style="background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-secondary); max-height: 160px; overflow-y: auto;"></div>
+    </div>
+
 </div>
 
 <!-- API Key Refresh Confirmation Modal -->
@@ -156,6 +171,46 @@ function copyApiKey(btn) {
             feather.replace();
         }, 1500);
     });
+}
+
+async function pullUpdates() {
+    const btn = document.getElementById('updateBtn');
+    const out = document.getElementById('updateOutput');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i data-feather="loader" style="width: 15px; height: 15px;"></i> Pulling…';
+    feather.replace();
+    out.style.display = 'none';
+    out.textContent = '';
+
+    try {
+        const res = await fetch('/api/update-app', { method: 'POST' });
+        const data = await res.json();
+
+        out.style.display = 'block';
+        out.style.backgroundColor = 'var(--input-bg)';
+        out.style.border = '1px solid var(--input-border)';
+        out.style.color = data.success ? 'var(--success)' : 'var(--danger)';
+
+        if (data.success && data.already_up_to_date) {
+            out.textContent = '✓ Already up to date.';
+        } else if (data.success) {
+            out.textContent = '✓ Updated successfully.\n\n' + data.output;
+        } else {
+            out.textContent = '✗ ' + data.error + '\n\n' + data.output;
+        }
+
+        btn.innerHTML = '<i data-feather="download-cloud" style="width: 15px; height: 15px;"></i> Pull Updates';
+        btn.disabled = false;
+        feather.replace();
+    } catch (e) {
+        out.style.display = 'block';
+        out.style.color = 'var(--danger)';
+        out.textContent = '✗ Request failed: ' + e.message;
+        btn.innerHTML = '<i data-feather="download-cloud" style="width: 15px; height: 15px;"></i> Pull Updates';
+        btn.disabled = false;
+        feather.replace();
+    }
 }
 </script>
 
