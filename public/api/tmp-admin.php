@@ -25,6 +25,18 @@ try {
 $pdo = new PDO('sqlite:' . __DIR__ . '/../../database/app.db');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+// Auto-migrate: add columns that may be missing from older DB installs
+$existingCols = array_column(
+    $pdo->query("PRAGMA table_info(tools)")->fetchAll(PDO::FETCH_ASSOC),
+    'name'
+);
+if (!in_array('auth_method', $existingCols)) {
+    $pdo->exec("ALTER TABLE tools ADD COLUMN auth_method TEXT DEFAULT 'api_key_query'");
+}
+if (!in_array('response_type', $existingCols)) {
+    $pdo->exec("ALTER TABLE tools ADD COLUMN response_type TEXT DEFAULT 'json'");
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 // ── GET: read data ─────────────────────────────────────────────────────────
