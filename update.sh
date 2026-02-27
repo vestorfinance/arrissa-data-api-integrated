@@ -12,6 +12,11 @@ REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 chown -R www-data:www-data "$REPO_DIR/.git"
 chmod -R g+rwX "$REPO_DIR/.git"
 
-# Run git pull
 cd "$REPO_DIR" || exit 1
+
+# Discard any local changes to tracked files so pull always succeeds
+git reset --hard HEAD 2>&1
+git clean -fd 2>&1
+
+# Pull latest code
 git pull origin main 2>&1
