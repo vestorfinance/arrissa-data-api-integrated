@@ -32,14 +32,14 @@ try {
     $api_key = $_GET['api_key'] ?? null;
 
     if (!$api_key) {
-        http_response_code(200);
-        echo json_encode(['success' => false, 'error' => 'Missing api_key parameter']);
+        http_response_code(404);
+        echo json_encode(['error' => 'Not found']);
         exit;
     }
 
     if (!$storedApiKey || $storedApiKey !== $api_key) {
-        http_response_code(200);
-        echo json_encode(['success' => false, 'error' => 'Invalid API key']);
+        http_response_code(404);
+        echo json_encode(['error' => 'Not found']);
         exit;
     }
 
@@ -48,7 +48,11 @@ try {
 
     if ($searchPhrase === '') {
         http_response_code(200);
-        echo json_encode(['success' => false, 'error' => 'Missing search_phrase parameter']);
+        echo json_encode([
+            'success' => false,
+            'error'   => 'Missing search_phrase parameter',
+            'hint'    => 'Add &search_phrase={phrase} to your request. Call /api/tmp-tool-capabilities to list all valid search_phrase values.',
+        ]);
         exit;
     }
 

@@ -24,8 +24,8 @@ try {
     $api_key = $_GET['api_key'] ?? null;
 
     if (!$api_key) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Missing api_key parameter']);
+        http_response_code(404);
+        echo json_encode(['error' => 'Not found']);
         exit;
     }
 
@@ -34,8 +34,8 @@ try {
     $setting = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$setting || $setting['value'] !== $api_key) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Invalid API key']);
+        http_response_code(404);
+        echo json_encode(['error' => 'Not found']);
         exit;
     }
 
@@ -49,8 +49,12 @@ try {
         $cat = $catStmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$cat) {
-            http_response_code(404);
-            echo json_encode(['error' => "Category '{$categoryName}' not found"]);
+            http_response_code(200);
+            echo json_encode([
+                'success' => false,
+                'error'   => "Category '{$categoryName}' not found",
+                'hint'    => 'Call /api/tmp-categories to see all available category names.',
+            ]);
             exit;
         }
 
