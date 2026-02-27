@@ -303,7 +303,7 @@ _Tz8wKpN4::_v();
         </button>
         <div class="mobile-header-logo">
             <div class="mobile-header-logo-circle" style="background-color: var(--accent); display: flex; align-items: center; justify-content: center;">
-                <svg style="width: 22px; height: 22px; color: #fff; fill: currentColor;" viewBox="0 0 7000 7000" xmlns="http://www.w3.org/2000/svg">
+<svg style="width: 22px; height: 22px; color: #fff; fill: currentColor;" viewBox="0 0 7000 7000" xmlns="http://www.w3.org/2000/svg">
                     <g>
                         <path d="M3534.57 2921.26l509.33 278.51 0 600.85 -543.85 297.38 -543.84 -297.38 0 -600.85 543.84 -297.38 34.51 18.87zm166.69 255.62l-201.2 -110.02 -399.01 218.18 0 430.3 399.01 218.19 399.01 -218.19 0 -430.3 -197.81 -108.16z"></path>
                         <path d="M3206.76 1423.91l672.75 0 0 1366.1 -745.17 0 0 -1366.1 72.42 0zm527.92 144.83l-455.5 0 0 1076.43 455.5 0 0 -1076.43z"></path>
@@ -341,7 +341,7 @@ _Tz8wKpN4::_v();
             <div class="p-7" style="border-bottom: 1px solid var(--border);">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--accent);">
-                        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 7000 7000" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-30 h-30 text-white" fill="currentColor" viewBox="0 0 7000 7000" xmlns="http://www.w3.org/2000/svg">
                             <g>
                                 <path d="M3534.57 2921.26l509.33 278.51 0 600.85 -543.85 297.38 -543.84 -297.38 0 -600.85 543.84 -297.38 34.51 18.87zm166.69 255.62l-201.2 -110.02 -399.01 218.18 0 430.3 399.01 218.19 399.01 -218.19 0 -430.3 -197.81 -108.16z"></path>
                                 <path d="M3206.76 1423.91l672.75 0 0 1366.1 -745.17 0 0 -1366.1 72.42 0zm527.92 144.83l-455.5 0 0 1076.43 455.5 0 0 -1076.43z"></path>

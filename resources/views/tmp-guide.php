@@ -45,7 +45,7 @@ $catMeta = [
     'web-content'       => ['icon' => 'globe',          'color' => '#db2777', 'guide' => '/url-api-guide',              'label' => 'Web Content'],
 ];
 
-$title = 'TMP — Tool Management Protocol';
+$title = 'TMP — Tool Matching Protocol';
 $page  = 'tmp-guide';
 ob_start();
 ?>
@@ -114,7 +114,7 @@ ob_start();
             <div>
                 <div class="flex items-center gap-3 mb-3">
                     <h1 class="text-4xl font-bold tracking-tight" style="color: var(--text-primary);">
-                        Tool Management Protocol
+                        Tool Matching Protocol
                     </h1>
                     <span class="section-badge" style="background-color: var(--accent); color: #fff;">TMP</span>
                 </div>
@@ -191,6 +191,13 @@ ob_start();
                         <span class="text-sm" style="color: var(--text-secondary);">Your API key from Settings</span>
                     </div>
                 </div>
+                <div class="param-row flex items-start gap-4">
+                    <code class="text-sm font-mono w-28 flex-shrink-0 mt-1" style="color: var(--accent);">exclude</code>
+                    <div>
+                        <span class="section-badge mr-2" style="background-color: rgba(100,116,139,0.12); color: var(--text-secondary); font-size:0.68rem;">optional</span>
+                        <span class="text-sm" style="color: var(--text-secondary);">Comma-separated list of category <strong style="color:var(--text-primary);">names</strong> to omit from the response. Useful when an AI agent only needs a subset of categories. <br><span class="text-xs" style="color:var(--text-secondary);">e.g. <code style="color:var(--accent);">exclude=chart-images,orders</code></span></span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -201,6 +208,12 @@ ob_start();
                style="background-color: var(--accent); color: #fff; border-radius: 9999px; text-decoration: none;">
                 <i data-feather="external-link" style="width:15px;height:15px;"></i>
                 Test Live Response
+            </a>
+            <a href="<?= htmlspecialchars($baseUrl) ?>/api/tmp-categories?api_key=<?= htmlspecialchars($apiKey) ?>&exclude=chart-images,orders" target="_blank"
+               class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold"
+               style="background-color: var(--bg-secondary); color: var(--text-primary); border-radius: 9999px; text-decoration: none; border: 1px solid var(--border);">
+                <i data-feather="filter" style="width:15px;height:15px;"></i>
+                Test with exclude=chart-images,orders
             </a>
         </div>
 

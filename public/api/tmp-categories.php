@@ -39,22 +39,50 @@ try {
     }
 
     // ── Query ─────────────────────────────────────────────────────────────────
-    $rows = $pdo->query("
-        SELECT
-            tc.id,
-            tc.name,
-            tc.description,
-            tc.endpoint_base,
-            tc.requires_ea,
-            tc.ea_name,
-            tc.created_at,
-            COUNT(t.id)         AS tool_count,
-            SUM(t.enabled)      AS enabled_count
-        FROM tool_categories tc
-        LEFT JOIN tools t ON tc.id = t.category_id
-        GROUP BY tc.id
-        ORDER BY tc.id
-    ")->fetchAll(PDO::FETCH_ASSOC);
+    $excludeRaw  = trim($_GET['exclude'] ?? '');
+    $excludeList = $excludeRaw !== ''
+        ? array_map('trim', explode(',', $excludeRaw))
+        : [];
+
+    if ($excludeList) {
+        $placeholders = implode(',', array_fill(0, count($excludeList), '?'));
+        $stmt = $pdo->prepare("
+            SELECT
+                tc.id,
+                tc.name,
+                tc.description,
+                tc.endpoint_base,
+                tc.requires_ea,
+                tc.ea_name,
+                tc.created_at,
+                COUNT(t.id)         AS tool_count,
+                SUM(t.enabled)      AS enabled_count
+            FROM tool_categories tc
+            LEFT JOIN tools t ON tc.id = t.category_id
+            WHERE tc.name NOT IN ($placeholders)
+            GROUP BY tc.id
+            ORDER BY tc.id
+        ");
+        $stmt->execute($excludeList);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $rows = $pdo->query("
+            SELECT
+                tc.id,
+                tc.name,
+                tc.description,
+                tc.endpoint_base,
+                tc.requires_ea,
+                tc.ea_name,
+                tc.created_at,
+                COUNT(t.id)         AS tool_count,
+                SUM(t.enabled)      AS enabled_count
+            FROM tool_categories tc
+            LEFT JOIN tools t ON tc.id = t.category_id
+            GROUP BY tc.id
+            ORDER BY tc.id
+        ")->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     $categories = array_map(function ($r) {
         return [
