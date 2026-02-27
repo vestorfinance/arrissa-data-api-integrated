@@ -11,10 +11,16 @@
  *   add_category, update_category, delete_category
  */
 
+// Prevent PHP notices/warnings from corrupting the JSON response
+ini_set('display_errors', 0);
+error_reporting(0);
+
 require_once __DIR__ . '/../../app/Auth.php';
 Auth::check();
 
 header('Content-Type: application/json');
+
+try {
 
 $pdo = new PDO('sqlite:' . __DIR__ . '/../../database/app.db');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -218,3 +224,11 @@ if ($method === 'POST') {
 
 http_response_code(405);
 echo json_encode(['error' => 'Method not allowed']);
+
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
+}
