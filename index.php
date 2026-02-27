@@ -48,12 +48,6 @@ if ($uri === '/api/search') {
     exit;
 }
 
-// Handle chart stream short URLs: /chart-image-api-v1/s/{code}
-if (preg_match('#^/chart-image-api-v1/s/([a-zA-Z0-9]+)$#', $uri, $m)) {
-    include __DIR__ . '/chart-image-api-v1/s/index.php';
-    exit;
-}
-
 // Handle URL fetch API (requires api_key)
 if ($uri === '/api/url-api') {
     include __DIR__ . '/url-api-v1/url-api.php';
