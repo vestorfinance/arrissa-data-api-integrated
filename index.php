@@ -108,6 +108,12 @@ if ($uri === '/api/tmp-admin') {
     exit;
 }
 
+// Handle app update (git pull) — requires session auth
+if ($uri === '/api/update-app') {
+    include __DIR__ . '/public/api/update-app.php';
+    exit;
+}
+
 // Front page disabled — redirect to login
 if ($uri === '/') {
     header('Location: /login');
