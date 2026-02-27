@@ -81,7 +81,7 @@ try {
     echo json_encode([
         'search_phrase'      => $tool['search_phrase'],
         'tool_url'           => str_replace(['{base_url}', '{api_key}'], [$baseUrl, $storedApiKey], $tool['tool_format']),
-        'inputs_explanation' => $tool['inputs_explanation'],
+        'inputs_explanation' => array_values(array_filter(array_map('trim', explode("\n", $tool['inputs_explanation'])))),
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
 } catch (Exception $e) {
