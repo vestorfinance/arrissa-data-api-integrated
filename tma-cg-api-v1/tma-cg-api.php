@@ -50,8 +50,8 @@ function authenticate() {
     global $db;
     $api_key = $_GET['api_key'] ?? null;
     if (!$api_key) {
-        http_response_code(401);
-        echo json_encode(['error'=>'Missing API key']);
+        http_response_code(404);
+        echo json_encode(['error'=>'Not found']);
         exit;
     }
     
@@ -59,8 +59,8 @@ function authenticate() {
     $validKey = $result ? $result['value'] : '';
     
     if ($api_key !== $validKey) {
-        http_response_code(401);
-        echo json_encode(['error'=>'Invalid API key']);
+        http_response_code(404);
+        echo json_encode(['error'=>'Not found']);
         exit;
     }
 }

@@ -20,7 +20,8 @@ function authenticate() {
     $api_key = $_GET['api_key'] ?? null;
     
     if (!$api_key) {
-        echo json_encode(["vestor_data" => ["error" => "Missing API key."]], JSON_PRETTY_PRINT);
+        http_response_code(404);
+        echo json_encode(['error' => 'Not found']);
         exit;
     }
     
@@ -31,7 +32,8 @@ function authenticate() {
     $validApiKey = $result ? $result['value'] : '';
     
     if ($api_key !== $validApiKey) {
-        echo json_encode(["vestor_data" => ["error" => "Invalid API key."]], JSON_PRETTY_PRINT);
+        http_response_code(404);
+        echo json_encode(['error' => 'Not found']);
         exit;
     }
 }

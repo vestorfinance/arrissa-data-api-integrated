@@ -215,12 +215,14 @@ function authenticate() {
     
     $api_key = isset($_GET['api_key']) ? $_GET['api_key'] : null;
     if (!$api_key) {
-        echo json_encode(['error'=>'Missing API key']);
+        http_response_code(404);
+        echo json_encode(['error'=>'Not found']);
         exit;
     }
     
     if ($api_key !== $VALID_API_KEY) {
-        echo json_encode(['error'=>'Invalid API key']);
+        http_response_code(404);
+        echo json_encode(['error'=>'Not found']);
         exit;
     }
     

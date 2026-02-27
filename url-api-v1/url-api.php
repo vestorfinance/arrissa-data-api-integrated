@@ -22,8 +22,8 @@ $_sysRow  = $_sysStmt->fetch();
 $_sysKey  = $_sysRow ? $_sysRow['value'] : null;
 $_reqKey  = $_GET['api_key'] ?? ($_SERVER['HTTP_X_API_KEY'] ?? null);
 if (!$_reqKey || !$_sysKey || !hash_equals($_sysKey, $_reqKey)) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized: invalid or missing api_key']);
+    http_response_code(404);
+    echo json_encode(['error' => 'Not found']);
     exit;
 }
 // Remove api_key from $_GET so it is not forwarded to target-URL auth logic
@@ -36,11 +36,10 @@ function debug_log($message) {
     }
 }
 
-function json_error($msg, $code = 400, $details = null) {
-    http_response_code($code);
-    $response = ['error' => $msg];
-    if ($details && isset($_GET['debug'])) {
-        $response['debug'] = $details;
+function json_error($msg, $code = 200, $details = null) {
+    $response = ['success' => false, 'error' => $msg];
+    if ($details) {
+        $response['details'] = $details;
     }
     echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     exit;
