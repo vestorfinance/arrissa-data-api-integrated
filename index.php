@@ -108,9 +108,9 @@ if ($uri === '/api/tmp-admin') {
     exit;
 }
 
-// Handle front page (no auth required)
+// Front page disabled — redirect to login
 if ($uri === '/') {
-    include __DIR__ . '/front.php';
+    header('Location: /login');
     exit;
 }
 
