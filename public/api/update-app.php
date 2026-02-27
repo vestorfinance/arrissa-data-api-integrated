@@ -13,13 +13,21 @@ Auth::check();
 header('Content-Type: application/json');
 
 $repoPath = realpath(__DIR__ . '/../../');
-$updateScript = $repoPath . '/update.sh';
 
-// Run update script via sudo (fixes .git ownership then does git pull)
-// Requires sudoers entry: www-data ALL=(ALL) NOPASSWD: /path/to/update.sh
-$output = [];
+$output   = [];
 $exitCode = 0;
-exec("sudo " . escapeshellarg($updateScript) . " 2>&1", $output, $exitCode);
+
+if (PHP_OS_FAMILY === 'Windows') {
+    // Windows (WAMP/XAMPP): run update.bat directly via cmd — no sudo or chown needed
+    $updateScript = $repoPath . '\\update.bat';
+    $cmd = 'cmd /c "' . $updateScript . '" 2>&1';
+    exec($cmd, $output, $exitCode);
+} else {
+    // Linux/macOS: use sudo update.sh which fixes .git ownership then pulls
+    // Requires sudoers entry: www-data ALL=(ALL) NOPASSWD: /path/to/update.sh
+    $updateScript = $repoPath . '/update.sh';
+    exec("sudo " . escapeshellarg($updateScript) . " 2>&1", $output, $exitCode);
+}
 
 $outputStr = implode("\n", $output);
 
