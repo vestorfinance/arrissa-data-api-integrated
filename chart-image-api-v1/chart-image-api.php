@@ -160,7 +160,7 @@ if ($pretendTime)  $params['pretend_time'] = $pretendTime;
 if ($rangeType)    $params['rangeType']   = $rangeType;
 if ($dataField)    $params['data']        = $dataField;
 
-$apiUrl = $BASE_URL . '/market-data-api-v1/market-data-api?' . http_build_query($params);
+$apiUrl = $BASE_URL . '/market-data-api-v1/market-data-api.php?' . http_build_query($params);
 $raw    = @file_get_contents($apiUrl);
 if ($raw === false) {
     header('Content-Type: text/plain', true, 502);
