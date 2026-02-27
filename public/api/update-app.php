@@ -13,11 +13,13 @@ Auth::check();
 header('Content-Type: application/json');
 
 $repoPath = realpath(__DIR__ . '/../../');
+$updateScript = $repoPath . '/update.sh';
 
-// Run git pull and capture output + exit code
+// Run update script via sudo (fixes .git ownership then does git pull)
+// Requires sudoers entry: www-data ALL=(ALL) NOPASSWD: /path/to/update.sh
 $output = [];
 $exitCode = 0;
-exec("cd " . escapeshellarg($repoPath) . " && git pull origin main 2>&1", $output, $exitCode);
+exec("sudo " . escapeshellarg($updateScript) . " 2>&1", $output, $exitCode);
 
 $outputStr = implode("\n", $output);
 
