@@ -229,9 +229,8 @@ if ($symbol) {
     authenticate();
     // Validate timeframe first
     if (!validate_timeframe($timeframe)) {
-        http_response_code(400);
         debug_log("Invalid timeframe provided: $timeframe");
-        echo json_encode(['arrissa_data' => ['error'=>'Invalid timeframe. Valid options: M5, M15, M30, H1, H4, H8, H12, D1, W1, M']]);
+        echo json_encode(['arrissa_data' => ['success' => false, 'error' => 'Invalid timeframe — please check your parameters', 'hint' => 'Valid options: M5, M15, M30, H1, H4, H8, H12, D1, W1, M']]);
         exit;
     }
 
@@ -242,7 +241,6 @@ if ($symbol) {
 
     // Validate lookback (timeframe-specific)
     if (!validate_lookback($lookback, $timeframe)) {
-        http_response_code(400);
         debug_log("Invalid lookback provided: $lookback for timeframe: $timeframe");
         
         $maxLimits = [
@@ -252,15 +250,14 @@ if ($symbol) {
         ];
         $maxLimit = $maxLimits[$timeframe] ?? 1000;
         
-        echo json_encode(['arrissa_data' => ['error'=>"Invalid lookback for $timeframe timeframe. Must be between 1 and $maxLimit periods"]]);
+        echo json_encode(['arrissa_data' => ['success' => false, 'error' => "Invalid lookback — please check your parameters", 'hint' => "For $timeframe timeframe, lookback must be between 1 and $maxLimit periods"]]);
         exit;
     }
 
     // Validate ignore_sunday
     if (!validate_ignore_sunday($ignore_sunday)) {
-        http_response_code(400);
         debug_log("Invalid ignore_sunday provided: $ignore_sunday");
-        echo json_encode(['arrissa_data' => ['error'=>'Invalid ignore_sunday. Valid options: true, false, 1, 0']]);
+        echo json_encode(['arrissa_data' => ['success' => false, 'error' => 'Invalid ignore_sunday — please check your parameters', 'hint' => 'Valid options: true, false, 1, 0']]);
         exit;
     }
 

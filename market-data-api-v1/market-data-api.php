@@ -578,11 +578,11 @@ if ($symbol && $rangeType) {
     // Validate all parameters before processing
     $validationErrors = validate_request_parameters($_GET);
     if (!empty($validationErrors)) {
-        http_response_code(400);
         debug_log("Client GET validation errors: " . implode(', ', $validationErrors));
         echo json_encode([
             'vestor_data' => [
-                'error' => 'Validation failed',
+                'success' => false,
+                'error' => 'Invalid request parameters — please check your parameters',
                 'details' => $validationErrors
             ]
         ]);
@@ -775,11 +775,11 @@ elseif ($symbol && $timeframe && $count) {
 
     $validationErrors = validate_request_parameters($legacyParams);
     if (!empty($validationErrors)) {
-        http_response_code(400);
         debug_log("Client GET legacy validation errors: " . implode(', ', $validationErrors));
         echo json_encode([
             'vestor_data' => [
-                'error' => 'Validation failed',
+                'success' => false,
+                'error' => 'Invalid request parameters — please check your parameters',
                 'details' => $validationErrors
             ]
         ]);
@@ -864,7 +864,6 @@ elseif ($symbol && $timeframe && $count) {
 // 2c) Invalid parameters - provide helpful error message with enhanced volume support
 //--------------------------------------------
 elseif (!empty($_GET) && !isset($_GET['api_key'])) {
-    http_response_code(400);
     echo json_encode([
         'vestor_data' => [
             'error' => 'Invalid request parameters',

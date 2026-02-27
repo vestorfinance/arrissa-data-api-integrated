@@ -91,9 +91,16 @@ $showHighLow = isset($_GET['high_low']) && $_GET['high_low'] === 'true';
 $streaming   = $_GET['streaming'] ?? null;
 $theme       = $_GET['theme'] ?? 'light';
 
-if (!$apiKey || !$symbol || !$timeframe) {
-    header('Content-Type: text/plain', true, 400);
-    exit('Missing api_key, symbol, or timeframe');
+if (!$apiKey) {
+    http_response_code(404);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Not found']);
+    exit;
+}
+if (!$symbol || !$timeframe) {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'error' => 'Missing required parameters — please check your parameters', 'hint' => 'symbol and timeframe are required. Format: ?api_key={key}&symbol={EURUSD}&timeframe={M1|M5|M15|M30|H1|H4|D1|W1|MN1}&count={count}']);
+    exit;
 }
 
 // Handle streaming modes
