@@ -48,6 +48,16 @@ try {
     $db->exec("CREATE INDEX IF NOT EXISTS idx_impact_level ON economic_events(impact_level)");
     $db->exec("CREATE INDEX IF NOT EXISTS idx_consistent_event_id ON economic_events(consistent_event_id)");
 
+    // ── Chart stream URLs table ───────────────────────────────────────────────
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS chart_stream_urls (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            short_code TEXT UNIQUE NOT NULL,
+            params TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ");
+
     // ── TMP tables ────────────────────────────────────────────────────────────
     $db->exec("
         CREATE TABLE IF NOT EXISTS tool_categories (
