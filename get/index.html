@@ -598,6 +598,32 @@ sudo systemctl status caddy</pre>
                     <p>Go to <strong>Settings → App Base URL</strong> and set it to <code class="hl-domain" id="u-base-url">https://yourdomain.com</code></p>
                 </div>
             </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">5</span>Enable auto news &amp; events sync</div>
+                <div class="step-body">
+                    <p>Register a cron job that runs every minute to keep economic events up to date:</p>
+                    <div class="code-block">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre># Install &amp; start cron daemon (skip if already running)
+apt-get install -y cron &amp;&amp; service cron start
+
+# Register the every-minute job (preserves existing crontab entries)
+(crontab -l 2>/dev/null; echo "* * * * * php /var/www/arrissa/database/cron-sync-events.php") | crontab -
+
+# Verify it was added
+crontab -l</pre>
+                    </div>
+                    <div class="callout callout-info" style="margin-top:12px;">
+                        <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                        <span><strong>Smart trigger:</strong> Runs every minute but only fetches when needed — 3 min after an event fires, or when &gt;12 h since last sync. You can also trigger it on demand from the <strong>Manage Events</strong> page.</span>
+                    </div>
+                    <div class="callout callout-warn" style="margin-top:8px;">
+                        <i data-feather="alert-triangle" class="callout-icon" style="width:16px;height:16px;color:var(--warning);"></i>
+                        <span>Docker/LXC containers don't auto-start cron after restart. Add <code>service cron start</code> to your container entrypoint script.</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -754,6 +780,29 @@ Start-Service Apache2.4</pre>
                     <p>Go to <strong>Settings → App Base URL</strong> and set to <code class="hl-domain" id="x-base-url">http://yourdomain.com</code></p>
                 </div>
             </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">6</span>Enable auto news &amp; events sync</div>
+                <div class="step-body">
+                    <p>Run once in PowerShell <strong>as Administrator</strong> to register a Windows Scheduled Task that fires every minute:</p>
+                    <div class="code-block">
+                        <span class="code-lang">powershell</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>$phpExe = "C:\xampp\php\php.exe"
+$script  = "C:\xampp\htdocs\arrissa\database\cron-sync-events.php"
+$action  = New-ScheduledTaskAction -Execute $phpExe -Argument $script
+$atBoot  = New-ScheduledTaskTrigger -AtStartup
+$repeat  = (New-TimeSpan -Minutes 1)
+$atBoot.RepetitionInterval = $repeat
+$atBoot.RepetitionDuration = [System.TimeSpan]::MaxValue
+$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -RestartOnIdle $false
+Register-ScheduledTask -TaskName "ArrissaEventsCron" -Action $action -Trigger $atBoot -Settings $settings -RunLevel Highest -Force</pre>
+                    </div>
+                    <div class="callout callout-info" style="margin-top:12px;">
+                        <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                        <span><strong>Smart trigger:</strong> Runs every minute but only fetches when needed. To remove later: <code>Unregister-ScheduledTask -TaskName "ArrissaEventsCron" -Confirm:$false</code></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -899,6 +948,29 @@ $httpd | Set-Content "C:\wamp64\bin\apache\apache2.4.x\conf\httpd.conf"</pre>
                     <p>Open <code>http://localhost</code> in your browser.</p>
                     <p>Login: <code>admin</code> / <code>admin</code> — <strong style="color:var(--warning);">change this in Settings.</strong></p>
                     <p>Go to <strong>Settings → App Base URL</strong> and leave it as <code>http://127.0.0.1</code> or <code>http://localhost</code>.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">5</span>Enable auto news &amp; events sync</div>
+                <div class="step-body">
+                    <p>Run once in PowerShell <strong>as Administrator</strong> to register a Windows Scheduled Task:</p>
+                    <div class="code-block">
+                        <span class="code-lang">powershell</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>$phpExe = "C:\wamp64\bin\php\php8.3.x\php.exe"  # update to your actual PHP folder
+$script  = "C:\wamp64\www\database\cron-sync-events.php"
+$action  = New-ScheduledTaskAction -Execute $phpExe -Argument $script
+$atBoot  = New-ScheduledTaskTrigger -AtStartup
+$repeat  = (New-TimeSpan -Minutes 1)
+$atBoot.RepetitionInterval = $repeat
+$atBoot.RepetitionDuration = [System.TimeSpan]::MaxValue
+$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -RestartOnIdle $false
+Register-ScheduledTask -TaskName "ArrissaEventsCron" -Action $action -Trigger $atBoot -Settings $settings -RunLevel Highest -Force</pre>
+                    </div>
+                    <div class="callout callout-info" style="margin-top:12px;">
+                        <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                        <span><strong>Local dev note:</strong> This is optional for localhost — you can sync events manually from <strong>Manage Events</strong> whenever you need fresh data. To remove: <code>Unregister-ScheduledTask -TaskName "ArrissaEventsCron" -Confirm:$false</code></span>
+                    </div>
                 </div>
             </div>
         </div>
