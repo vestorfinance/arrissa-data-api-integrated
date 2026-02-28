@@ -366,11 +366,16 @@ sudo apt install -y caddy</pre>
                         <span class="code-lang">bash</span>
                         <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
                         <pre># Move Apache off port 80 so Caddy can take it
-sudo sed -i 's/Listen 80$/Listen 8080/' /etc/apache2/ports.conf
-sudo sed -i 's/Listen 80 /Listen 8080 /' /etc/apache2/ports.conf
+sudo sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
 
-# Update the default vhost to match
-sudo sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8080>/' /etc/apache2/sites-enabled/000-default.conf
+# Rewrite the default vhost to listen on 8080
+sudo tee /etc/apache2/sites-enabled/000-default.conf &gt; /dev/null &lt;&lt;'EOF'
+&lt;VirtualHost *:8080&gt;
+    DocumentRoot /var/www/html
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+&lt;/VirtualHost&gt;
+EOF
 
 # Verify config is valid before restarting
 sudo apache2ctl configtest
