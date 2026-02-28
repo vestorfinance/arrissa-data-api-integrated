@@ -406,7 +406,13 @@ sudo systemctl restart apache2</pre>
                         <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
                         <pre>sudo mkdir -p /var/www/arrissa
 sudo chown $USER:$USER /var/www/arrissa
+
+# If directory is empty, clone normally:
 git clone https://github.com/vestorfinance/arrissa-data-api-integrated.git /var/www/arrissa
+
+# If directory already exists and is not empty, use this instead:
+# cd /var/www/arrissa && git init && git remote add origin https://github.com/vestorfinance/arrissa-data-api-integrated.git && git fetch && git reset --hard origin/main
+
 cd /var/www/arrissa</pre>
                     </div>
                 </div>
@@ -493,12 +499,14 @@ EOF</pre>
                         <span class="code-lang">bash</span>
                         <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
                         <pre>sudo a2dissite 000-default.conf
+# If you get "not a symbolic link" error, remove it manually:
+sudo rm -f /etc/apache2/sites-enabled/000-default.conf
 sudo a2ensite arrissa.conf
 sudo systemctl reload apache2</pre>
                     </div>
                     <div class="callout callout-warn">
                         <i data-feather="alert-triangle" class="callout-icon" style="width:16px;height:16px;color:var(--warning);"></i>
-                        <span><strong>Do not skip this.</strong> If you see the Apache default welcome page, it means <code>000-default.conf</code> is still active. Run these three lines and reload — the Arrissa app will appear.</span>
+                        <span><strong>Still seeing the Apache default page?</strong> Run <code>sudo rm -f /etc/apache2/sites-enabled/000-default.conf</code> then <code>sudo systemctl reload apache2</code>.</span>
                     </div>
                 </div>
             </div>
