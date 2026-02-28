@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPS Providers — Arrissa Data</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #4f46e5;
+            --accent-hover: #6366f1;
+            --border: #3a3a3a;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --card-bg: #1f1f1f;
+            --input-bg: #262626;
+            --input-border: #404040;
+        }
+        * { box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--input-border) var(--bg-secondary); }
+        *::-webkit-scrollbar { width: 6px; height: 6px; }
+        *::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        *::-webkit-scrollbar-thumb { background-color: var(--input-border); border-radius: 3px; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-primary); color: var(--text-primary); margin: 0; line-height: 1.6; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .top-nav { position: sticky; top: 0; z-index: 100; background-color: rgba(15,15,15,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { display: flex; align-items: center; gap: 12px; }
+        .nav-logo-circle { width: 36px; height: 36px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .nav-links { display: flex; gap: 12px; align-items: center; }
+        .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; border: 1px solid var(--border); border-radius: 9999px; padding: 6px 14px; transition: all 0.15s; }
+        .back-link:hover { border-color: var(--accent); color: var(--text-primary); text-decoration: none; }
+        .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+        .hero { text-align: center; padding: 72px 24px 56px; }
+        .hero h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 16px; }
+        .hero p { color: var(--text-secondary); font-size: 1.05rem; max-width: 540px; margin: 0 auto; }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+        .badge-accent { background-color: rgba(79,70,229,0.15); color: var(--accent); border: 1px solid rgba(79,70,229,0.3); }
+        .badge-success { background-color: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+        .badge-warn { background-color: rgba(245,158,11,0.12); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
+        .badge-featured { background: linear-gradient(90deg,rgba(79,70,229,0.2),rgba(16,185,129,0.2)); color: #a5f3fc; border: 1px solid rgba(99,102,241,0.4); }
+        /* Featured card */
+        .featured-card { background: linear-gradient(135deg, rgba(79,70,229,0.12), rgba(16,185,129,0.08)); border: 1.5px solid rgba(79,70,229,0.4); border-radius: 24px; padding: 36px; margin-bottom: 32px; display: flex; align-items: flex-start; gap: 32px; position: relative; overflow: hidden; }
+        .featured-card::before { content: 'RECOMMENDED'; position: absolute; top: 20px; right: -28px; background: linear-gradient(90deg,var(--accent),#6366f1); color: #fff; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; padding: 5px 40px; transform: rotate(45deg); }
+        @media (max-width: 650px) { .featured-card { flex-direction: column; gap: 20px; } }
+        .featured-logo { width: 80px; height: 80px; border-radius: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; font-weight: 800; }
+        .featured-body { flex: 1; min-width: 0; }
+        .featured-name { font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin: 0 0 4px; }
+        .featured-sub { font-size: 0.875rem; color: var(--text-secondary); margin: 0 0 16px; }
+        .vps-specs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .spec-pill { background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 9999px; padding: 6px 14px; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; }
+        .spec-pill span { color: var(--text-primary); }
+        .vps-features { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+        .feature-tag { background-color: rgba(79,70,229,0.1); border: 1px solid rgba(79,70,229,0.2); color: var(--text-secondary); border-radius: 9999px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600; }
+        .cta-btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 13px 28px; border-radius: 9999px; font-size: 0.9rem; font-weight: 700; background: linear-gradient(90deg, var(--accent), #6366f1); color: #fff; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 16px rgba(79,70,229,0.35); }
+        .cta-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(79,70,229,0.5); text-decoration: none; }
+        .cta-btn-outline { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; border: 1px solid var(--accent); color: var(--accent); background: transparent; text-decoration: none; transition: all 0.2s; }
+        .cta-btn-outline:hover { background-color: var(--accent); color: #fff; text-decoration: none; }
+        /* Other providers */
+        .providers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 48px; }
+        @media (max-width: 600px) { .providers-grid { grid-template-columns: 1fr; } }
+        .provider-card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 24px; transition: border-color 0.2s, transform 0.15s; }
+        .provider-card:hover { border-color: var(--border); transform: translateY(-2px); }
+        .provider-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+        .provider-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.75rem; font-weight: 800; }
+        .provider-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 2px; }
+        .provider-desc { font-size: 0.82rem; color: var(--text-secondary); margin: 0 0 14px; line-height: 1.55; }
+        .provider-specs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .provider-cta { display: flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; border: 1px solid var(--border); color: var(--text-secondary); background: transparent; text-decoration: none; transition: all 0.2s; }
+        .provider-cta:hover { border-color: var(--accent); color: var(--text-primary); text-decoration: none; }
+        /* Specs comparison table */
+        .compare-table { width: 100%; border-collapse: collapse; margin-bottom: 48px; }
+        .compare-table th { text-align: left; padding: 12px 16px; background-color: var(--bg-secondary); font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+        .compare-table th:first-child { border-radius: 12px 0 0 12px; }
+        .compare-table th:last-child { border-radius: 0 12px 12px 0; }
+        .compare-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 0.875rem; color: var(--text-secondary); vertical-align: middle; }
+        .compare-table td strong { color: var(--text-primary); }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .compare-table tr.featured-row td { background-color: rgba(79,70,229,0.05); }
+        /* Tips */
+        .tips-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 48px; }
+        @media (max-width: 700px) { .tips-grid { grid-template-columns: 1fr; } }
+        .tip-card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+        .tip-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .tip-card h3 { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin: 0 0 6px; }
+        .tip-card p { font-size: 0.8rem; color: var(--text-secondary); margin: 0; line-height: 1.55; }
+        /* Related */
+        .guide-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 64px; }
+        @media (max-width: 600px) { .guide-row { grid-template-columns: 1fr; } }
+        .guide-card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 20px 24px; display: flex; align-items: center; gap: 16px; text-decoration: none; transition: border-color 0.2s, transform 0.15s; }
+        .guide-card:hover { border-color: var(--accent); transform: translateY(-2px); text-decoration: none; }
+        .guide-card-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .guide-card h3 { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin: 0 0 3px; }
+        .guide-card p { font-size: 0.78rem; color: var(--text-secondary); margin: 0; }
+        .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 48px 0; }
+        footer { border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="nav-logo">
+        <div class="nav-logo-circle">
+            <svg style="width:20px;height:20px;fill:#fff;" viewBox="0 0 7000 7000" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3534.57 2921.26l509.33 278.51 0 600.85-543.85 297.38-543.84-297.38 0-600.85 543.84-297.38 34.51 18.87zm166.69 255.62l-201.2-110.02-399.01 218.18 0 430.3 399.01 218.19 399.01-218.19 0-430.3-197.81-108.16z"/>
+                <path d="M3206.76 1423.91l672.75 0 0 1366.1-745.17 0 0-1366.1 72.42 0zm527.92 144.83l-455.5 0 0 1076.43 455.5 0 0-1076.43z"/>
+                <polygon points="3436.12,1496.03 3436.12,899.79 3580.96,899.79 3580.96,1496.03"/>
+                <path d="M3203.34 5576.08l672.75 0 0-1366.09-745.17 0 0 1366.09 72.42 0zm527.92-144.83l-455.5 0 0-1076.43 455.5 0 0 1076.43z"/>
+            </svg>
+        </div>
+        <span style="font-weight:700;font-size:1rem;">Arrissa Data API</span>
+        <span class="badge badge-accent" style="margin-left:4px;">VPS Providers</span>
+    </div>
+    <div class="nav-links">
+        <a href="brokers.html" class="back-link">
+            <i data-feather="trending-up" style="width:13px;height:13px;"></i> Brokers
+        </a>
+        <a href="install.html" class="back-link">
+            <i data-feather="arrow-left" style="width:13px;height:13px;"></i> Install Guide
+        </a>
+    </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero container">
+    <div style="margin-bottom:20px;">
+        <span class="badge badge-accent">
+            <i data-feather="cloud" style="width:10px;height:10px;"></i>
+            &nbsp;VPS Hosting
+        </span>
+    </div>
+    <h1>VPS Providers</h1>
+    <p>Recommended hosting to run your Arrissa Data API server 24/7. No more depending on your local machine being on.</p>
+</div>
+
+<div class="container">
+
+    <!-- ── Featured: Cloud.co.za ────────────────────────── -->
+    <div class="featured-card">
+        <div class="featured-logo" style="background:linear-gradient(135deg,#4f46e5,#10b981);">
+            <i data-feather="cloud" style="width:36px;height:36px;color:#fff;"></i>
+        </div>
+        <div class="featured-body">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                <p class="featured-name">Cloud.co.za</p>
+                <span class="badge badge-featured">⭐ Top Pick</span>
+            </div>
+            <p class="featured-sub">South African cloud hosting — Ubuntu VPS with SSD storage, scalable plans, and excellent uptime. Ideal for running the Arrissa Data API + n8n in the same region as your broker.</p>
+
+            <!-- Starter plan highlight -->
+            <div class="vps-specs">
+                <div class="spec-pill"><i data-feather="cpu" style="width:12px;height:12px;"></i> <span>1 vCPU</span> Starter</div>
+                <div class="spec-pill"><i data-feather="database" style="width:12px;height:12px;"></i> <span>1–2 GB RAM</span></div>
+                <div class="spec-pill"><i data-feather="hard-drive" style="width:12px;height:12px;"></i> <span>SSD Storage</span></div>
+                <div class="spec-pill"><i data-feather="globe" style="width:12px;height:12px;"></i> <span>Ubuntu 22.04 / 24.04</span></div>
+                <div class="spec-pill"><i data-feather="shield" style="width:12px;height:12px;"></i> <span>DDoS Protection</span></div>
+            </div>
+
+            <div class="vps-features">
+                <span class="feature-tag">Instant Deploy</span>
+                <span class="feature-tag">Full Root Access</span>
+                <span class="feature-tag">Reverse DNS</span>
+                <span class="feature-tag">IPv4 + IPv6</span>
+                <span class="feature-tag">Web Console</span>
+                <span class="feature-tag">Scalable</span>
+                <span class="feature-tag">SA Data Centre</span>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <a href="https://control.cloud.co.za/aff.php?aff=124" target="_blank" rel="noopener noreferrer" class="cta-btn-primary">
+                    <i data-feather="external-link" style="width:16px;height:16px;"></i>
+                    Get VPS at Cloud.co.za
+                </a>
+                <span style="font-size:0.78rem;color:var(--text-secondary);">Affiliate link — supports Arrissa Data</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Why a VPS? tips -->
+    <div class="tips-grid">
+        <div class="tip-card">
+            <div class="tip-icon" style="background:rgba(79,70,229,0.12);">
+                <i data-feather="clock" style="width:20px;height:20px;color:var(--accent);"></i>
+            </div>
+            <h3>Always On</h3>
+            <p>Your API runs 24/7 even when your PC is off. EAs continue receiving data around the clock.</p>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon" style="background:rgba(16,185,129,0.12);">
+                <i data-feather="zap" style="width:20px;height:20px;color:var(--success);"></i>
+            </div>
+            <h3>Low Latency</h3>
+            <p>Server-grade network means faster data delivery to MT5 compared to a home connection.</p>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon" style="background:rgba(245,158,11,0.12);">
+                <i data-feather="shield" style="width:20px;height:20px;color:var(--warning);"></i>
+            </div>
+            <h3>Static IP</h3>
+            <p>A fixed IP lets you whitelist your API securely and use a custom domain with Caddy HTTPS.</p>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Comparison table -->
+    <h2 style="font-size:1.2rem;font-weight:700;margin:0 0 20px;">Provider Comparison</h2>
+    <div style="overflow-x:auto;margin-bottom:48px;">
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th>Provider</th>
+                    <th>Starting Price</th>
+                    <th>Location</th>
+                    <th>Ubuntu</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="featured-row">
+                    <td><strong>Cloud.co.za</strong> <span class="badge badge-featured" style="margin-left:6px;">Recommended</span></td>
+                    <td><strong style="color:var(--success);">~R55/mo</strong></td>
+                    <td>South Africa 🇿🇦</td>
+                    <td><i data-feather="check" style="width:14px;height:14px;color:var(--success);display:inline;"></i></td>
+                    <td><a href="https://control.cloud.co.za/aff.php?aff=124" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">cloud.co.za ↗</a></td>
+                </tr>
+                <tr>
+                    <td><strong>Hetzner</strong></td>
+                    <td><strong style="color:var(--success);">~€4.51/mo</strong></td>
+                    <td>Germany / Finland 🇩🇪</td>
+                    <td><i data-feather="check" style="width:14px;height:14px;color:var(--success);display:inline;"></i></td>
+                    <td><a href="https://www.hetzner.com/cloud" target="_blank" rel="noopener noreferrer">hetzner.com ↗</a></td>
+                </tr>
+                <tr>
+                    <td><strong>Contabo</strong></td>
+                    <td><strong style="color:var(--success);">~€5.99/mo</strong></td>
+                    <td>Germany / US / Asia 🌍</td>
+                    <td><i data-feather="check" style="width:14px;height:14px;color:var(--success);display:inline;"></i></td>
+                    <td><a href="https://contabo.com/" target="_blank" rel="noopener noreferrer">contabo.com ↗</a></td>
+                </tr>
+                <tr>
+                    <td><strong>DigitalOcean</strong></td>
+                    <td><strong style="color:var(--success);">$6/mo</strong></td>
+                    <td>Global 🌐</td>
+                    <td><i data-feather="check" style="width:14px;height:14px;color:var(--success);display:inline;"></i></td>
+                    <td><a href="https://www.digitalocean.com/" target="_blank" rel="noopener noreferrer">digitalocean.com ↗</a></td>
+                </tr>
+                <tr>
+                    <td><strong>Vultr</strong></td>
+                    <td><strong style="color:var(--success);">$6/mo</strong></td>
+                    <td>Global 🌐</td>
+                    <td><i data-feather="check" style="width:14px;height:14px;color:var(--success);display:inline;"></i></td>
+                    <td><a href="https://www.vultr.com/" target="_blank" rel="noopener noreferrer">vultr.com ↗</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- What you need -->
+    <div style="background-color:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:48px;">
+        <h3 style="font-size:1rem;font-weight:700;margin:0 0 16px;display:flex;align-items:center;gap:10px;">
+            <i data-feather="info" style="width:18px;height:18px;color:var(--accent);"></i>
+            Minimum specs for Arrissa Data API
+        </h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.875rem;">
+            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary);">
+                <i data-feather="check-circle" style="width:14px;height:14px;color:var(--success);flex-shrink:0;"></i>
+                <span><strong style="color:var(--text-primary);">1 vCPU</strong> — minimum</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary);">
+                <i data-feather="check-circle" style="width:14px;height:14px;color:var(--success);flex-shrink:0;"></i>
+                <span><strong style="color:var(--text-primary);">512 MB RAM</strong> (1 GB recommended)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary);">
+                <i data-feather="check-circle" style="width:14px;height:14px;color:var(--success);flex-shrink:0;"></i>
+                <span><strong style="color:var(--text-primary);">10 GB SSD</strong> storage</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary);">
+                <i data-feather="check-circle" style="width:14px;height:14px;color:var(--success);flex-shrink:0;"></i>
+                <span><strong style="color:var(--text-primary);">Ubuntu 22.04+</strong> OS</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary);">
+                <i data-feather="check-circle" style="width:14px;height:14px;color:var(--success);flex-shrink:0;"></i>
+                <span><strong style="color:var(--text-primary);">Static IPv4</strong> address</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary);">
+                <i data-feather="check-circle" style="width:14px;height:14px;color:var(--success);flex-shrink:0;"></i>
+                <span><strong style="color:var(--text-primary);">Ports 80 &amp; 443</strong> open</span>
+            </div>
+        </div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:0.82rem;color:var(--text-secondary);">
+            <i data-feather="info" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;"></i>
+            If you also plan to run <strong style="color:var(--text-primary);">n8n</strong> on the same VPS, upgrade to at least <strong style="color:var(--text-primary);">2 GB RAM</strong>.
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Related guides -->
+    <div style="margin-bottom:64px;" id="related">
+        <h2 style="font-size:1.2rem;font-weight:700;margin:0 0 20px;">Related Guides</h2>
+        <div class="guide-row">
+            <a href="install.html" class="guide-card">
+                <div class="guide-card-icon" style="background:linear-gradient(135deg,#4f46e5,#6366f1);">
+                    <i data-feather="server" style="width:20px;height:20px;color:#fff;"></i>
+                </div>
+                <div>
+                    <h3>API Installation Guide</h3>
+                    <p>Deploy Arrissa Data API on Ubuntu VPS with Caddy HTTPS.</p>
+                </div>
+                <i data-feather="arrow-right" style="width:16px;height:16px;color:var(--text-secondary);margin-left:auto;flex-shrink:0;"></i>
+            </a>
+            <a href="n8n-install.html" class="guide-card">
+                <div class="guide-card-icon" style="background:linear-gradient(135deg,#ea4b71,#ff6d5a);">
+                    <span style="font-size:0.9rem;font-weight:900;color:#fff;letter-spacing:-0.04em;">n8n</span>
+                </div>
+                <div>
+                    <h3>n8n Installation Guide</h3>
+                    <p>Run n8n workflow automation alongside the API on the same VPS.</p>
+                </div>
+                <i data-feather="arrow-right" style="width:16px;height:16px;color:var(--text-secondary);margin-left:auto;flex-shrink:0;"></i>
+            </a>
+            <a href="brokers.html" class="guide-card">
+                <div class="guide-card-icon" style="background:linear-gradient(135deg,#10b981,#059669);">
+                    <i data-feather="trending-up" style="width:20px;height:20px;color:#fff;"></i>
+                </div>
+                <div>
+                    <h3>Recommended Brokers</h3>
+                    <p>Partner brokers trusted for trading with Arrissa Data APIs.</p>
+                </div>
+                <i data-feather="arrow-right" style="width:16px;height:16px;color:var(--text-secondary);margin-left:auto;flex-shrink:0;"></i>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>Arrissa Data API — <a href="https://arrissa.trade" target="_blank">arrissa.trade</a> · Some links are affiliate links and support this project.</p>
+</footer>
+
+<script>feather.replace();</script>
+</body>
+</html>
