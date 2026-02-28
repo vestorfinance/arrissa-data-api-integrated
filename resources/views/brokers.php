@@ -31,10 +31,11 @@ ob_start();
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px 14px;
+    padding: 8px 6px;
     border-radius: 12px;
     min-width: 0;
     flex: 1;
+    text-align: center;
 }
 .create-account-btn {
     display: inline-flex;
@@ -118,18 +119,18 @@ ob_start();
                 One of the world's largest forex brokers by trading volume. Founded in 2008, Exness offers raw spreads, instant withdrawals 24/7, and multiple account types suited for all trader levels.
             </p>
             <!-- Stats -->
-            <div class="flex gap-3 mb-6">
+            <div class="flex gap-2 mb-6">
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Min Deposit</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">$10</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Deposit</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">$10</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Spreads From</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">0.0 pips</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Spread</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">0.0 pips</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Leverage</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">1:2000</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Leverage</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">1:2000</span>
                 </div>
             </div>
             <a href="https://one.exnessonelink.com/a/l5kqp6wwav" target="_blank" rel="noopener noreferrer" class="create-account-btn">
@@ -155,18 +156,18 @@ ob_start();
             <p class="text-sm leading-relaxed mb-5" style="color: var(--text-secondary);">
                 Multi-asset broker offering forex, metals, indices, and crypto. Competitive tight spreads, a built-in copy trading platform, and fast MT5 execution for both new and experienced traders.
             </p>
-            <div class="flex gap-3 mb-6">
+            <div class="flex gap-2 mb-6">
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Min Deposit</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">$1</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Deposit</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">$1</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Spreads From</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">0.0 pips</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Spread</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">0.0 pips</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Leverage</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">1:3000</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Leverage</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">1:3000</span>
                 </div>
             </div>
             <a href="https://one.justmarkets.link/a/u1t760v8ma" target="_blank" rel="noopener noreferrer" class="create-account-btn">
@@ -192,18 +193,18 @@ ob_start();
             <p class="text-sm leading-relaxed mb-5" style="color: var(--text-secondary);">
                 Award-winning ECN broker regulated by ASIC and FCA. Raw spreads from 0.0 pips, no minimum deposit on standard accounts, and access to MT4 &amp; MT5 with industry-leading execution speeds.
             </p>
-            <div class="flex gap-3 mb-6">
+            <div class="flex gap-2 mb-6">
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Min Deposit</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">$0</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Deposit</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">$0</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Spreads From</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">0.0 pips</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Spread</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">0.0 pips</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Leverage</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">1:500</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Leverage</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">1:500</span>
                 </div>
             </div>
             <a href="https://www.axi.com/int/live-account?promocode=4737724" target="_blank" rel="noopener noreferrer" class="create-account-btn">
@@ -221,7 +222,6 @@ ob_start();
                 <div>
                     <h3 class="text-lg font-bold leading-tight" style="color: var(--text-primary);">HeroFX</h3>
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="broker-badge" style="background-color: rgba(16,185,129,0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.25);">Regulated</span>
                         <span class="broker-badge" style="background-color: rgba(245,158,11,0.1); color: var(--warning); border: 1px solid rgba(245,158,11,0.2);">MT5</span>
                     </div>
                 </div>
@@ -229,18 +229,18 @@ ob_start();
             <p class="text-sm leading-relaxed mb-5" style="color: var(--text-secondary);">
                 Commission-free trading with ultra-high leverage up to 1:2000. Instant deposit and withdrawal processing, 24/7 multilingual support, and a range of account types for every trading style.
             </p>
-            <div class="flex gap-3 mb-6">
+            <div class="flex gap-2 mb-6">
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Min Deposit</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">$5</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Deposit</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">$5</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Commission</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">$0</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Commission</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">$0</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Leverage</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">1:2000</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Leverage</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">1:2000</span>
                 </div>
             </div>
             <a href="https://herofx.co/?partner_code=8138744" target="_blank" rel="noopener noreferrer" class="create-account-btn">
@@ -258,7 +258,6 @@ ob_start();
                 <div>
                     <h3 class="text-lg font-bold leading-tight" style="color: var(--text-primary);">GatesFX</h3>
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="broker-badge" style="background-color: rgba(16,185,129,0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.25);">Regulated</span>
                         <span class="broker-badge" style="background-color: rgba(245,158,11,0.1); color: var(--warning); border: 1px solid rgba(245,158,11,0.2);">STP · ECN</span>
                     </div>
                 </div>
@@ -268,16 +267,16 @@ ob_start();
             </p>
             <div class="flex gap-3 mb-6">
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Min Deposit</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">$10</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Deposit</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">$10</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Spreads From</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">0.0 pips</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Spread</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">0.0 pips</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Platforms</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">MT4 · MT5</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Leverage</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">1:500</span>
                 </div>
             </div>
             <a href="https://secure.gatesfx.com/links/go/2489" target="_blank" rel="noopener noreferrer" class="create-account-btn">
@@ -303,18 +302,18 @@ ob_start();
             <p class="text-sm leading-relaxed mb-5" style="color: var(--text-secondary);">
                 True ECN broker renowned for ultra-fast execution under 1ms and raw spreads from 0.0 pips. Regulated by ASIC, CySEC and FSA. Ideal for algorithmic and high-frequency traders.
             </p>
-            <div class="flex gap-3 mb-6">
+            <div class="flex gap-2 mb-6">
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Min Deposit</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">$200</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Deposit</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">$200</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Spreads From</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">0.0 pips</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Spread</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">0.0 pips</span>
                 </div>
                 <div class="broker-stat" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
-                    <span class="text-xs font-semibold" style="color: var(--text-secondary);">Execution</span>
-                    <span class="text-base font-bold mt-1" style="color: var(--text-primary);">&lt;1ms</span>
+                    <span style="font-size:0.65rem; font-weight:600; color: var(--text-secondary); white-space:nowrap;">Execution</span>
+                    <span class="text-sm font-bold mt-1" style="color: var(--text-primary);">&lt;1ms</span>
                 </div>
             </div>
             <a href="https://icmarkets.com/?camp=72520" target="_blank" rel="noopener noreferrer" class="create-account-btn">
