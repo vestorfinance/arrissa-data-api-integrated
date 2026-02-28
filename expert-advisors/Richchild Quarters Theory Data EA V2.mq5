@@ -12,8 +12,8 @@
 input int InpPeriodsLookback = 30;        // Periods to look back for average calculation
 input bool InpIgnoreSunday = true;        // Ignore Sundays in calculation
 input bool InpDebugMode = false;          // Enable debug output
-input string AppBaseURL = "http://127.0.0.1" //Base URL. Leave default if localhost or enter domain: https://arrissadata.com
-string InpApiUrl = AppBaseURL+"/quarters-theory-api-v1/quarters-theory-api.php"; // API URL
+input string AppBaseURL = "http://127.0.0.1"; //Base URL. Leave default if localhost or enter domain: https://arrissadata.com
+string InpApiUrl = ""; // API URL (built in OnInit from AppBaseURL)
 input bool InpEnableApi = true;           // Enable API communication
 input int InpApiPollingSeconds = 2;       // API polling interval in seconds
 
@@ -67,6 +67,7 @@ datetime GetEffectiveCurrentTime()
 //+------------------------------------------------------------------+
 int OnInit()
 {
+    InpApiUrl = AppBaseURL + "/quarters-theory-api-v1/quarters-theory-api.php";
     Print("Richchild Quarters Theory EA V2 initialized");
     DebugPrint("Each timeframe calculates independently");
     

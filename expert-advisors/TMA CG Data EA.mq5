@@ -23,8 +23,8 @@ input bool     InpDebugMode         = true;             // Enable Debug Output
 input int      InpPrintIntervalSeconds = 5;             // Print Interval in Seconds
 
 //--- API input parameters
-input string AppBaseURL = "http://127.0.0.1" //Base URL. Leave default if localhost or enter domain: https://arrissadata.com
-string InpApiUrl = AppBaseURL+"/tma-cg-api-v1/tma-cg-api.php"; // API URL
+input string AppBaseURL = "http://127.0.0.1"; //Base URL. Leave default if localhost or enter domain: https://arrissadata.com
+string InpApiUrl = ""; // API URL (built in OnInit from AppBaseURL)
 input bool     InpEnableApi = true;                    // Enable API communication
 input int      InpApiPollingSeconds = 2;               // API polling interval in seconds
 
@@ -57,6 +57,7 @@ double g_zonePercentage = 0.0;  // How far into the zone (0-100%)
 //+------------------------------------------------------------------+
 int OnInit()
 {
+    InpApiUrl = AppBaseURL + "/tma-cg-api-v1/tma-cg-api.php";
     Print("TMA+CG Data EA initialized");
     Print("Half Length: ", InpHalfLength);
     Print("Applied Price: ", EnumToString(InpAppliedPrice));
