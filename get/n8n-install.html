@@ -377,6 +377,29 @@ EOF</pre>
                     <p>You should see <code>Editor is now accessible via: http://localhost:5678/</code>. Press <kbd>Ctrl+C</kbd> to exit logs.</p>
                 </div>
             </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">4</span>Enable one-click n8n update from the Arrissa dashboard</div>
+                <div class="step-body">
+                    <p>The Arrissa dashboard has an <strong>Update n8n</strong> button in Settings. For it to work, PHP (<code>www-data</code>) needs permission to run the update script via <code>sudo</code> — exactly the same pattern as the app's own update button.</p>
+                    <p><strong>Make the script executable:</strong></p>
+                    <div class="code-block">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>sudo chmod +x /var/www/arrissa/update-n8n.sh</pre>
+                    </div>
+                    <p><strong>Allow <code>www-data</code> to run it without a password:</strong></p>
+                    <div class="code-block">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>echo "www-data ALL=(ALL) NOPASSWD: /var/www/arrissa/update-n8n.sh" | sudo tee /etc/sudoers.d/arrissa-n8n
+sudo chmod 440 /etc/sudoers.d/arrissa-n8n</pre>
+                    </div>
+                    <div class="callout callout-success">
+                        <i data-feather="check-circle" class="callout-icon" style="width:16px;height:16px;color:var(--success);"></i>
+                        <span>Once done, go to <strong>Arrissa Dashboard → Settings → Update n8n</strong> and the button will pull the latest image and restart the container automatically.</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

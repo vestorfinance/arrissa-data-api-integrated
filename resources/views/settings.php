@@ -289,7 +289,6 @@ docker rm ${container}
             out.style.color = 'var(--success)';
             let txt = `✓ ${data.message}`;
             if (data.new_version) txt += `\nVersion: ${data.new_version}`;
-            if (data.compose_file) txt += `\nCompose: ${data.compose_file}`;
             if (data.output) txt += '\n\n' + data.output;
             out.textContent = txt;
         } else {
