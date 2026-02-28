@@ -257,7 +257,69 @@ _Tz8wKpN4::_v();
             }
         }
 
-        /* Global Page Loader */
+        /* Update notification banner */
+        #update-banner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9998;
+            background: linear-gradient(90deg, rgba(79,70,229,0.97), rgba(99,102,241,0.97));
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            padding: 10px 20px;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            font-size: 0.875rem;
+            color: #fff;
+            animation: slideDown 0.3s ease-out;
+        }
+        #update-banner.visible {
+            display: flex;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        #update-pull-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: #fff;
+            color: var(--accent);
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-decoration: none;
+        }
+        #update-pull-btn:hover { opacity: 0.88; }
+        #update-pull-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        #update-dismiss-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            border-radius: 50%;
+            transition: color 0.15s;
+        }
+        #update-dismiss-btn:hover { color: #fff; }
+        /* Push page down when banner is visible */
+        body.has-update-banner aside,
+        body.has-update-banner .mobile-header {
+            top: 42px !important;
+        }
+        body.has-update-banner main {
+            padding-top: 42px;
+        }
         #page-loader {
             position: fixed;
             top: 0;
@@ -294,6 +356,19 @@ _Tz8wKpN4::_v();
     <div id="page-loader">
         <div class="loader-spinner"></div>
         <p style="color: var(--text-secondary); margin-top: 20px; font-size: 14px;">Loading...</p>
+    </div>
+
+    <!-- Update Notification Banner -->
+    <div id="update-banner">
+        <i data-feather="download-cloud" style="width:16px;height:16px;flex-shrink:0;"></i>
+        <span id="update-banner-text">A new update is available.</span>
+        <button id="update-pull-btn" onclick="doPullUpdate()">
+            <i data-feather="download" style="width:13px;height:13px;"></i>
+            Pull Update
+        </button>
+        <button id="update-dismiss-btn" onclick="dismissUpdateBanner()" title="Dismiss">
+            <i data-feather="x" style="width:16px;height:16px;"></i>
+        </button>
     </div>
 
     <!-- Mobile Header Bar -->
@@ -493,6 +568,72 @@ _Tz8wKpN4::_v();
     </div>
     <script>
         feather.replace();
+
+        // ── Update check ──────────────────────────────────────────────
+        const UPDATE_DISMISS_KEY = 'update_dismissed_head';
+
+        async function checkForUpdate() {
+            try {
+                const res = await fetch('/api/check-update');
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data.update_available) return;
+
+                // Don't re-show if user already dismissed this exact remote commit
+                const dismissed = localStorage.getItem(UPDATE_DISMISS_KEY);
+                if (dismissed === data.remote_head) return;
+
+                const label = data.commits_behind === 1
+                    ? '1 new commit available.'
+                    : data.commits_behind + ' new commits available.';
+                document.getElementById('update-banner-text').textContent = label;
+                document.getElementById('update-banner').classList.add('visible');
+                document.body.classList.add('has-update-banner');
+                feather.replace();
+            } catch (e) { /* network error — silent */ }
+        }
+
+        function dismissUpdateBanner() {
+            const banner = document.getElementById('update-banner');
+            banner.classList.remove('visible');
+            document.body.classList.remove('has-update-banner');
+            // Store the remote head so we don't nag again for this version
+            fetch('/api/check-update').then(r => r.json()).then(d => {
+                if (d.remote_head) localStorage.setItem(UPDATE_DISMISS_KEY, d.remote_head);
+            }).catch(() => {});
+        }
+
+        async function doPullUpdate() {
+            const btn = document.getElementById('update-pull-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-feather="loader" style="width:13px;height:13px;animation:spin 0.8s linear infinite;"></i> Pulling…';
+            feather.replace();
+            try {
+                const res = await fetch('/api/update-app', { method: 'POST' });
+                const data = await res.json();
+                if (data.success && !data.already_up_to_date) {
+                    document.getElementById('update-banner-text').textContent = '✓ Updated! Reloading…';
+                    setTimeout(() => location.reload(), 1200);
+                } else if (data.success && data.already_up_to_date) {
+                    document.getElementById('update-banner-text').textContent = '✓ Already up to date.';
+                    setTimeout(dismissUpdateBanner, 2000);
+                } else {
+                    document.getElementById('update-banner-text').textContent = '✗ Pull failed. Check server logs.';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i data-feather="refresh-cw" style="width:13px;height:13px;"></i> Retry';
+                    feather.replace();
+                }
+            } catch (e) {
+                document.getElementById('update-banner-text').textContent = '✗ Request failed.';
+                btn.disabled = false;
+                btn.innerHTML = '<i data-feather="refresh-cw" style="width:13px;height:13px;"></i> Retry';
+                feather.replace();
+            }
+        }
+
+        // Check on load, then every 5 minutes
+        checkForUpdate();
+        setInterval(checkForUpdate, 5 * 60 * 1000);
 
         // Nav group expand/collapse
         function toggleNavGroup(id) {

@@ -114,6 +114,12 @@ if ($uri === '/api/update-app') {
     exit;
 }
 
+// Check if update is available — requires session auth
+if ($uri === '/api/check-update') {
+    include __DIR__ . '/public/api/check-update.php';
+    exit;
+}
+
 // Front page disabled — redirect to login
 if ($uri === '/') {
     header('Location: /login');
