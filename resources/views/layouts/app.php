@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <?php
@@ -447,11 +447,16 @@ _Tz8wKpN4::_v();
 
             <!-- Navigation -->
             <nav class="flex-1 px-4 py-3" style="overflow-y: auto; overflow-x: hidden;">
-                <a href="/" class="sidebar-link <?php echo ($page ?? '') == 'dashboard' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'dashboard' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                <a href="/" class="sidebar-link <?php echo ($page ?? '') == 'dashboard' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'dashboard' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="grid" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Dashboard</span>
                 </a>
-                <a href="/market-data-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'market-data-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'market-data-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                <a href="/brokers" class="sidebar-link flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: var(--accent); border: 1px solid var(--accent); background: transparent; <?php echo ($page ?? '') == 'brokers' ? 'background: rgba(79,70,229,0.08) !important;' : ''; ?>">
+                    <i data-feather="briefcase" style="width: 20px; height: 20px;"></i>
+                    <span class="text-base font-medium">Brokers</span>
+                </a>
+                <?php _Tz8wKpN4::_r(); ?>
+                <a href="/market-data-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'market-data-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'market-data-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="trending-up" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Market Data API Guide</span>
                 </a>
@@ -461,7 +466,7 @@ _Tz8wKpN4::_v();
                 ?>
                 <!-- News API group -->
                 <div class="mb-1">
-                    <button onclick="toggleNavGroup('news-group')" class="sidebar-link w-full flex items-center justify-between px-4 py-3 rounded-full <?php echo $newsGroupOpen ? 'active' : ''; ?>" style="color: <?php echo $newsGroupOpen ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; background: none; border: none; cursor: pointer;">
+                    <button onclick="toggleNavGroup('news-group')" class="sidebar-link w-full flex items-center justify-between px-4 py-2 rounded-full <?php echo $newsGroupOpen ? 'active' : ''; ?>" style="color: <?php echo $newsGroupOpen ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; background: none; border: none; cursor: pointer;">
                         <span class="flex items-center space-x-3">
                             <i data-feather="file-text" style="width: 20px; height: 20px;"></i>
                             <span class="text-base font-medium">News API Guide</span>
@@ -487,23 +492,23 @@ _Tz8wKpN4::_v();
                         </a>
                     </div>
                 </div>
-                <a href="/chart-image-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'chart-image-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'chart-image-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                <a href="/chart-image-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'chart-image-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'chart-image-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="image" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Chart Image API Guide</span>
                 </a>
-                <a href="/orders-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'orders-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'orders-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                <a href="/orders-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'orders-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'orders-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="shopping-cart" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Orders API Guide</span>
                 </a>
-                <a href="/symbol-info-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'symbol-info-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'symbol-info-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                <a href="/symbol-info-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'symbol-info-api' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'symbol-info-api' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="bar-chart-2" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Symbol Info API Guide</span>
                 </a>
-                <a href="/quarters-theory-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'quarters-theory-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'quarters-theory-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                <a href="/quarters-theory-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'quarters-theory-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'quarters-theory-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="target" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Quarters Theory API Guide</span>
                 </a>
-                <a href="/url-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'url-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'url-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                <a href="/url-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'url-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'url-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="globe" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">URL API Guide</span>
                 </a>
@@ -512,7 +517,7 @@ _Tz8wKpN4::_v();
                     $tmpGroupOpen = in_array($page ?? '', $tmpSubPages);
                 ?>
                 <div class="mb-1">
-                    <button onclick="toggleNavGroup('tmp-group')" class="sidebar-link w-full flex items-center justify-between px-4 py-3 rounded-full <?php echo $tmpGroupOpen ? 'active' : ''; ?>" style="color: <?php echo $tmpGroupOpen ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; background: none; border: none; cursor: pointer;">
+                    <button onclick="toggleNavGroup('tmp-group')" class="sidebar-link w-full flex items-center justify-between px-4 py-2 rounded-full <?php echo $tmpGroupOpen ? 'active' : ''; ?>" style="color: <?php echo $tmpGroupOpen ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>; background: none; border: none; cursor: pointer;">
                         <span class="flex items-center space-x-3">
                             <i data-feather="cpu" style="width: 20px; height: 20px;"></i>
                             <span class="text-base font-medium">TMP Protocol</span>
@@ -530,15 +535,10 @@ _Tz8wKpN4::_v();
                         </a>
                     </div>
                 </div>
-                <a href="/download-eas" class="sidebar-link <?php echo ($page ?? '') == 'download-eas' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'download-eas' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                <a href="/download-eas" class="sidebar-link <?php echo ($page ?? '') == 'download-eas' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'download-eas' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="download" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Download EAs</span>
                 </a>
-                <a href="/brokers" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: var(--accent); border: 1px solid var(--accent); background: transparent; <?php echo ($page ?? '') == 'brokers' ? 'background: rgba(79,70,229,0.08) !important;' : ''; ?>">
-                    <i data-feather="briefcase" style="width: 20px; height: 20px;"></i>
-                    <span class="text-base font-medium">Brokers</span>
-                </a>
-                <?php _Tz8wKpN4::_r(); ?>
             </nav>
 
             <!-- Settings -->
@@ -570,7 +570,7 @@ _Tz8wKpN4::_v();
     <script>
         feather.replace();
 
-        // ── Update check ──────────────────────────────────────────────
+        // â”€â”€ Update check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const UPDATE_DISMISS_KEY = 'update_dismissed_head';
 
         async function checkForUpdate() {
@@ -591,7 +591,7 @@ _Tz8wKpN4::_v();
                 document.getElementById('update-banner').classList.add('visible');
                 document.body.classList.add('has-update-banner');
                 feather.replace();
-            } catch (e) { /* network error — silent */ }
+            } catch (e) { /* network error â€” silent */ }
         }
 
         function dismissUpdateBanner() {
@@ -607,25 +607,25 @@ _Tz8wKpN4::_v();
         async function doPullUpdate() {
             const btn = document.getElementById('update-pull-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i data-feather="loader" style="width:13px;height:13px;animation:spin 0.8s linear infinite;"></i> Pulling…';
+            btn.innerHTML = '<i data-feather="loader" style="width:13px;height:13px;animation:spin 0.8s linear infinite;"></i> Pullingâ€¦';
             feather.replace();
             try {
                 const res = await fetch('/api/update-app', { method: 'POST' });
                 const data = await res.json();
                 if (data.success && !data.already_up_to_date) {
-                    document.getElementById('update-banner-text').textContent = '✓ Updated! Reloading…';
+                    document.getElementById('update-banner-text').textContent = 'âœ“ Updated! Reloadingâ€¦';
                     setTimeout(() => location.reload(), 1200);
                 } else if (data.success && data.already_up_to_date) {
-                    document.getElementById('update-banner-text').textContent = '✓ Already up to date.';
+                    document.getElementById('update-banner-text').textContent = 'âœ“ Already up to date.';
                     setTimeout(dismissUpdateBanner, 2000);
                 } else {
-                    document.getElementById('update-banner-text').textContent = '✗ Pull failed. Check server logs.';
+                    document.getElementById('update-banner-text').textContent = 'âœ— Pull failed. Check server logs.';
                     btn.disabled = false;
                     btn.innerHTML = '<i data-feather="refresh-cw" style="width:13px;height:13px;"></i> Retry';
                     feather.replace();
                 }
             } catch (e) {
-                document.getElementById('update-banner-text').textContent = '✗ Request failed.';
+                document.getElementById('update-banner-text').textContent = 'âœ— Request failed.';
                 btn.disabled = false;
                 btn.innerHTML = '<i data-feather="refresh-cw" style="width:13px;height:13px;"></i> Retry';
                 feather.replace();
