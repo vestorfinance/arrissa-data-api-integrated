@@ -529,7 +529,7 @@ _Tz8wKpN4::_v();
     </div>
 
     <!-- Terms & Conditions Acceptance Overlay -->
-    <div id="terms-overlay">
+    <div id="terms-overlay" class="hidden">
         <div id="terms-modal">
             <div id="terms-header">
                 <h2>
@@ -605,7 +605,7 @@ _Tz8wKpN4::_v();
 
                 <div class="terms-section">
                     <h3>7. Governing Law</h3>
-                    <p>This Agreement is governed by the laws of <strong>New South Wales, Australia</strong>. Any dispute shall be subject to the exclusive jurisdiction of the courts of New South Wales, Australia.</p>
+                    <p>This Agreement is governed by the laws of the <strong>Republic of South Africa</strong>. Any dispute shall be subject to the exclusive jurisdiction of the courts of South Africa.</p>
                 </div>
 
                 <div class="terms-section">
@@ -635,6 +635,19 @@ _Tz8wKpN4::_v();
             </div>
         </div>
     </div>
+
+    <!-- Reveal terms overlay synchronously before first paint if not yet accepted -->
+    <script>
+        (function(){
+            var TERMS_VERSION = 'v2';
+            var STORAGE_KEY   = 'arrissa_terms_accepted';
+            if (localStorage.getItem(STORAGE_KEY) !== TERMS_VERSION) {
+                var el = document.getElementById('terms-overlay');
+                if (el) el.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        })();
+    </script>
 
     <!-- Update Notification Banner -->
     <div id="update-banner">
@@ -1006,7 +1019,7 @@ _Tz8wKpN4::_v();
             }
 
             if (!termsAccepted()) {
-                overlay.classList.remove('hidden');
+                // overlay already revealed by inline sync script above — just wire up scroll
                 document.body.style.overflow = 'hidden';
 
                 // Enable checkbox once user has scrolled to (or near) the bottom

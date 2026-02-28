@@ -171,9 +171,9 @@ You agree to indemnify, defend, and hold harmless the Released Parties from and 
 
 ## 12. GOVERNING LAW AND JURISDICTION
 
-This Agreement shall be governed by and construed in accordance with the laws of the **State of New South Wales, Australia**, without regard to its conflict of laws principles.
+This Agreement shall be governed by and construed in accordance with the laws of the **Republic of South Africa**, without regard to its conflict of laws principles.
 
-Any dispute arising out of or in connection with this Agreement shall be subject to the **exclusive jurisdiction of the courts of New South Wales, Australia**. You irrevocably submit to the personal jurisdiction of such courts.
+Any dispute arising out of or in connection with this Agreement shall be subject to the **exclusive jurisdiction of the courts of South Africa**. You irrevocably submit to the personal jurisdiction of such courts.
 
 ---
 
@@ -197,6 +197,7 @@ For licensing inquiries, written permission requests, or compliance questions:
 Author: Ngonidzashe Jiji (David Richchild)
 Email: [contact@arrissa.com]
 Website: [https://arrissa.com]
+Jurisdiction: Republic of South Africa
 
 ---
 
