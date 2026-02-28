@@ -510,7 +510,11 @@ sudo systemctl reload apache2</pre>
             <div class="step">
                 <div class="step-title"><span class="step-num">2</span>Configure Caddy (auto HTTPS)</div>
                 <div class="step-body">
-                    <p>Caddy automatically obtains and renews Let's Encrypt certificates for <code class="hl-domain" id="u-domain-caddy">yourdomain.com</code>:</p>
+                    <div class="callout callout-warn" style="margin-bottom:16px;">
+                        <i data-feather="alert-triangle" class="callout-icon" style="width:16px;height:16px;color:var(--warning);"></i>
+                        <span><strong>Using Cloudflare?</strong> If your domain has Cloudflare proxy enabled (orange cloud), skip to the <a href="#cf-caddy" style="color:var(--accent);">Cloudflare Caddyfile</a> below — the standard Let's Encrypt method will fail with error 525.</span>
+                    </div>
+                    <p><strong>Option A — No Cloudflare / DNS-only (grey cloud):</strong> Caddy auto-obtains a Let's Encrypt certificate:</p>
                     <div class="code-block">
                         <span class="code-lang">bash</span>
                         <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
@@ -526,15 +530,35 @@ yourdomain.com {
 }
 EOF</pre>
                     </div>
-                    <div class="code-block">
-                        <span class="code-lang">bash</span>
-                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
-                        <pre>sudo systemctl enable caddy
-sudo systemctl restart caddy</pre>
-                    </div>
                     <div class="callout callout-warn">
                         <i data-feather="alert-triangle" class="callout-icon" style="width:16px;height:16px;color:var(--warning);"></i>
                         <span>Make sure your domain's DNS A record already points to your server IP before restarting Caddy, otherwise the SSL certificate request will fail.</span>
+                    </div>
+
+                    <div style="margin-top:24px;" id="cf-caddy">
+                        <p><strong>Option B — Behind Cloudflare (orange cloud / proxied):</strong></p>
+                        <p style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:12px;">Cloudflare intercepts ACME challenges so Caddy cannot get a Let's Encrypt cert. Use <code>tls internal</code> so Caddy issues a self-signed certificate — Cloudflare acts as the HTTPS terminator so visitors always see a valid cert.</p>
+                        <div class="code-block">
+                            <span class="code-lang">bash</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                            <pre>sudo tee /etc/caddy/Caddyfile &lt;&lt;'EOF'
+yourdomain.com {
+    tls internal
+    reverse_proxy localhost:8080
+    encode gzip
+}
+EOF</pre>
+                        </div>
+                        <p style="color:var(--text-secondary);font-size:0.875rem;margin:12px 0 8px;">Then in your Cloudflare dashboard:</p>
+                        <ol style="color:var(--text-secondary);font-size:0.875rem;padding-left:20px;line-height:2;">
+                            <li>Go to <strong style="color:var(--text-primary);">SSL/TLS → Overview</strong></li>
+                            <li>Set encryption mode to <strong style="color:var(--text-primary);">Full</strong> <em>(not Flexible, not Full Strict)</em></li>
+                            <li>Save — Cloudflare will now connect to your origin over HTTPS and accept the self-signed cert</li>
+                        </ol>
+                        <div class="callout callout-info" style="margin-top:12px;">
+                            <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                            <span><strong>Why not Full (Strict)?</strong> Strict mode requires a CA-signed cert on the origin. Use Cloudflare Origin Certificates (free, 15-year) if you need Strict — download from <em>SSL/TLS → Origin Server</em> and reference them in your Caddyfile with <code>tls /path/to/cert.pem /path/to/key.pem</code>.</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -548,6 +572,18 @@ sudo systemctl restart caddy</pre>
                         <pre>sudo chmod +x /var/www/arrissa/update.sh
 echo "www-data ALL=(ALL) NOPASSWD: /var/www/arrissa/update.sh" | sudo tee /etc/sudoers.d/arrissa-update
 sudo chmod 440 /etc/sudoers.d/arrissa-update</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">3</span>Enable &amp; start Caddy</div>
+                <div class="step-body">
+                    <div class="code-block">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>sudo systemctl enable caddy
+sudo systemctl restart caddy
+sudo systemctl status caddy</pre>
                     </div>
                 </div>
             </div>
