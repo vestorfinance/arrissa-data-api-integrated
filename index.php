@@ -5,13 +5,18 @@ ini_set('display_errors', 1);
 // Simple router
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Serve static HTML files from the get/ folder
-if ($uri === '/get' || $uri === '/get/') {
-    header('Content-Type: text/html; charset=UTF-8');
-    readfile(__DIR__ . '/get/index.html');
-    exit;
-}
-if (preg_match('#^/get/([\w-]+\.html)$#', $uri, $m)) {
+// Serve static HTML files from the get/ folder (arrissadata.com only)
+if ($uri === '/get' || $uri === '/get/' || preg_match('#^/get/([\w-]+\.html)$#', $uri, $m)) {
+    $host = strtolower(preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? ''));
+    if ($host !== 'arrissadata.com' && $host !== 'www.arrissadata.com') {
+        header('Location: /');
+        exit;
+    }
+    if ($uri === '/get' || $uri === '/get/') {
+        header('Content-Type: text/html; charset=UTF-8');
+        readfile(__DIR__ . '/get/index.html');
+        exit;
+    }
     $file = __DIR__ . '/get/' . $m[1];
     if (file_exists($file)) {
         header('Content-Type: text/html; charset=UTF-8');
