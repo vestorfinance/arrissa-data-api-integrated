@@ -1203,7 +1203,9 @@ function setText(id, val) {
 }
 function setCode(id, fn) {
     const el = document.getElementById(id);
-    if (el) el.textContent = fn(el);
+    if (!el) return;
+    if (!el.dataset.orig) el.dataset.orig = el.textContent;
+    el.textContent = fn({ textContent: el.dataset.orig });
 }
 
 // ── Environment switcher ────────────────────────────────────────────
