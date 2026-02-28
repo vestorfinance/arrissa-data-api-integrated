@@ -46,6 +46,54 @@ ob_start();
 
     <!-- API Cards Grid -->
     <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+    <!-- System Stats Widget -->
+    <div id="sysStatsCard" class="col-span-full rounded-2xl p-5" style="background-color:var(--card-bg);border:1px solid var(--border);">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style="background-color:var(--bg-secondary);border:1px solid var(--border);">
+                    <i data-feather="activity" style="width:16px;height:16px;color:var(--text-secondary);"></i>
+                </div>
+                <span class="font-semibold text-sm" style="color:var(--text-primary);">System Resources</span>
+            </div>
+            <span id="stats-ts" class="text-xs" style="color:var(--text-secondary);">loading…</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- CPU -->
+            <div class="p-3 rounded-xl" style="background-color:var(--bg-secondary);border:1px solid var(--border);">
+                <p class="text-xs font-semibold mb-1" style="color:var(--text-secondary);">CPU Load (1m)</p>
+                <p id="stats-cpu" class="text-xl font-bold" style="color:var(--text-primary);">—</p>
+            </div>
+            <!-- RAM -->
+            <div class="p-3 rounded-xl" style="background-color:var(--bg-secondary);border:1px solid var(--border);">
+                <div class="flex justify-between mb-1">
+                    <p class="text-xs font-semibold" style="color:var(--text-secondary);">RAM</p>
+                    <p id="stats-ram-pct" class="text-xs font-semibold" style="color:var(--text-primary);">—</p>
+                </div>
+                <div class="rounded-full overflow-hidden mb-1" style="height:5px;background:var(--border);">
+                    <div id="stats-ram-bar" class="h-full rounded-full transition-all" style="width:0%;background:var(--accent);"></div>
+                </div>
+                <p id="stats-ram-detail" class="text-xs" style="color:var(--text-secondary);">—</p>
+            </div>
+            <!-- Disk -->
+            <div class="p-3 rounded-xl" style="background-color:var(--bg-secondary);border:1px solid var(--border);">
+                <div class="flex justify-between mb-1">
+                    <p class="text-xs font-semibold" style="color:var(--text-secondary);">Disk</p>
+                    <p id="stats-disk-pct" class="text-xs font-semibold" style="color:var(--text-primary);">—</p>
+                </div>
+                <div class="rounded-full overflow-hidden mb-1" style="height:5px;background:var(--border);">
+                    <div id="stats-disk-bar" class="h-full rounded-full transition-all" style="width:0%;background:#10b981;"></div>
+                </div>
+                <p id="stats-disk-detail" class="text-xs" style="color:var(--text-secondary);">—</p>
+            </div>
+            <!-- Uptime & PHP -->
+            <div class="p-3 rounded-xl" style="background-color:var(--bg-secondary);border:1px solid var(--border);">
+                <p class="text-xs font-semibold mb-1" style="color:var(--text-secondary);">Uptime</p>
+                <p id="stats-uptime" class="text-sm font-bold mb-1" style="color:var(--text-primary);">—</p>
+                <p id="stats-php" class="text-xs" style="color:var(--text-secondary);">—</p>
+            </div>
+        </div>
+    </div>
         <!-- Market Data API Guide -->
         <a href="/market-data-api-guide" class="api-card block rounded-2xl overflow-hidden transition-all duration-200 group" data-keywords="market data api ohlc candle tick volume timeframe m1 m5 m15 m30 h1 h4 d1 w1 mn1 mt5 metatrader expert advisor ea range query today last-hour last-7days chart technical indicators open high low close" style="background-color: var(--card-bg); border: 1px solid var(--border);" onmouseover="this.style.borderColor='var(--input-border)'; this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.borderColor='var(--border)'; this.style.backgroundColor='var(--card-bg)';">
             <div class="p-6">
@@ -322,6 +370,66 @@ ob_start();
             searchResults.classList.add('hidden');
         }
     });
+
+    // ── System stats widget ──────────────────────────────────────────
+    function barColor(pct) {
+        if (pct >= 90) return '#ef4444';
+        if (pct >= 70) return '#f59e0b';
+        return null; // use default
+    }
+
+    async function fetchStats() {
+        try {
+            const r = await fetch('/api/system-stats');
+            if (!r.ok) return;
+            const d = await r.json();
+
+            // CPU
+            const cpuEl = document.getElementById('stats-cpu');
+            cpuEl.textContent = d.cpu_load_1m !== null ? d.cpu_load_1m : 'N/A';
+
+            // RAM
+            if (d.ram_pct !== null) {
+                document.getElementById('stats-ram-pct').textContent = d.ram_pct + '%';
+                const ramBar = document.getElementById('stats-ram-bar');
+                ramBar.style.width = d.ram_pct + '%';
+                const rc = barColor(d.ram_pct);
+                if (rc) ramBar.style.background = rc;
+                document.getElementById('stats-ram-detail').textContent =
+                    (d.ram_used_h || '?') + ' / ' + (d.ram_total_h || '?');
+            } else {
+                document.getElementById('stats-ram-pct').textContent = 'N/A';
+                document.getElementById('stats-ram-detail').textContent = 'Not available on Windows';
+            }
+
+            // Disk
+            if (d.disk_pct !== null) {
+                document.getElementById('stats-disk-pct').textContent = d.disk_pct + '%';
+                const diskBar = document.getElementById('stats-disk-bar');
+                diskBar.style.width = d.disk_pct + '%';
+                const dc = barColor(d.disk_pct);
+                if (dc) diskBar.style.background = dc;
+                document.getElementById('stats-disk-detail').textContent =
+                    (d.disk_used_h || '?') + ' / ' + (d.disk_total_h || '?');
+            }
+
+            // Uptime & PHP
+            document.getElementById('stats-uptime').textContent = d.uptime_h || 'N/A';
+            document.getElementById('stats-php').textContent = 'PHP ' + (d.php_version || '?');
+
+            // Timestamp
+            const now = new Date();
+            document.getElementById('stats-ts').textContent =
+                'Updated ' + now.getHours().toString().padStart(2,'0') + ':' +
+                now.getMinutes().toString().padStart(2,'0') + ':' +
+                now.getSeconds().toString().padStart(2,'0');
+
+            feather.replace();
+        } catch (e) { /* silent */ }
+    }
+
+    fetchStats();
+    setInterval(fetchStats, 5000);
 </script>
 
 <?php

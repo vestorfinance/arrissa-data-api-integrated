@@ -92,6 +92,12 @@ if ($uri === '/api/run-cron') {
     exit;
 }
 
+// System resource stats (CPU, RAM, disk, uptime)
+if ($uri === '/api/system-stats') {
+    include __DIR__ . '/public/api/system-stats.php';
+    exit;
+}
+
 // Handle truncate events API (requires auth)
 if ($uri === '/api/truncate-events') {
     include __DIR__ . '/public/api/truncate-events.php';
