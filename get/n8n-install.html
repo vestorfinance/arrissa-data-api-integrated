@@ -1018,7 +1018,12 @@ function updateAll() {
 }
 
 function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
-function setCode(id, fn)  { const el = document.getElementById(id); if (el) el.textContent = fn(el); }
+function setCode(id, fn)  {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!el.dataset.orig) el.dataset.orig = el.textContent;
+    el.textContent = fn({ textContent: el.dataset.orig });
+}
 
 let _activeEnv = 'ubuntu';
 function activeEnv() { return _activeEnv; }
