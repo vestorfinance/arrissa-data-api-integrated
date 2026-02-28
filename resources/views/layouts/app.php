@@ -350,6 +350,175 @@ _Tz8wKpN4::_v();
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* ── Terms Acceptance Overlay ── */
+        #terms-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: fadeIn 0.25s ease-out;
+        }
+        #terms-overlay.hidden {
+            display: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        #terms-modal {
+            background: var(--card-bg, #1f1f1f);
+            border: 1px solid var(--border, #2a2a2a);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 760px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+            overflow: hidden;
+        }
+        #terms-header {
+            padding: 24px 28px 16px;
+            border-bottom: 1px solid var(--border, #2a2a2a);
+            flex-shrink: 0;
+        }
+        #terms-header h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary, #fff);
+            margin: 0 0 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #terms-header p {
+            font-size: 0.8rem;
+            color: var(--text-secondary, #999);
+            margin: 0;
+        }
+        #terms-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px;
+            font-size: 0.78rem;
+            line-height: 1.65;
+            color: var(--text-secondary, #aaa);
+        }
+        #terms-body h3 {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-primary, #fff);
+            margin: 18px 0 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        #terms-body p {
+            margin: 0 0 10px;
+        }
+        #terms-body ul {
+            margin: 6px 0 10px 18px;
+            padding: 0;
+        }
+        #terms-body li {
+            margin-bottom: 5px;
+        }
+        #terms-body strong {
+            color: var(--text-primary, #fff);
+        }
+        #terms-body .terms-warning {
+            background: rgba(239,68,68,0.1);
+            border-left: 3px solid #ef4444;
+            border-radius: 4px;
+            padding: 10px 14px;
+            margin: 12px 0;
+            color: #fca5a5;
+            font-size: 0.78rem;
+        }
+        #terms-body .terms-section {
+            border-bottom: 1px solid var(--border, #2a2a2a);
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+        }
+        #terms-footer {
+            padding: 16px 28px 20px;
+            border-top: 1px solid var(--border, #2a2a2a);
+            flex-shrink: 0;
+            background: var(--card-bg, #1f1f1f);
+        }
+        #terms-scroll-note {
+            font-size: 0.73rem;
+            color: var(--text-secondary, #999);
+            text-align: center;
+            margin-bottom: 12px;
+            transition: opacity 0.3s;
+        }
+        #terms-check-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        #terms-check-row input[type="checkbox"] {
+            width: 17px !important;
+            height: 17px !important;
+            min-width: 17px;
+            margin-top: 2px;
+            accent-color: var(--accent, #4f46e5);
+            cursor: pointer;
+            border-radius: 4px !important;
+        }
+        #terms-check-row label {
+            font-size: 0.8rem;
+            color: var(--text-secondary, #aaa);
+            cursor: pointer;
+            line-height: 1.5;
+        }
+        #terms-check-row label strong {
+            color: var(--text-primary, #fff);
+        }
+        #terms-accept-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent, #4f46e5);
+            color: #fff;
+            border: none;
+            border-radius: 9999px !important;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+            letter-spacing: 0.02em;
+        }
+        #terms-accept-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        #terms-accept-btn:not(:disabled):hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+        #terms-accept-btn:not(:disabled):active {
+            transform: translateY(0);
+        }
+        #terms-decline-row {
+            text-align: center;
+            margin-top: 10px;
+        }
+        #terms-decline-row a {
+            font-size: 0.73rem;
+            color: var(--text-secondary, #777);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        #terms-decline-row a:hover {
+            color: #ef4444;
+        }
     </style>
 </head>
 <body style="background-color: var(--bg-primary);">
@@ -357,6 +526,114 @@ _Tz8wKpN4::_v();
     <div id="page-loader">
         <div class="loader-spinner"></div>
         <p style="color: var(--text-secondary); margin-top: 20px; font-size: 14px;">Loading...</p>
+    </div>
+
+    <!-- Terms & Conditions Acceptance Overlay -->
+    <div id="terms-overlay">
+        <div id="terms-modal">
+            <div id="terms-header">
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    Software License &amp; Disclaimer — Arrissa Data API
+                </h2>
+                <p>You must read and accept these terms before accessing this software. Scroll to the bottom to continue.</p>
+            </div>
+            <div id="terms-body">
+
+                <div class="terms-warning">
+                    <strong>IMPORTANT:</strong> This software is provided for technical use only and does not constitute financial advice. Trading financial instruments involves substantial risk of loss. You may lose all of your invested capital.
+                </div>
+
+                <div class="terms-section">
+                    <h3>1. Proprietary Software — All Rights Reserved</h3>
+                    <p>This software, including all source code, compiled binaries, documentation, expert advisors, APIs, and associated components (the <strong>"Software"</strong>), is the exclusive intellectual property of <strong>Arrissa Pty Ltd</strong>, authored by <strong>Ngonidzashe Jiji (David Richchild)</strong>. Copyright © 2024–2026 Arrissa Pty Ltd. All rights reserved.</p>
+                    <p>No title, ownership, or intellectual property rights in the Software are transferred to you. All rights not expressly granted in this Agreement are expressly reserved by Arrissa Pty Ltd.</p>
+                </div>
+
+                <div class="terms-section">
+                    <h3>2. Prohibited — No Redistribution or Resale</h3>
+                    <p>You are <strong>strictly prohibited</strong> from:</p>
+                    <ul>
+                        <li>Copying, reproducing, distributing, publishing, or transmitting the Software to any third party in any form or by any means;</li>
+                        <li>Selling, reselling, sublicensing, renting, leasing, or otherwise commercialising the Software without <strong>explicit prior written permission</strong> from Arrissa Pty Ltd;</li>
+                        <li>Bundling or repackaging the Software into any other product or service;</li>
+                        <li>Reverse engineering, decompiling, disassembling, or attempting to derive source code from any portion of the Software;</li>
+                        <li>Removing, obscuring, or altering any copyright notices, trademarks, or proprietary labels.</li>
+                    </ul>
+                    <p>Any authorised use must include visible attribution: <em>"Powered by Arrissa Data API — © Arrissa Pty Ltd. Used with written permission."</em></p>
+                </div>
+
+                <div class="terms-section">
+                    <h3>3. Disclaimer of Warranties — Provided "As Is"</h3>
+                    <p>THE SOFTWARE IS PROVIDED <strong>"AS IS" AND "AS AVAILABLE"</strong>, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. To the fullest extent permitted by law, Arrissa Pty Ltd and Ngonidzashe Jiji (David Richchild) expressly disclaim all warranties, including but not limited to:</p>
+                    <ul>
+                        <li>Any warranty of <strong>merchantability, quality, or fitness for a particular purpose</strong>;</li>
+                        <li>Any warranty that the Software will be uninterrupted, error-free, secure, or free of harmful components;</li>
+                        <li>Any warranty regarding the accuracy, completeness, reliability, or timeliness of any data, signals, outputs, or results produced by the Software;</li>
+                        <li>Any warranty that the Software will meet your requirements or achieve any specific outcome.</li>
+                    </ul>
+                    <p>The Software has not been designed, tested, or certified for any specific trading strategy, market condition, broker, financial instrument, or jurisdiction. <strong>You are solely responsible for determining whether the Software is appropriate for your use case.</strong></p>
+                </div>
+
+                <div class="terms-section">
+                    <h3>4. Financial Risk Disclaimer — Risk of Loss</h3>
+                    <div class="terms-warning">
+                        Trading foreign exchange, CFDs, derivatives, cryptocurrencies, and other financial instruments involves <strong>substantial risk of loss and is not suitable for all investors</strong>. You may lose your entire invested capital or more.
+                    </div>
+                    <p>The Software is a <strong>technical data and connectivity tool only</strong>. It does not constitute financial advice, investment advice, trading recommendations, or any other form of regulated advice. Nothing produced by the Software should be interpreted as a recommendation to buy, sell, or hold any financial instrument.</p>
+                    <p>All trading and investment decisions made using or in connection with the Software are made <strong>entirely at your own risk</strong>. Past performance, backtested data, or simulated results are not indicative of future results.</p>
+                </div>
+
+                <div class="terms-section">
+                    <h3>5. Limitation of Liability — No Liability for Losses</h3>
+                    <p>TO THE FULLEST EXTENT PERMITTED BY LAW, Arrissa Pty Ltd, Ngonidzashe Jiji (David Richchild), and their respective directors, officers, employees, agents, affiliates, and associates (the <strong>"Released Parties"</strong>) shall <strong>not be liable</strong> under any legal theory for:</p>
+                    <ul>
+                        <li>Any <strong>financial loss, trading loss, loss of profits, or loss of capital</strong> of any nature whatsoever;</li>
+                        <li>Any direct, indirect, incidental, consequential, special, or punitive damages;</li>
+                        <li>Any loss arising from <strong>reliance on outputs, signals, or data</strong> generated by the Software;</li>
+                        <li>Any loss arising from errors, inaccuracies, interruptions, delays, or failures in the Software;</li>
+                        <li>Any adverse market outcomes related to the use of this Software.</li>
+                    </ul>
+                    <p>This exclusion applies even if the Released Parties have been advised of the possibility of such damages. To the extent liability cannot be excluded, the total aggregate liability shall not exceed <strong>AUD $100</strong>.</p>
+                </div>
+
+                <div class="terms-section">
+                    <h3>6. Updates, Modifications &amp; Continuity of Service</h3>
+                    <p>Licensor may, at its <strong>sole discretion</strong>, release updates, patches, or new versions of the Software. Licensor is under <strong>no obligation</strong> to release any update, maintain the Software, or continue development. Updates may introduce breaking changes to functionality, APIs, or data formats without liability.</p>
+                    <p>Licensor reserves the right to <strong>discontinue the Software, withdraw any licence, or shut down associated services</strong> at any time, with or without notice, and without liability to you. Your continued use of the Software following any update constitutes acceptance of the updated terms.</p>
+                </div>
+
+                <div class="terms-section">
+                    <h3>7. Governing Law</h3>
+                    <p>This Agreement is governed by the laws of <strong>New South Wales, Australia</strong>. Any dispute shall be subject to the exclusive jurisdiction of the courts of New South Wales, Australia.</p>
+                </div>
+
+                <div class="terms-section">
+                    <h3>8. Indemnification</h3>
+                    <p>You agree to indemnify and hold harmless the Released Parties from all claims, losses, damages, costs, and expenses (including legal fees) arising from your use or misuse of the Software, your breach of this Agreement, or any trading or investment activities conducted using the Software.</p>
+                </div>
+
+                <p style="margin-top:16px; font-size:0.75rem; color: var(--text-secondary);">
+                    By accepting below, you confirm you have read, understood, and unconditionally agree to be legally bound by this Agreement in its entirety, including the full terms in the <strong>LICENSE.md</strong> file included with this Software. <strong>© 2024–2026 Arrissa Pty Ltd. All Rights Reserved.</strong>
+                </p>
+
+            </div>
+            <div id="terms-footer">
+                <div id="terms-scroll-note">↓ Scroll to the bottom to enable acceptance</div>
+                <div id="terms-check-row">
+                    <input type="checkbox" id="terms-checkbox" disabled onchange="onTermsCheckChange()">
+                    <label for="terms-checkbox">
+                        I confirm I have read and fully understand the above terms. I <strong>unconditionally agree</strong> to be legally bound by this Software License Agreement, including the disclaimer of warranties, the financial risk disclaimer, the prohibition on redistribution, and the limitation of liability.
+                    </label>
+                </div>
+                <button id="terms-accept-btn" disabled onclick="acceptTerms()">
+                    I Accept — Continue to Software
+                </button>
+                <div id="terms-decline-row">
+                    <a onclick="declineTerms()">I do not accept — exit</a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Update Notification Banner -->
@@ -712,6 +989,59 @@ _Tz8wKpN4::_v();
                 loader.style.display = 'none';
             }, 300); // Wait for fade animation to complete
         });
+
+        // ── Terms Overlay Logic ──
+        (function() {
+            const TERMS_VERSION = 'v2'; // bump this string to force re-acceptance after a terms update
+            const STORAGE_KEY   = 'arrissa_terms_accepted';
+
+            const overlay  = document.getElementById('terms-overlay');
+            const body     = document.getElementById('terms-body');
+            const checkbox = document.getElementById('terms-checkbox');
+            const acceptBtn = document.getElementById('terms-accept-btn');
+            const scrollNote = document.getElementById('terms-scroll-note');
+
+            function termsAccepted() {
+                return localStorage.getItem(STORAGE_KEY) === TERMS_VERSION;
+            }
+
+            if (!termsAccepted()) {
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+
+                // Enable checkbox once user has scrolled to (or near) the bottom
+                body.addEventListener('scroll', function() {
+                    const nearBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 60;
+                    if (nearBottom) {
+                        checkbox.disabled = false;
+                        scrollNote.style.opacity = '0';
+                    }
+                });
+            } else {
+                overlay.classList.add('hidden');
+            }
+
+            window.onTermsCheckChange = function() {
+                acceptBtn.disabled = !checkbox.checked;
+            };
+
+            window.acceptTerms = function() {
+                if (!checkbox.checked) return;
+                localStorage.setItem(STORAGE_KEY, TERMS_VERSION);
+                overlay.style.transition = 'opacity 0.3s ease-out';
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
+            };
+
+            window.declineTerms = function() {
+                if (confirm('You must accept the terms to use this software. Click OK to be redirected, or Cancel to review the terms.')) {
+                    window.location.href = 'https://arrissa.com';
+                }
+            };
+        })();
     </script>
 </body>
 </html>
