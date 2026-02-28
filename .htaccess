@@ -1,5 +1,8 @@
 RewriteEngine On
 
+# Force /get/ routes through index.php (domain check happens there)
+RewriteRule ^get(/.*)?$ index.php [QSA,L]
+
 # Redirect to login if accessing auth endpoints
 RewriteCond %{REQUEST_URI} ^/auth/login$
 RewriteRule ^auth/login$ public/auth/login.php [L]
