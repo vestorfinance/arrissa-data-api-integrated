@@ -394,12 +394,17 @@ EOF</pre>
         </div>
         <div class="steps">
             <div class="step">
-                <div class="step-title"><span class="step-num">1</span>Write the Caddyfile</div>
+                <div class="step-title"><span class="step-num">1</span>Append n8n block to Caddyfile</div>
                 <div class="step-body">
+                    <div class="callout callout-warn" style="margin-bottom:12px;">
+                        <i data-feather="alert-triangle" class="callout-icon" style="width:16px;height:16px;color:var(--warning);"></i>
+                        <span><strong>Do not overwrite your Caddyfile.</strong> If you already have Arrissa Data or other apps configured, use <code>tee -a</code> (append) — not plain <code>tee</code> — so existing blocks are preserved.</span>
+                    </div>
                     <div class="code-block">
                         <span class="code-lang">bash</span>
                         <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
-                        <pre id="u-caddy">sudo tee /etc/caddy/Caddyfile &lt;&lt;'EOF'
+                        <pre id="u-caddy">sudo tee -a /etc/caddy/Caddyfile &lt;&lt;'EOF'
+
 n8n.yourdomain.com {
     reverse_proxy localhost:5678
     encode gzip
@@ -409,7 +414,14 @@ n8n.yourdomain.com {
         X-Frame-Options "SAMEORIGIN"
     }
 }
-EOF</pre>
+EOF
+
+# Verify the full Caddyfile looks correct
+cat /etc/caddy/Caddyfile</pre>
+                    </div>
+                    <div class="callout callout-info" style="margin-top:12px;">
+                        <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                        <span>The blank line before <code>n8n.yourdomain.com</code> ensures Caddy can parse the blocks cleanly. Run <code>sudo caddy fmt --overwrite /etc/caddy/Caddyfile</code> if you want Caddy to auto-format the file.</span>
                     </div>
                 </div>
             </div>
