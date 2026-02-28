@@ -370,15 +370,6 @@ sudo tee /etc/apache2/ports.conf &gt; /dev/null &lt;&lt;'EOF'
 Listen 8080
 EOF
 
-# Rewrite the default vhost to listen on 8080
-sudo tee /etc/apache2/sites-enabled/000-default.conf &gt; /dev/null &lt;&lt;'EOF'
-&lt;VirtualHost *:8080&gt;
-    DocumentRoot /var/www/html
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-&lt;/VirtualHost&gt;
-EOF
-
 # Verify config is valid before restarting
 sudo apache2ctl configtest
 
@@ -504,6 +495,10 @@ EOF</pre>
                         <pre>sudo a2dissite 000-default.conf
 sudo a2ensite arrissa.conf
 sudo systemctl reload apache2</pre>
+                    </div>
+                    <div class="callout callout-warn">
+                        <i data-feather="alert-triangle" class="callout-icon" style="width:16px;height:16px;color:var(--warning);"></i>
+                        <span><strong>Do not skip this.</strong> If you see the Apache default welcome page, it means <code>000-default.conf</code> is still active. Run these three lines and reload — the Arrissa app will appear.</span>
                     </div>
                 </div>
             </div>
