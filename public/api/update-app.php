@@ -44,8 +44,14 @@ if ($exitCode !== 0) {
 // Detect if anything actually changed
 $alreadyUpToDate = stripos($outputStr, 'Already up to date') !== false;
 
+// Detect whether Apache restart/reload was triggered
+$apacheRestarted = stripos($outputStr, 'graceful reload triggered') !== false
+                || stripos($outputStr, 'reloaded via systemctl') !== false
+                || stripos($outputStr, 'Scheduling Apache restart') !== false;
+
 echo json_encode([
-    'success'          => true,
+    'success'            => true,
     'already_up_to_date' => $alreadyUpToDate,
-    'output'           => $outputStr,
+    'apache_restarted'   => $apacheRestarted,
+    'output'             => $outputStr,
 ]);

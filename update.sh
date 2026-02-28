@@ -20,3 +20,15 @@ git clean -fd 2>&1
 
 # Pull latest code
 git pull origin main 2>&1
+
+# Gracefully reload Apache so new code is picked up without dropping live connections
+# (SIGUSR1 — child processes finish their current requests before reloading)
+if command -v apache2ctl >/dev/null 2>&1; then
+    apache2ctl graceful 2>&1
+    echo "Apache graceful reload triggered."
+elif command -v systemctl >/dev/null 2>&1; then
+    systemctl reload apache2 2>&1
+    echo "Apache reloaded via systemctl."
+else
+    echo "WARNING: Could not detect Apache. Restart it manually."
+fi

@@ -27,4 +27,10 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo Update complete.
+
+echo Scheduling Apache restart in 3 seconds...
+:: Launch a detached background process so the HTTP response is sent first,
+:: then Apache is restarted. Tries WAMP service name first, then XAMPP.
+start /b cmd /c "timeout /t 3 /nobreak >nul 2>&1 && (sc query wampapache64 >nul 2>&1 && (net stop wampapache64 && net start wampapache64) || (sc query Apache2.4 >nul 2>&1 && (net stop Apache2.4 && net start Apache2.4) || echo Apache service not found))"
+
 exit /b 0
