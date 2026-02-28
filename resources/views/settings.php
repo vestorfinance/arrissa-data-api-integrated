@@ -252,33 +252,44 @@ async function updateN8n() {
 
         // Docker / local case — show manual commands
         if (data.docker_info) {
-            const container = data.container || 'n8n';
+            const container   = data.container || 'n8n';
+            const composePath = data.compose_path || null;
             docker.style.display = 'block';
-            cmds.textContent =
-`# If using Docker Desktop (local) or standalone docker run:
-docker pull n8nio/n8n
+            if (composePath) {
+                // Windows Docker Desktop — compose file path is known
+                cmds.textContent =
+`# PowerShell — update n8n via Docker Compose (Docker Desktop)
+cd "${composePath.replace('docker-compose.yml','')}"
+# or: cd "$env:USERPROFILE\\n8n"
+
+docker compose pull n8n
+docker compose up -d --force-recreate n8n
+
+# Verify it's running:
+docker ps`;
+            } else {
+                // Linux standalone container without a compose file
+                cmds.textContent =
+`# If using Docker Compose (find your compose file directory first):
+cd /opt/n8n
+docker compose pull n8n
+docker compose up -d --force-recreate n8n
+
+# If using standalone docker run:
+docker pull docker.n8n.io/n8nio/n8n
 docker stop ${container}
 docker rm ${container}
-# Then re-run your original docker run command with the same volumes/env.
-
-# If using Docker Compose (find your compose file directory first):
-docker compose pull n8n
-docker compose up -d n8n`;
+# Then re-run your original docker run command with the same volumes/env.`;
+            }
             out.style.display = 'block';
             out.style.color = 'var(--warning)';
             out.textContent = '⚠ ' + data.message;
         } else if (data.success) {
             out.style.display = 'block';
-            const same = data.already_latest;
             out.style.color = 'var(--success)';
-            let txt = same
-                ? `✓ Already on latest version (${data.new_version}).`
-                : `✓ Updated: ${data.old_version} → ${data.new_version}.`;
-            if (data.restart_method && data.restart_method !== 'none') {
-                txt += `\nRestarted via ${data.restart_method}.`;
-            } else if (!same) {
-                txt += '\n⚠ Could not auto-restart. Restart n8n manually.';
-            }
+            let txt = `✓ ${data.message}`;
+            if (data.new_version) txt += `\nVersion: ${data.new_version}`;
+            if (data.compose_file) txt += `\nCompose: ${data.compose_file}`;
             if (data.output) txt += '\n\n' + data.output;
             out.textContent = txt;
         } else {

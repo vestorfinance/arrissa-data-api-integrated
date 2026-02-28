@@ -3,9 +3,14 @@
  * Update n8n API
  * POST /api/update-n8n
  *
- * Detects whether n8n is running as:
- *   (a) a global npm package managed by systemd / pm2  → updates + restarts it
- *   (b) a Docker container                             → returns docker instructions
+ * n8n is always installed via Docker Compose (per the installation guide).
+ * Known compose locations:
+ *   Ubuntu VPS : /opt/n8n/docker-compose.yml  (guide default)
+ *   Windows    : %USERPROFILE%\n8n\            (Docker Desktop — instructions only)
+ *
+ * PHP runs as www-data which may not be in the docker group, so we:
+ *   1. Use absolute Docker binary paths
+ *   2. Fall back to sudo docker (needs NOPASSWD sudoers)
  *
  * Protected by session auth.
  */
@@ -15,147 +20,160 @@ Auth::check();
 
 header('Content-Type: application/json');
 
-// ─── Helper: run a shell command, capture output + exit code ───────────────
+// ─── Helper: run a command, return exit code, fill $out with lines ─────────
 function run(string $cmd, array &$out = []): int {
     $out = [];
     exec($cmd . ' 2>&1', $out, $code);
     return $code;
 }
 
-// ─── Windows: we can't manage n8n natively — return docker instructions ────
+// ─── Find the Docker binary (www-data may not have it in $PATH) ─────────────
+function findDocker(): string {
+    $candidates = [
+        '/usr/bin/docker',
+        '/usr/local/bin/docker',
+        '/snap/bin/docker',
+    ];
+    foreach ($candidates as $p) {
+        if (is_executable($p)) return $p;
+    }
+    $out = [];
+    if (run('which docker', $out) === 0 && !empty($out[0])) return trim($out[0]);
+    return '';
+}
+
+// ─── Find the compose file in known / guide-default locations ───────────────
+function findComposeFile(): string {
+    $candidates = [
+        '/opt/n8n/docker-compose.yml',
+        '/opt/n8n/docker-compose.yaml',
+        '/opt/n8n/compose.yml',
+        '/opt/n8n/compose.yaml',
+        '/home/ubuntu/n8n/docker-compose.yml',
+        '/home/ubuntu/n8n/docker-compose.yaml',
+        '/root/n8n/docker-compose.yml',
+        '/root/n8n/docker-compose.yaml',
+        '/var/www/n8n/docker-compose.yml',
+        '/srv/n8n/docker-compose.yml',
+    ];
+    // Any home directory
+    $homeDirs = glob('/home/*/n8n/docker-compose.yml') ?: [];
+    foreach (array_merge($candidates, $homeDirs) as $f) {
+        if (file_exists($f)) return $f;
+    }
+    return '';
+}
+
+// ─── Windows: return Docker Desktop instructions ─────────────────────────────
 if (PHP_OS_FAMILY === 'Windows') {
     echo json_encode([
-        'success'     => false,
-        'mode'        => 'docker',
-        'docker_info' => true,
-        'message'     => 'Running on Windows. If n8n is running in Docker Desktop, use the commands below to update it.',
+        'success'      => false,
+        'mode'         => 'docker',
+        'docker_info'  => true,
+        'container'    => 'n8n',
+        'compose_path' => '%USERPROFILE%\\n8n\\docker-compose.yml',
+        'message'      => 'Running on Windows with Docker Desktop. Use the commands below in PowerShell to update n8n.',
     ]);
     exit;
 }
 
-// ─── Linux: detect Docker vs npm ───────────────────────────────────────────
+// ─── Linux: find compose file first (guide always uses /opt/n8n/) ───────────
+$composeFile = findComposeFile();
 
-// Check if a container named "n8n" (or image "n8nio/n8n") is running
-$dockerLines = [];
-$dockerRunning = false;
-$dockerContainerName = 'n8n';
-if (run('command -v docker') === 0) {
-    run('docker ps --format "{{.Names}} {{.Image}}"', $dockerLines);
-    foreach ($dockerLines as $line) {
-        if (stripos($line, 'n8n') !== false) {
-            $dockerRunning = true;
-            // Grab the container name (first word)
-            $parts = explode(' ', trim($line));
-            $dockerContainerName = $parts[0] ?? 'n8n';
+if (!$composeFile) {
+    // Deeper scan as fallback
+    $found = [];
+    run("find /opt /home /root /srv -maxdepth 5 \\( -name 'docker-compose.yml' -o -name 'docker-compose.yaml' -o -name 'compose.yml' \\) 2>/dev/null", $found);
+    foreach ($found as $f) {
+        $f = trim($f);
+        if ($f && file_exists($f) && stripos(@file_get_contents($f), 'n8n') !== false) {
+            $composeFile = $f;
             break;
         }
     }
 }
 
-if ($dockerRunning) {
-    // Docker path — we can update it by pulling the new image and recreating the container.
-    // But that requires knowing how it was started (docker run vs compose).
-    // Detect docker-compose or docker compose
-    $composeFile = '';
-    foreach (['/home', '/root', '/opt', '/srv'] as $dir) {
-        $found = [];
-        run("find $dir -maxdepth 4 -name 'docker-compose.yml' -o -name 'docker-compose.yaml' -o -name 'compose.yml' 2>/dev/null | head -5", $found);
-        foreach ($found as $f) {
-            if (stripos(file_get_contents($f), 'n8n') !== false) {
-                $composeFile = $f;
-                break 2;
-            }
+if (!$composeFile) {
+    // Last resort: check if a Docker container named n8n is running (standalone docker run)
+    $docker   = findDocker();
+    $psList   = [];
+    $dockerCmd = '';
+    if ($docker) {
+        if (run("$docker ps --format '{{.Names}} {{.Image}}' 2>/dev/null", $psList) === 0) {
+            $dockerCmd = $docker;
+        } elseif (run("sudo $docker ps --format '{{.Names}} {{.Image}}' 2>/dev/null", $psList) === 0) {
+            $dockerCmd = "sudo $docker";
+        }
+    }
+    $containerName = 'n8n';
+    $containerFound = false;
+    foreach ($psList as $line) {
+        if (stripos($line, 'n8n') !== false) {
+            $containerFound = true;
+            $p = explode(' ', trim($line));
+            $containerName = $p[0] ?? 'n8n';
+            break;
         }
     }
 
-    if ($composeFile) {
-        $composeDir = dirname($composeFile);
-        $lines = [];
-        run("cd " . escapeshellarg($composeDir) . " && docker compose pull n8n && docker compose up -d n8n", $lines);
-        $output = implode("\n", $lines);
-        echo json_encode([
-            'success' => true,
-            'mode'    => 'docker-compose',
-            'output'  => "Compose file: $composeFile\n\n" . $output,
-            'message' => 'n8n Docker image updated and container recreated via docker compose.',
-        ]);
-    } else {
-        // Standalone docker run — just return clear instructions
+    if ($containerFound) {
         echo json_encode([
             'success'     => false,
             'mode'        => 'docker',
             'docker_info' => true,
-            'container'   => $dockerContainerName,
-            'message'     => "n8n is running in Docker container \"$dockerContainerName\" but no compose file was found. Use the manual commands below.",
+            'container'   => $containerName,
+            'message'     => "n8n container \"$containerName\" is running but no docker-compose.yml was found. Use the manual commands below.",
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'mode'    => 'not-found',
+            'message' => 'Could not locate an n8n docker-compose.yml. Expected location: /opt/n8n/docker-compose.yml — make sure n8n is installed following the installation guide.',
         ]);
     }
     exit;
 }
 
-// ─── npm global install path ────────────────────────────────────────────────
+$composeDir = dirname($composeFile);
 
-// Check n8n is actually installed globally
-$n8nCheck = [];
-if (run('n8n --version', $n8nCheck) !== 0 && run('npx --no n8n --version', $n8nCheck) !== 0) {
+// ─── Resolve docker binary and test access ──────────────────────────────────
+$docker = findDocker();
+if (!$docker) {
     echo json_encode([
         'success' => false,
-        'mode'    => 'not-found',
-        'message' => 'n8n does not appear to be installed on this server (not found in PATH). Install it with: npm install -g n8n',
+        'mode'    => 'docker',
+        'message' => "Found compose file at $composeFile but Docker binary was not found. Ensure Docker is installed.",
     ]);
     exit;
 }
 
-$oldVersion = trim(implode('', $n8nCheck));
-$lines      = [];
+// Use sudo docker if www-data is not in the docker group
+$testOut  = [];
+$dockerCmd = (run("$docker info 2>/dev/null", $testOut) === 0) ? $docker : "sudo $docker";
 
-// Update n8n globally
-run('npm update -g n8n', $lines);
-$updateOutput = implode("\n", $lines);
+// ─── Pull latest image and recreate the container ───────────────────────────
+$pullOut  = [];
+$upOut    = [];
+$pullCode = run("cd " . escapeshellarg($composeDir) . " && $dockerCmd compose pull n8n", $pullOut);
+$upCode   = run("cd " . escapeshellarg($composeDir) . " && $dockerCmd compose up -d --force-recreate n8n", $upOut);
 
-// Check new version
-$newVersionOut = [];
-run('n8n --version', $newVersionOut);
-$newVersion = trim(implode('', $newVersionOut));
+$combined = implode("\n", $pullOut) . "\n\n" . implode("\n", $upOut);
 
-// ─── Restart n8n ────────────────────────────────────────────────────────────
-$restartMethod = 'none';
-$restartOutput = '';
-$restartLines  = [];
+// Get the new version from the running container
+$verOut = [];
+run("$dockerCmd exec n8n n8n --version 2>/dev/null", $verOut);
+$newVersion = trim(implode('', $verOut));
 
-// Try pm2 first
-if (run('command -v pm2') === 0) {
-    $pm2List = [];
-    run('pm2 list', $pm2List);
-    $pm2HasN8n = false;
-    foreach ($pm2List as $l) {
-        if (stripos($l, 'n8n') !== false) { $pm2HasN8n = true; break; }
-    }
-    if ($pm2HasN8n) {
-        run('pm2 restart n8n', $restartLines);
-        $restartMethod = 'pm2';
-        $restartOutput = implode("\n", $restartLines);
-    }
-}
-
-// Fall back to systemctl
-if ($restartMethod === 'none' && run('command -v systemctl') === 0) {
-    $svcCheck = [];
-    if (run('systemctl is-active n8n', $svcCheck) === 0 || trim(implode('', $svcCheck)) === 'active') {
-        run('systemctl restart n8n', $restartLines);
-        $restartMethod = 'systemctl';
-        $restartOutput = implode("\n", $restartLines);
-    }
-}
+$success = ($pullCode === 0 && $upCode === 0);
 
 echo json_encode([
-    'success'        => true,
-    'mode'           => 'npm',
-    'old_version'    => $oldVersion,
-    'new_version'    => $newVersion,
-    'already_latest' => ($oldVersion === $newVersion),
-    'restart_method' => $restartMethod,
-    'output'         => $updateOutput . ($restartOutput ? "\n\n--- Restart ($restartMethod) ---\n" . $restartOutput : ''),
-    'message'        => $restartMethod !== 'none'
-        ? "n8n updated and restarted via $restartMethod."
-        : "n8n updated. Could not auto-restart (no pm2 or systemd service found). Restart manually.",
+    'success'      => $success,
+    'mode'         => 'docker-compose',
+    'compose_file' => $composeFile,
+    'new_version'  => $newVersion ?: '(check with: docker exec n8n n8n --version)',
+    'output'       => $combined,
+    'message'      => $success
+        ? "n8n updated and restarted via docker compose. Compose file: $composeFile"
+        : "docker compose command failed. Check the output below for details.",
 ]);
+
