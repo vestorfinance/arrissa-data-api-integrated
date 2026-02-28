@@ -140,6 +140,12 @@ if ($uri === '/api/update-app') {
     exit;
 }
 
+// Update n8n — requires session auth
+if ($uri === '/api/update-n8n') {
+    include __DIR__ . '/public/api/update-n8n.php';
+    exit;
+}
+
 // Check if update is available — requires session auth
 if ($uri === '/api/check-update') {
     include __DIR__ . '/public/api/check-update.php';

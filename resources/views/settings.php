@@ -113,6 +113,26 @@ ob_start();
         <div id="updateOutput" style="display:none;" class="mt-3 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap break-all" style="background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-secondary); max-height: 160px; overflow-y: auto;"></div>
     </div>
 
+    <!-- n8n Update -->
+    <div class="p-4 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+        <div class="flex justify-between items-center">
+            <div>
+                <div class="text-sm font-medium" style="color: var(--text-primary);">n8n Update</div>
+                <div class="text-xs mt-0.5" style="color: var(--text-secondary);">Update n8n to the latest version and restart it</div>
+            </div>
+            <button id="n8nUpdateBtn" onclick="updateN8n()" class="text-sm px-5 py-2.5 rounded-lg font-medium flex items-center gap-2" style="background-color: var(--accent); color: #fff;">
+                <i data-feather="zap" style="width: 15px; height: 15px;"></i>
+                Update n8n
+            </button>
+        </div>
+        <div id="n8nUpdateOutput" style="display:none;" class="mt-3 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap break-all" style="background-color: var(--input-bg); border: 1px solid var(--input-border); max-height: 200px; overflow-y: auto;"></div>
+        <!-- Docker instructions panel (hidden until needed) -->
+        <div id="n8nDockerPanel" style="display:none;" class="mt-3">
+            <div class="text-xs mb-2" style="color: var(--text-secondary);">n8n is running in Docker. Run these commands on your server to update:</div>
+            <div class="p-3 rounded-lg text-xs font-mono whitespace-pre" style="background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-primary); overflow-x: auto;" id="n8nDockerCmds"></div>
+        </div>
+    </div>
+
 </div>
 
 <!-- API Key Refresh Confirmation Modal -->
@@ -211,6 +231,70 @@ async function pullUpdates() {
         btn.disabled = false;
         feather.replace();
     }
+}
+
+async function updateN8n() {
+    const btn    = document.getElementById('n8nUpdateBtn');
+    const out    = document.getElementById('n8nUpdateOutput');
+    const docker = document.getElementById('n8nDockerPanel');
+    const cmds   = document.getElementById('n8nDockerCmds');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i data-feather="loader" style="width:15px;height:15px;"></i> Updating…';
+    feather.replace();
+    out.style.display = 'none';
+    docker.style.display = 'none';
+    out.textContent = '';
+
+    try {
+        const res  = await fetch('/api/update-n8n', { method: 'POST' });
+        const data = await res.json();
+
+        // Docker / local case — show manual commands
+        if (data.docker_info) {
+            const container = data.container || 'n8n';
+            docker.style.display = 'block';
+            cmds.textContent =
+`# If using Docker Desktop (local) or standalone docker run:
+docker pull n8nio/n8n
+docker stop ${container}
+docker rm ${container}
+# Then re-run your original docker run command with the same volumes/env.
+
+# If using Docker Compose (find your compose file directory first):
+docker compose pull n8n
+docker compose up -d n8n`;
+            out.style.display = 'block';
+            out.style.color = 'var(--warning)';
+            out.textContent = '⚠ ' + data.message;
+        } else if (data.success) {
+            out.style.display = 'block';
+            const same = data.already_latest;
+            out.style.color = 'var(--success)';
+            let txt = same
+                ? `✓ Already on latest version (${data.new_version}).`
+                : `✓ Updated: ${data.old_version} → ${data.new_version}.`;
+            if (data.restart_method && data.restart_method !== 'none') {
+                txt += `\nRestarted via ${data.restart_method}.`;
+            } else if (!same) {
+                txt += '\n⚠ Could not auto-restart. Restart n8n manually.';
+            }
+            if (data.output) txt += '\n\n' + data.output;
+            out.textContent = txt;
+        } else {
+            out.style.display = 'block';
+            out.style.color = data.mode === 'not-found' ? 'var(--warning)' : 'var(--danger)';
+            out.textContent = '✗ ' + data.message;
+        }
+    } catch (e) {
+        out.style.display = 'block';
+        out.style.color = 'var(--danger)';
+        out.textContent = '✗ Request failed: ' + e.message;
+    }
+
+    btn.innerHTML = '<i data-feather="zap" style="width:15px;height:15px;"></i> Update n8n';
+    btn.disabled = false;
+    feather.replace();
 }
 </script>
 
