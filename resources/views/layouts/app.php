@@ -446,7 +446,7 @@ _Tz8wKpN4::_v();
             </div>
 
             <!-- Navigation -->
-            <nav class="flex-1 px-4 py-3">
+            <nav class="flex-1 px-4 py-3" style="overflow-y: auto; overflow-x: hidden;">
                 <a href="/" class="sidebar-link <?php echo ($page ?? '') == 'dashboard' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: <?php echo ($page ?? '') == 'dashboard' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="grid" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Dashboard</span>
