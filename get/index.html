@@ -541,7 +541,7 @@ EOF</pre>
                         <div class="code-block">
                             <span class="code-lang">bash</span>
                             <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
-                            <pre>sudo tee /etc/caddy/Caddyfile &lt;&lt;'EOF'
+                            <pre id="u-caddy-cf-conf">sudo tee /etc/caddy/Caddyfile &lt;&lt;'EOF'
 yourdomain.com {
     tls internal
     reverse_proxy localhost:8080
@@ -1178,7 +1178,8 @@ function updateAll() {
     setText('u-ip-dns', ip);
     setCode('u-ssh-cmd', () => `ssh ${user}@${ip}`);
     setCode('u-apache-vhost', el => el.textContent.replace(/yourdomain\.com/g, domain));
-    setCode('u-caddy-conf',   el => el.textContent.replace(/yourdomain\.com/g, domain));
+    setCode('u-caddy-conf',    el => el.textContent.replace(/yourdomain\.com/g, domain));
+    setCode('u-caddy-cf-conf', el => el.textContent.replace(/yourdomain\.com/g, domain));
     setText('u-domain-caddy', domain);
     setText('u-domain-url', `https://${domain}`);
     setText('u-base-url', `https://${domain}`);
