@@ -23,7 +23,8 @@ input bool     InpDebugMode         = true;             // Enable Debug Output
 input int      InpPrintIntervalSeconds = 5;             // Print Interval in Seconds
 
 //--- API input parameters
-input string   InpApiUrl = "http://127.0.0.1/tma-cg-api-v1/tma-cg-api.php"; // API URL
+input string AppBaseURL = "http://127.0.0.1" //Base URL. Leave default if localhost or enter domain: https://arrissadata.com
+string InpApiUrl = AppBaseURL+"/tma-cg-api-v1/tma-cg-api.php"; // API URL
 input bool     InpEnableApi = true;                    // Enable API communication
 input int      InpApiPollingSeconds = 2;               // API polling interval in seconds
 

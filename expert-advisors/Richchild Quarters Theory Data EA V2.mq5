@@ -12,7 +12,8 @@
 input int InpPeriodsLookback = 30;        // Periods to look back for average calculation
 input bool InpIgnoreSunday = true;        // Ignore Sundays in calculation
 input bool InpDebugMode = false;          // Enable debug output
-input string InpApiUrl = "http://localhost/quarters-theory-api-v1/quarters-theory-api.php"; // API URL
+input string AppBaseURL = "http://127.0.0.1" //Base URL. Leave default if localhost or enter domain: https://arrissadata.com
+string InpApiUrl = AppBaseURL+"/quarters-theory-api-v1/quarters-theory-api.php"; // API URL
 input bool InpEnableApi = true;           // Enable API communication
 input int InpApiPollingSeconds = 2;       // API polling interval in seconds
 
