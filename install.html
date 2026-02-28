@@ -80,8 +80,9 @@
             margin-bottom: 48px;
         }
         .config-title { font-size: 1rem; font-weight: 700; margin: 0 0 20px; color: var(--text-primary); }
-        .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-        @media (max-width: 600px) { .config-grid { grid-template-columns: 1fr; } }
+        .config-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        @media (max-width: 700px) { .config-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) and (min-width: 701px) { .config-grid { grid-template-columns: 1fr 1fr; } }
         label.field-label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
         input.text-field {
             width: 100%; background-color: var(--input-bg); border: 1px solid var(--input-border);
@@ -192,6 +193,13 @@
         /* Highlight */
         .hl-domain { color: #a5f3fc; }
         .hl-ip { color: #fde68a; }
+        .hl-user { color: #86efac; }
+        /* Guide card */
+        .guide-card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 24px; display: flex; align-items: center; gap: 20px; text-decoration: none; transition: border-color 0.2s, transform 0.15s; }
+        .guide-card:hover { border-color: var(--accent); transform: translateY(-2px); text-decoration: none; }
+        .guide-card-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .guide-card-text h3 { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px; }
+        .guide-card-text p { font-size: 0.82rem; color: var(--text-secondary); margin: 0; }
     </style>
 </head>
 <body>
@@ -214,6 +222,9 @@
         <a href="#configure">Configure</a>
         <a href="#ea-setup">EA Setup</a>
         <a href="#updating">Updates</a>
+        <a href="n8n-install.html" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:9999px;padding:6px 14px;color:var(--text-secondary);font-size:0.8rem;font-weight:600;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text-primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'">
+            <i data-feather="zap" style="width:13px;height:13px;"></i> n8n Guide
+        </a>
     </div>
 </nav>
 
@@ -236,6 +247,10 @@
             <div>
                 <label class="field-label" for="ipInput">Your Server IP Address</label>
                 <input class="text-field" type="text" id="ipInput" placeholder="e.g. 192.168.1.100" oninput="updateAll()">
+            </div>
+            <div>
+                <label class="field-label" for="userInput">VPS Username <span style="font-weight:400;color:var(--text-secondary);text-transform:none;letter-spacing:0;">(Ubuntu only)</span></label>
+                <input class="text-field" type="text" id="userInput" placeholder="e.g. ubuntu" oninput="updateAll()">
             </div>
         </div>
         <label class="field-label">Choose Your Environment</label>
@@ -266,6 +281,7 @@
             <a href="#mt5-config">MT5 Configuration</a>
             <a href="#updating">Updating</a>
             <a href="#troubleshooting">Troubleshooting</a>
+            <a href="#related">Related Guides</a>
         </aside>
 
         <div class="main-content">
@@ -298,7 +314,18 @@
                 </div>
             </div>
             <div class="step">
-                <div class="step-title"><span class="step-num">2</span>Update system &amp; install dependencies</div>
+                <div class="step-title"><span class="step-num">2</span>SSH into your server</div>
+                <div class="step-body">
+                    <div class="code-block">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre id="u-ssh-cmd">ssh ubuntu@YOUR_SERVER_IP</pre>
+                    </div>
+                    <p>All commands below are run on the server after connecting.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">3</span>Update system &amp; install dependencies</div>
                 <div class="step-body">
                     <div class="code-block">
                         <span class="code-lang">bash</span>
@@ -1008,6 +1035,23 @@ cd C:\xampp\htdocs\arrissa; git pull origin main</pre>
 
         </div><!-- /main-content -->
     </div><!-- /page-layout -->
+
+    <!-- Related Guides -->
+    <div class="divider"></div>
+    <div style="margin-bottom:64px;" id="related">
+        <h2 style="font-size:1.3rem;font-weight:700;margin:0 0 20px;">Related Guides</h2>
+        <a href="n8n-install.html" class="guide-card">
+            <div class="guide-card-icon" style="background:linear-gradient(135deg,#ea4b71,#ff6d5a);">
+                <span style="font-size:1rem;font-weight:900;color:#fff;letter-spacing:-0.04em;">n8n</span>
+            </div>
+            <div class="guide-card-text">
+                <h3>n8n — Installation Guide</h3>
+                <p>Install n8n workflow automation on Ubuntu + Caddy, Windows + Docker, or macOS + Docker.</p>
+            </div>
+            <i data-feather="arrow-right" style="width:18px;height:18px;color:var(--text-secondary);margin-left:auto;flex-shrink:0;"></i>
+        </a>
+    </div>
+
 </div><!-- /container -->
 
 <footer>
@@ -1030,15 +1074,22 @@ function currentEnv() {
     return document.querySelector('.env-tab.active')?.getAttribute('data-env') || 'ubuntu';
 }
 
+function getUser() {
+    const u = document.getElementById('userInput');
+    return u ? (u.value.trim() || 'ubuntu') : 'ubuntu';
+}
+
 function updateAll() {
     const domain = getDomain();
     const ip     = getIP();
+    const user   = getUser();
     const isHttps = document.getElementById('panel-ubuntu').classList.contains('active');
     const proto   = isHttps ? 'https' : 'http';
 
     // Ubuntu texts
     setText('u-domain-dns', domain);
     setText('u-ip-dns', ip);
+    setCode('u-ssh-cmd', () => `ssh ${user}@${ip}`);
     setCode('u-apache-vhost', el => el.textContent.replace(/yourdomain\.com/g, domain));
     setCode('u-caddy-conf',   el => el.textContent.replace(/yourdomain\.com/g, domain));
     setText('u-domain-caddy', domain);
