@@ -400,7 +400,10 @@ EOF</pre>
                         <i data-feather="alert-triangle" class="callout-icon" style="width:16px;height:16px;color:var(--warning);"></i>
                         <span><strong>Do not overwrite your Caddyfile.</strong> If you already have Arrissa Data or other apps configured, use <code>tee -a</code> (append) — not plain <code>tee</code> — so existing blocks are preserved.</span>
                     </div>
-                    <div class="code-block">
+
+                    <p class="text-sm font-semibold mb-2" style="color:var(--text-primary);">Option A — No Cloudflare proxy / DNS-only (grey cloud):</p>
+                    <p class="text-sm mb-3" style="color:var(--text-secondary);">Caddy auto-obtains a Let's Encrypt certificate directly. Your DNS A record must point straight to this server's IP.</p>
+                    <div class="code-block" style="margin-bottom:16px;">
                         <span class="code-lang">bash</span>
                         <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
                         <pre id="u-caddy">sudo tee -a /etc/caddy/Caddyfile &lt;&lt;'EOF'
@@ -419,9 +422,36 @@ EOF
 # Verify the full Caddyfile looks correct
 cat /etc/caddy/Caddyfile</pre>
                     </div>
-                    <div class="callout callout-info" style="margin-top:12px;">
+
+                    <p class="text-sm font-semibold mb-2" style="color:var(--text-primary);">Option B — Cloudflare proxied (orange cloud):</p>
+                    <p class="text-sm mb-3" style="color:var(--text-secondary);">When Cloudflare is proxying, it terminates SSL itself and connects to your origin over HTTPS. Caddy cannot complete a Let's Encrypt HTTP-01 challenge in this mode — use <code>tls internal</code> instead (Caddy issues a self-signed cert that Cloudflare trusts in <strong>Full</strong> mode).</p>
+                    <div class="code-block" style="margin-bottom:12px;">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>sudo tee -a /etc/caddy/Caddyfile &lt;&lt;'EOF'
+
+n8n.yourdomain.com {
+    tls internal
+    reverse_proxy localhost:5678
+    encode gzip
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+    }
+}
+EOF
+
+cat /etc/caddy/Caddyfile</pre>
+                    </div>
+                    <div class="callout callout-info">
                         <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
-                        <span>The blank line before <code>n8n.yourdomain.com</code> ensures Caddy can parse the blocks cleanly. Run <code>sudo caddy fmt --overwrite /etc/caddy/Caddyfile</code> if you want Caddy to auto-format the file.</span>
+                        <span>After adding <code>tls internal</code>, go to <strong>Cloudflare Dashboard → SSL/TLS → Overview</strong> and set the encryption mode to <strong>Full</strong> (not Flexible, not Full Strict). Flexible causes redirect loops; Full Strict requires a CA-signed cert on the origin which <code>tls internal</code> does not provide.</span>
+                    </div>
+
+                    <div class="callout callout-info" style="margin-top:8px;">
+                        <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                        <span>The blank line before each site block ensures Caddy parses them cleanly. Run <code>sudo caddy fmt --overwrite /etc/caddy/Caddyfile</code> to auto-format the file.</span>
                     </div>
                 </div>
             </div>
@@ -436,7 +466,7 @@ sudo systemctl reload caddy</pre>
                     </div>
                     <div class="callout callout-warn">
                         <i data-feather="alert-triangle" class="callout-icon" style="width:16px;height:16px;color:var(--warning);"></i>
-                        <span>Your domain's DNS A record must already point to this server's IP for Caddy to issue the SSL certificate.</span>
+                        <span><strong>Option A only:</strong> Your domain's DNS A record must point directly to this server's IP (grey cloud in Cloudflare) for Caddy to issue the Let's Encrypt certificate. If using Cloudflare proxy (orange cloud), use Option B with <code>tls internal</code> instead.</span>
                     </div>
                 </div>
             </div>
