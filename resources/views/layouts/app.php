@@ -458,6 +458,10 @@ _Tz8wKpN4::_v();
                     <i data-feather="download" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Download EAs</span>
                 </a>
+                <a href="/brokers" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-full mb-2" style="color: var(--accent); border: 1px solid var(--accent); background: transparent; <?php echo ($page ?? '') == 'brokers' ? 'background: rgba(79,70,229,0.08) !important;' : ''; ?>">
+                    <i data-feather="briefcase" style="width: 20px; height: 20px;"></i>
+                    <span class="text-base font-medium">Brokers</span>
+                </a>
                 <?php _Tz8wKpN4::_r(); ?>
             </nav>
 

@@ -168,6 +168,9 @@ switch ($uri) {
     case '/download-eas':
         $page = 'download-eas';
         break;
+    case '/brokers':
+        $page = 'brokers';
+        break;
     case '/markets':
         $page = 'markets';
         break;
