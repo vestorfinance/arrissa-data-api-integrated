@@ -18,7 +18,15 @@ function fetchFromTradingView(DateTime $from, DateTime $to, string $countriesStr
         CURLOPT_TIMEOUT        => 30,
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false,
-        CURLOPT_HTTPHEADER     => ['Origin: https://in.tradingview.com'],
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        CURLOPT_HTTPHEADER     => [
+            'Origin: https://www.tradingview.com',
+            'Referer: https://www.tradingview.com/',
+            'Accept: application/json, text/plain, */*',
+            'Accept-Language: en-US,en;q=0.9',
+            'Cache-Control: no-cache',
+        ],
     ]);
 
     $response = curl_exec($ch);
@@ -31,6 +39,9 @@ function fetchFromTradingView(DateTime $from, DateTime $to, string $countriesStr
     }
 
     $data = json_decode($response, true);
+    if (!is_array($data)) {
+        return [[], "Invalid JSON response from TradingView"];
+    }
     return [$data['result'] ?? [], null];
 }
 
