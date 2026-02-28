@@ -8,6 +8,7 @@ _Qvr9mBx3::_v();
 _Tz8wKpN4::_v();
 ?>
     <meta charset="UTF-8">
+    <!-- v2026.02.28 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $title ?? 'Arrissa Data API'; ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
