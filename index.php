@@ -5,6 +5,21 @@ ini_set('display_errors', 1);
 // Simple router
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
+// Serve static HTML files from the get/ folder
+if ($uri === '/get' || $uri === '/get/') {
+    header('Content-Type: text/html; charset=UTF-8');
+    readfile(__DIR__ . '/get/index.html');
+    exit;
+}
+if (preg_match('#^/get/([\w-]+\.html)$#', $uri, $m)) {
+    $file = __DIR__ . '/get/' . $m[1];
+    if (file_exists($file)) {
+        header('Content-Type: text/html; charset=UTF-8');
+        readfile($file);
+        exit;
+    }
+}
+
 // Handle login and auth routes
 if ($uri === '/login') {
     include __DIR__ . '/public/login.php';
