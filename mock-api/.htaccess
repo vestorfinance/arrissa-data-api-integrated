@@ -1,0 +1,30 @@
+# ── Mock API – Security ────────────────────────────────────────────────────
+
+# Disable directory listing
+Options -Indexes
+
+# Block direct browser access to data files (double-guard alongside data/.htaccess)
+<FilesMatch "\.(json|png|jpg|jpeg|gif|bmp|svg)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Block access to hidden files (e.g. .htaccess itself)
+<FilesMatch "^\.">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Only index.php is the entry point – everything else routes through it
+RewriteEngine On
+
+# Allow direct access to index.php
+RewriteRule ^index\.php$ - [L]
+
+# Block access to data/ directory directly
+RewriteRule ^data(/.*)?$ - [F,L]
+
+# Route all other requests back to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]

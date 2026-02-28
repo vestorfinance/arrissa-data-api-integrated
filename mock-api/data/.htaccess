@@ -1,0 +1,5 @@
+# Block ALL direct HTTP access to data files.
+# They are only read server-side by mock-api/index.php.
+Options -Indexes
+Order Allow,Deny
+Deny from all
