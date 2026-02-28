@@ -428,7 +428,7 @@ cat /etc/caddy/Caddyfile</pre>
                     <div class="code-block" style="margin-bottom:12px;">
                         <span class="code-lang">bash</span>
                         <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
-                        <pre>sudo tee -a /etc/caddy/Caddyfile &lt;&lt;'EOF'
+                        <pre id="u-caddy-cf">sudo tee -a /etc/caddy/Caddyfile &lt;&lt;'EOF'
 
 n8n.yourdomain.com {
     tls internal
@@ -997,7 +997,8 @@ function updateAll() {
     );
 
     // Caddyfile
-    setCode('u-caddy', el => el.textContent.replace(/n8n\.yourdomain\.com/g, domain));
+    setCode('u-caddy',    el => el.textContent.replace(/n8n\.yourdomain\.com/g, domain));
+    setCode('u-caddy-cf', el => el.textContent.replace(/n8n\.yourdomain\.com/g, domain));
 
     // n8n URL
     const url = `${proto}://${domain}`;
