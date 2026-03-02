@@ -104,6 +104,7 @@ ob_start();
             <div>
                 <div class="text-sm font-medium" style="color: var(--text-primary);">App Updates</div>
                 <div class="text-xs mt-0.5" style="color: var(--text-secondary);">Pull latest code from the Git repository</div>
+                <div id="appUpdateStatus" class="text-xs mt-1 font-semibold" style="color: var(--text-secondary);">Checking...</div>
             </div>
             <button id="updateBtn" onclick="pullUpdates()" class="text-sm px-5 py-2.5 rounded-lg font-medium flex items-center gap-2" style="background-color: var(--text-primary); color: var(--bg-primary);">
                 <i data-feather="download-cloud" style="width: 15px; height: 15px;"></i>
@@ -193,12 +194,30 @@ function copyApiKey(btn) {
     });
 }
 
+(async function checkAppUpdateStatus() {
+    const el = document.getElementById('appUpdateStatus');
+    try {
+        const res = await fetch('/api/check-update');
+        if (!res.ok) { el.textContent = ''; return; }
+        const data = await res.json();
+        if (data.update_available) {
+            el.style.color = 'var(--warning)';
+            el.textContent = 'Updates available';
+        } else if (data.local_head) {
+            el.style.color = 'var(--success)';
+            el.textContent = 'App up to date';
+        } else {
+            el.textContent = '';
+        }
+    } catch (e) { el.textContent = ''; }
+})();
+
 async function pullUpdates() {
     const btn = document.getElementById('updateBtn');
     const out = document.getElementById('updateOutput');
 
     btn.disabled = true;
-    btn.innerHTML = '<i data-feather="loader" style="width: 15px; height: 15px;"></i> Pulling…';
+    btn.innerHTML = '<i data-feather="loader" style="width: 15px; height: 15px;"></i> Updating...';
     feather.replace();
     out.style.display = 'none';
     out.textContent = '';
@@ -213,11 +232,15 @@ async function pullUpdates() {
         out.style.color = data.success ? 'var(--success)' : 'var(--danger)';
 
         if (data.success && data.already_up_to_date) {
-            out.textContent = '✓ Already up to date.';
+            out.textContent = 'Already up to date.';
+            document.getElementById('appUpdateStatus').style.color = 'var(--success)';
+            document.getElementById('appUpdateStatus').textContent = 'App up to date';
         } else if (data.success) {
-            out.textContent = '✓ Updated successfully.\n\n' + data.output;
+            out.textContent = 'Updated successfully.\n\n' + data.output;
+            document.getElementById('appUpdateStatus').style.color = 'var(--success)';
+            document.getElementById('appUpdateStatus').textContent = 'App up to date';
         } else {
-            out.textContent = '✗ ' + data.error + '\n\n' + data.output;
+            out.textContent = data.error + '\n\n' + data.output;
         }
 
         btn.innerHTML = '<i data-feather="download-cloud" style="width: 15px; height: 15px;"></i> Pull Updates';

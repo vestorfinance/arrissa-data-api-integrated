@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <?php
@@ -905,25 +905,25 @@ _Tz8wKpN4::_v();
         async function doPullUpdate() {
             const btn = document.getElementById('update-pull-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i data-feather="loader" style="width:13px;height:13px;animation:spin 0.8s linear infinite;"></i> Pullingâ€¦';
+            btn.innerHTML = '<i data-feather="loader" style="width:13px;height:13px;animation:spin 0.8s linear infinite;"></i> Updating...';
             feather.replace();
             try {
                 const res = await fetch('/api/update-app', { method: 'POST' });
                 const data = await res.json();
                 if (data.success && !data.already_up_to_date) {
-                    document.getElementById('update-banner-text').textContent = 'âœ“ Updated! Reloadingâ€¦';
+                    document.getElementById('update-banner-text').textContent = 'Updated! Reloading...';
                     setTimeout(() => location.reload(), 1200);
                 } else if (data.success && data.already_up_to_date) {
-                    document.getElementById('update-banner-text').textContent = 'âœ“ Already up to date.';
+                    document.getElementById('update-banner-text').textContent = 'Already up to date.';
                     setTimeout(dismissUpdateBanner, 2000);
                 } else {
-                    document.getElementById('update-banner-text').textContent = 'âœ— Pull failed. Check server logs.';
+                    document.getElementById('update-banner-text').textContent = 'Update failed. Check server logs.';
                     btn.disabled = false;
                     btn.innerHTML = '<i data-feather="refresh-cw" style="width:13px;height:13px;"></i> Retry';
                     feather.replace();
                 }
             } catch (e) {
-                document.getElementById('update-banner-text').textContent = 'âœ— Request failed.';
+                document.getElementById('update-banner-text').textContent = 'Request failed.';
                 btn.disabled = false;
                 btn.innerHTML = '<i data-feather="refresh-cw" style="width:13px;height:13px;"></i> Retry';
                 feather.replace();
