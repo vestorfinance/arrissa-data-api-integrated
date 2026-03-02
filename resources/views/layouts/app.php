@@ -314,12 +314,13 @@ _Tz8wKpN4::_v();
         }
         #update-dismiss-btn:hover { color: #fff; }
         /* Push page down when banner is visible */
+        :root { --banner-h: 0px; }
         body.has-update-banner aside,
         body.has-update-banner .mobile-header {
-            top: 42px !important;
+            top: var(--banner-h) !important;
         }
         body.has-update-banner main {
-            padding-top: 42px;
+            padding-top: var(--banner-h);
         }
         #page-loader {
             position: fixed;
@@ -875,11 +876,17 @@ _Tz8wKpN4::_v();
                 if (dismissed === data.remote_head) return;
 
                 const label = data.commits_behind === 1
-                    ? '1 new commit available.'
-                    : data.commits_behind + ' new commits available.';
+                    ? '1 new update available — let\'s go!'
+                    : data.commits_behind + ' new updates available — let\'s go!';
                 document.getElementById('update-banner-text').textContent = label;
-                document.getElementById('update-banner').classList.add('visible');
+                const banner = document.getElementById('update-banner');
+                banner.classList.add('visible');
                 document.body.classList.add('has-update-banner');
+                // Measure actual rendered height so layout shifts exactly right
+                requestAnimationFrame(() => {
+                    const h = banner.getBoundingClientRect().height;
+                    document.documentElement.style.setProperty('--banner-h', h + 'px');
+                });
                 feather.replace();
             } catch (e) { /* network error â€” silent */ }
         }
@@ -888,6 +895,7 @@ _Tz8wKpN4::_v();
             const banner = document.getElementById('update-banner');
             banner.classList.remove('visible');
             document.body.classList.remove('has-update-banner');
+            document.documentElement.style.setProperty('--banner-h', '0px');
             // Store the remote head so we don't nag again for this version
             fetch('/api/check-update').then(r => r.json()).then(d => {
                 if (d.remote_head) localStorage.setItem(UPDATE_DISMISS_KEY, d.remote_head);
