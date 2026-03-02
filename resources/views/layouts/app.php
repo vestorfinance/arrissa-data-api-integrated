@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <?php
@@ -313,21 +313,7 @@ _Tz8wKpN4::_v();
             transition: color 0.15s;
         }
         #update-dismiss-btn:hover { color: #fff; }
-        /* Push page down when banner is visible */
         :root { --banner-h: 0px; }
-        /* Desktop: shift the whole flex wrapper so sidebar + main both move together */
-        body.has-update-banner .flex.h-screen {
-            margin-top: var(--banner-h);
-            height: calc(100vh - var(--banner-h));
-        }
-        /* Mobile: shift the fixed header bar */
-        body.has-update-banner .mobile-header {
-            top: var(--banner-h) !important;
-        }
-        /* Mobile: shift the fixed sidebar panel */
-        body.has-update-banner aside {
-            top: var(--banner-h) !important;
-        }
         #page-loader {
             position: fixed;
             top: 0;
@@ -861,8 +847,28 @@ _Tz8wKpN4::_v();
     <script>
         feather.replace();
 
-        // â”€â”€ Update check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Update check --
         const UPDATE_DISMISS_KEY = 'update_dismissed_head';
+
+        function applyBannerLayout() {
+            const banner = document.getElementById('update-banner');
+            const wrapper = document.querySelector('.flex.h-screen');
+            const mobileHeader = document.querySelector('.mobile-header');
+            const sidebar = document.getElementById('sidebar');
+            const h = banner.getBoundingClientRect().height;
+            if (wrapper) { wrapper.style.marginTop = h + 'px'; wrapper.style.height = 'calc(100vh - ' + h + 'px)'; }
+            if (mobileHeader) mobileHeader.style.top = h + 'px';
+            if (sidebar) sidebar.style.top = h + 'px';
+        }
+
+        function clearBannerLayout() {
+            const wrapper = document.querySelector('.flex.h-screen');
+            const mobileHeader = document.querySelector('.mobile-header');
+            const sidebar = document.getElementById('sidebar');
+            if (wrapper) { wrapper.style.marginTop = ''; wrapper.style.height = ''; }
+            if (mobileHeader) mobileHeader.style.top = '';
+            if (sidebar) sidebar.style.top = '';
+        }
 
         async function checkForUpdate() {
             try {
@@ -870,33 +876,20 @@ _Tz8wKpN4::_v();
                 if (!res.ok) return;
                 const data = await res.json();
                 if (!data.update_available) return;
-
-                // Don't re-show if user already dismissed this exact remote commit
                 const dismissed = localStorage.getItem(UPDATE_DISMISS_KEY);
                 if (dismissed === data.remote_head) return;
-
                 const label = data.commits_behind === 1
-                    ? '1 new update available — let\'s go!'
-                    : data.commits_behind + ' new updates available — let\'s go!';
+                    ? '1 new update available'
+                    : data.commits_behind + ' new updates available';
                 document.getElementById('update-banner-text').textContent = label;
-                const banner = document.getElementById('update-banner');
-                banner.classList.add('visible');
-                document.body.classList.add('has-update-banner');
-                // Measure actual rendered height so layout shifts exactly right
-                requestAnimationFrame(() => {
-                    const h = banner.getBoundingClientRect().height;
-                    document.documentElement.style.setProperty('--banner-h', h + 'px');
-                });
-                feather.replace();
-            } catch (e) { /* network error â€” silent */ }
+                document.getElementById('update-banner').classList.add('visible');
+                requestAnimationFrame(applyBannerLayout);
+            } catch (e) { /* silent */ }
         }
 
         function dismissUpdateBanner() {
-            const banner = document.getElementById('update-banner');
-            banner.classList.remove('visible');
-            document.body.classList.remove('has-update-banner');
-            document.documentElement.style.setProperty('--banner-h', '0px');
-            // Store the remote head so we don't nag again for this version
+            document.getElementById('update-banner').classList.remove('visible');
+            clearBannerLayout();
             fetch('/api/check-update').then(r => r.json()).then(d => {
                 if (d.remote_head) localStorage.setItem(UPDATE_DISMISS_KEY, d.remote_head);
             }).catch(() => {});
