@@ -15,23 +15,47 @@ header('Content-Type: application/json');
 
 $repoPath = realpath(__DIR__ . '/../../');
 
-// Fetch from remote silently
-if (PHP_OS_FAMILY === 'Windows') {
-    exec('cd "' . $repoPath . '" && git fetch origin 2>&1', $fetchOut, $fetchCode);
-} else {
-    exec('cd ' . escapeshellarg($repoPath) . ' && git fetch origin 2>&1', $fetchOut, $fetchCode);
+// ── Resolve git binary ────────────────────────────────────────────────────────
+// Apache on Windows runs with a minimal PATH that often excludes git.
+// Try common installation locations before falling back to bare "git".
+function resolveGit(): string {
+    if (PHP_OS_FAMILY !== 'Windows') return 'git';
+    $candidates = [
+        'C:\\Program Files\\Git\\bin\\git.exe',
+        'C:\\Program Files\\Git\\cmd\\git.exe',
+        'C:\\Program Files (x86)\\Git\\bin\\git.exe',
+        'C:\\Program Files (x86)\\Git\\cmd\\git.exe',
+    ];
+    foreach ($candidates as $p) {
+        if (file_exists($p)) return '"' . $p . '"';
+    }
+    // Last resort: ask where.exe (available in cmd)
+    exec('where git 2>NUL', $out);
+    if (!empty($out[0]) && file_exists(trim($out[0]))) {
+        return '"' . trim($out[0]) . '"';
+    }
+    return 'git'; // fallback, may still fail
 }
 
-// Get local HEAD
-exec('cd "' . $repoPath . '" && git rev-parse HEAD 2>&1', $localOut);
-$localHead = trim($localOut[0] ?? '');
+$git = resolveGit();
 
-// Get remote HEAD (tracking branch)
-exec('cd "' . $repoPath . '" && git rev-parse @{u} 2>&1', $remoteOut);
-$remoteHead = trim($remoteOut[0] ?? '');
+// ── Git operations ────────────────────────────────────────────────────────────
+if (PHP_OS_FAMILY === 'Windows') {
+    $cd = 'cd /d "' . $repoPath . '"';
+    exec($cd . ' && ' . $git . ' fetch origin 2>&1', $fetchOut, $fetchCode);
+    exec($cd . ' && ' . $git . ' rev-parse HEAD 2>&1', $localOut);
+    exec($cd . ' && ' . $git . ' rev-parse @{u} 2>&1', $remoteOut);
+    exec($cd . ' && ' . $git . ' rev-list HEAD..@{u} --count 2>&1', $countOut);
+} else {
+    $cd = 'cd ' . escapeshellarg($repoPath);
+    exec($cd . ' && git fetch origin 2>&1', $fetchOut, $fetchCode);
+    exec($cd . ' && git rev-parse HEAD 2>&1', $localOut);
+    exec($cd . ' && git rev-parse @{u} 2>&1', $remoteOut);
+    exec($cd . ' && git rev-list HEAD..@{u} --count 2>&1', $countOut);
+}
 
-// Count how many commits behind
-exec('cd "' . $repoPath . '" && git rev-list HEAD..@{u} --count 2>&1', $countOut);
+$localHead     = trim($localOut[0] ?? '');
+$remoteHead    = trim($remoteOut[0] ?? '');
 $commitsBehind = intval(trim($countOut[0] ?? '0'));
 
 $updateAvailable = ($localHead !== $remoteHead) && $commitsBehind > 0;
