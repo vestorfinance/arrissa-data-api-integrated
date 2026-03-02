@@ -129,6 +129,23 @@
         .tip-card h3 { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); margin: 0 0 5px; }
         .tip-card p { font-size: 0.78rem; color: var(--text-secondary); margin: 0; line-height: 1.55; }
 
+        /* Tabs */
+        .tab-bar { display: flex; gap: 8px; margin-bottom: 28px; }
+        .tab-btn { display: flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 12px; font-size: 0.875rem; font-weight: 600; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+        .tab-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+        .tab-btn.active { background: rgba(79,70,229,0.12); border-color: var(--accent); color: var(--text-primary); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Mac app link card */
+        .app-link-card { display: flex; align-items: center; gap: 18px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 18px; padding: 20px 24px; text-decoration: none; transition: border-color 0.2s, background 0.2s; margin-bottom: 20px; }
+        .app-link-card:hover { border-color: var(--accent); background: rgba(79,70,229,0.07); text-decoration: none; }
+        .app-link-card .app-icon { width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0; }
+        .app-link-card .app-info { flex: 1; }
+        .app-link-card .app-name { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 0 0 3px; }
+        .app-link-card .app-meta { font-size: 0.78rem; color: var(--text-secondary); margin: 0; }
+        .app-link-card .app-arrow { color: var(--text-secondary); flex-shrink: 0; }
+
         .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 40px 0; }
         footer { border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; }
 
@@ -169,10 +186,25 @@
         </span>
     </div>
     <h1>Connect to Your VPS</h1>
-    <p>Enter your VPS IP address and username to generate and download a ready-to-use <strong>.rdp</strong> file for Windows Remote Desktop.</p>
+    <p>Generate a ready-to-use <strong>.rdp</strong> connection file for your VPS. Works on Windows and macOS.</p>
 </div>
 
 <div class="container">
+
+    <!-- OS Tabs -->
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('windows')" id="tab-windows">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.551H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+            Windows
+        </button>
+        <button class="tab-btn" onclick="switchTab('mac')" id="tab-mac">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+            macOS
+        </button>
+    </div>
+
+    <!-- Windows Tab -->
+    <div class="tab-panel active" id="panel-windows">
 
     <!-- Form card -->
     <div class="card">
@@ -245,6 +277,57 @@
             </li>
         </ul>
     </div>
+
+    </div><!-- /panel-windows -->
+
+    <!-- Mac Tab -->
+    <div class="tab-panel" id="panel-mac">
+
+        <div class="card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;">
+                <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1d1d1f,#3a3a3c);display:flex;align-items:center;justify-content:center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+                </div>
+                <div>
+                    <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">Connect from macOS</div>
+                    <div style="font-size:0.78rem;color:var(--text-secondary);">You need Microsoft Remote Desktop — it's free</div>
+                </div>
+            </div>
+
+            <a class="app-link-card" href="https://apps.apple.com/app/microsoft-remote-desktop/id1295203466" target="_blank" rel="noopener">
+                <img class="app-icon" src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/47/5e/f2/475ef2ff-3994-0d16-9b9c-7c5b7d03f2e1/AppIcon-0-0-85-220-0-0-4-0-2x.png/230x0w.webp" alt="Microsoft Remote Desktop" onerror="this.style.display='none'">
+                <div class="app-info">
+                    <p class="app-name">Microsoft Remote Desktop</p>
+                    <p class="app-meta">Free &middot; Mac App Store &middot; By Microsoft Corporation</p>
+                </div>
+                <svg class="app-arrow" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </a>
+
+            <ul class="steps">
+                <li class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-text"><strong>Download the app</strong> — click the card above to open the Mac App Store and install Microsoft Remote Desktop for free.</div>
+                </li>
+                <li class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-text"><strong>Add a PC</strong> — open the app, click <strong>Add PC</strong>, enter your VPS IP address and a friendly name.</div>
+                </li>
+                <li class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-text"><strong>Enter credentials</strong> — set your Windows username (e.g. <code style="background:var(--bg-tertiary);padding:1px 5px;border-radius:4px;font-size:0.78rem;">Administrator</code>) and password in the <strong>User Account</strong> field.</div>
+                </li>
+                <li class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-text"><strong>Connect</strong> — double-click the PC tile to connect. Accept the certificate warning on first connection.</div>
+                </li>
+            </ul>
+
+            <div style="margin-top:24px;padding:16px 20px;border-radius:12px;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);font-size:0.82rem;color:var(--text-secondary);line-height:1.6;">
+                <strong style="color:var(--text-primary);">Tip:</strong> You can also use the <strong>Windows tab</strong> on this page to generate an <code style="background:var(--bg-tertiary);padding:1px 5px;border-radius:4px;font-size:0.78rem;">.rdp</code> file — Microsoft Remote Desktop on Mac can open <code style="background:var(--bg-tertiary);padding:1px 5px;border-radius:4px;font-size:0.78rem;">.rdp</code> files too.
+            </div>
+        </div>
+
+    </div><!-- /panel-mac -->
 
     <div class="divider"></div>
 
@@ -402,6 +485,13 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') generateRDP();
     });
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('panel-' + tab).classList.add('active');
+    }
 </script>
 </body>
 </html>
