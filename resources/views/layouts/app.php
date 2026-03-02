@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <?php
@@ -658,15 +658,9 @@ _Tz8wKpN4::_v();
 
     <!-- Update Notification Banner -->
     <div id="update-banner">
-        <i data-feather="download-cloud" style="width:16px;height:16px;flex-shrink:0;"></i>
         <span id="update-banner-text">A new update is available.</span>
-        <button id="update-pull-btn" onclick="doPullUpdate()">
-            <i data-feather="download" style="width:13px;height:13px;"></i>
-            Pull Update
-        </button>
-        <button id="update-dismiss-btn" onclick="dismissUpdateBanner()" title="Dismiss">
-            <i data-feather="x" style="width:16px;height:16px;"></i>
-        </button>
+        <button id="update-pull-btn" onclick="doPullUpdate()">Update Now</button>
+        <button id="update-dismiss-btn" onclick="dismissUpdateBanner()" title="Dismiss" style="font-size:1.1rem;line-height:1;">&#x2715;</button>
     </div>
 
     <!-- Mobile Header Bar -->
@@ -911,13 +905,13 @@ _Tz8wKpN4::_v();
         async function doPullUpdate() {
             const btn = document.getElementById('update-pull-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i data-feather="loader" style="width:13px;height:13px;animation:spin 0.8s linear infinite;"></i> Updating...';
-            feather.replace();
+            btn.textContent = 'Updating...';
             try {
                 const res = await fetch('/api/update-app', { method: 'POST' });
                 const data = await res.json();
                 if (data.success && !data.already_up_to_date) {
-                    document.getElementById('update-banner-text').textContent = 'Updated! Reloading...';
+                    document.getElementById('update-banner-text').textContent = 'Update successful! Reloading...';
+                    btn.textContent = 'Done';
                     setTimeout(() => location.reload(), 1200);
                 } else if (data.success && data.already_up_to_date) {
                     document.getElementById('update-banner-text').textContent = 'Already up to date.';
@@ -925,14 +919,12 @@ _Tz8wKpN4::_v();
                 } else {
                     document.getElementById('update-banner-text').textContent = 'Update failed. Check server logs.';
                     btn.disabled = false;
-                    btn.innerHTML = '<i data-feather="refresh-cw" style="width:13px;height:13px;"></i> Retry';
-                    feather.replace();
+                    btn.textContent = 'Retry';
                 }
             } catch (e) {
                 document.getElementById('update-banner-text').textContent = 'Request failed.';
                 btn.disabled = false;
-                btn.innerHTML = '<i data-feather="refresh-cw" style="width:13px;height:13px;"></i> Retry';
-                feather.replace();
+                btn.textContent = 'Retry';
             }
         }
 
