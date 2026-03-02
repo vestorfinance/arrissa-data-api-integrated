@@ -314,6 +314,36 @@ _Tz8wKpN4::_v();
         }
         #update-dismiss-btn:hover { color: #fff; }
         :root { --banner-h: 0px; }
+
+        /* Floating Help Button */
+        #help-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9990;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(79,70,229,0.45);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        #help-fab:hover {
+            transform: translateY(-3px) scale(1.08);
+            box-shadow: 0 8px 28px rgba(79,70,229,0.6);
+            text-decoration: none;
+        }
+        #help-fab title { display: none; }
+
         #page-loader {
             position: fixed;
             top: 0;
@@ -641,6 +671,11 @@ _Tz8wKpN4::_v();
             }
         })();
     </script>
+
+    <!-- Floating Help Button -->
+    <a id="help-fab" href="https://arrissadata.com/help" target="_blank" rel="noopener" title="Help">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </a>
 
     <!-- Update Notification Banner -->
     <div id="update-banner">
