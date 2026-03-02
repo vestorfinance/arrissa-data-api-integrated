@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect to VPS — Arrissa Data</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #4f46e5;
+            --accent-hover: #6366f1;
+            --border: #3a3a3a;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --card-bg: #1f1f1f;
+            --input-bg: #262626;
+            --input-border: #404040;
+        }
+        * { box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--input-border) var(--bg-secondary); }
+        *::-webkit-scrollbar { width: 6px; height: 6px; }
+        *::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        *::-webkit-scrollbar-thumb { background-color: var(--input-border); border-radius: 3px; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-primary); color: var(--text-primary); margin: 0; line-height: 1.6; min-height: 100vh; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .top-nav { position: sticky; top: 0; z-index: 100; background-color: rgba(15,15,15,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { display: flex; align-items: center; gap: 12px; }
+        .nav-logo-circle { width: 36px; height: 36px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .nav-links { display: flex; gap: 12px; align-items: center; }
+        .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; border: 1px solid var(--border); border-radius: 9999px; padding: 6px 14px; transition: all 0.15s; }
+        .back-link:hover { border-color: var(--accent); color: var(--text-primary); text-decoration: none; }
+        .container { max-width: 640px; margin: 0 auto; padding: 0 24px; }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+        .badge-accent { background-color: rgba(79,70,229,0.15); color: var(--accent); border: 1px solid rgba(79,70,229,0.3); }
+        .hero { text-align: center; padding: 72px 24px 52px; }
+        .hero h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 16px; }
+        .hero p { color: var(--text-secondary); font-size: 1rem; max-width: 480px; margin: 0 auto; }
+
+        /* Card */
+        .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 36px 40px; margin-bottom: 24px; }
+
+        /* Form */
+        .field { margin-bottom: 22px; }
+        .field label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .field input {
+            width: 100%;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 13px 16px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .field input::placeholder { color: #555; }
+        .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,0.2); }
+        .field input.error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(239,68,68,0.15); }
+        .field .hint { font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px; }
+        .field .error-msg { font-size: 0.75rem; color: var(--danger); margin-top: 6px; display: none; }
+        .field .error-msg.visible { display: block; }
+
+        /* Port row */
+        .port-row { display: flex; gap: 14px; }
+        .port-row .field { flex: 1; }
+        .port-row .field:last-child { flex: 0 0 130px; }
+
+        /* Download button */
+        .btn-download {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 28px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), #6366f1);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(79,70,229,0.35);
+            margin-top: 8px;
+        }
+        .btn-download:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(79,70,229,0.5); }
+        .btn-download:active { transform: translateY(0); }
+
+        /* Success banner */
+        .success-banner {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background-color: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.35);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-top: 20px;
+            font-size: 0.875rem;
+            color: var(--success);
+            font-weight: 500;
+        }
+        .success-banner.visible { display: flex; }
+
+        /* Info steps */
+        .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+        .step { display: flex; align-items: flex-start; gap: 14px; }
+        .step-num { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg,var(--accent),#6366f1); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 800; color: #fff; flex-shrink: 0; margin-top: 2px; }
+        .step-text { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; }
+        .step-text strong { color: var(--text-primary); }
+
+        /* Tips row */
+        .tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 64px; }
+        @media (max-width: 520px) { .tips-grid { grid-template-columns: 1fr; } }
+        .tip-card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+        .tip-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .tip-card h3 { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); margin: 0 0 5px; }
+        .tip-card p { font-size: 0.78rem; color: var(--text-secondary); margin: 0; line-height: 1.55; }
+
+        .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 40px 0; }
+        footer { border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; }
+
+        @media (max-width: 520px) {
+            .card { padding: 24px 20px; }
+            .hero h1 { font-size: 1.9rem; }
+            .port-row { flex-direction: column; }
+            .port-row .field:last-child { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="nav-logo">
+        <div class="nav-logo-circle">
+            <svg style="width:20px;height:20px;fill:#fff;" viewBox="0 0 7000 7000" xmlns="http://www.w3.org/2000/svg"><g><path d="M3534.57 2921.26l509.33 278.51 0 600.85 -543.85 297.38 -543.84 -297.38 0 -600.85 543.84 -297.38 34.51 18.87zm166.69 255.62l-201.2 -110.02 -399.01 218.18 0 430.3 399.01 218.19 399.01 -218.19 0 -430.3 -197.81 -108.16z"/><path d="M3206.76 1423.91l672.75 0 0 1366.1 -745.17 0 0 -1366.1 72.42 0zm527.92 144.83l-455.5 0 0 1076.43 455.5 0 0 -1076.43z"/><polygon points="3436.12,1496.03 3436.12,899.79 3580.96,899.79 3580.96,1496.03"/><polygon points="3432.32,3004.16 3432.32,2675.89 3577.15,2675.89 3577.15,3004.16"/><path d="M3203.34 5576.08l672.75 0 0 -1366.09 -745.17 0 0 1366.09 72.42 0zm527.92 -144.83l-455.5 0 0 -1076.43 455.5 0 0 -1076.43z"/><polygon points="3432.7,5503.96 3432.7,6100.2 3577.53,6100.2 3577.53,5503.96"/><polygon points="3428.89,3986.69 3428.89,4314.95 3573.73,4314.95 3573.73,3986.69"/><path d="M5172.55 4811.44l336.37 -582.62 -1183.07 -683.05 -372.59 645.33 1183.07 683.05 36.21 -62.72zm138.53 -529.61l-227.75 394.48 -932.21 -538.21 227.75 -394.48 932.21 538.21z"/><polygon points="5224.77,4576.75 5741.13,4874.87 5813.54,4749.44 5297.19,4451.32"/><polygon points="3908.87,3821.41 4193.16,3985.54 4265.57,3860.11 3981.29,3695.98"/><path d="M5479.29 2714.84l-336.37 -582.62 -1183.07 683.05 372.58 645.33 1183.07 -683.05 -36.21 -62.71zm-389.39 -384.77l227.75 394.47 -932.21 538.21 -227.75 -394.47 932.21 -538.21z"/><polygon points="5302.15,2552.27 5818.51,2254.15 5746.09,2128.72 5229.73,2426.84"/><polygon points="3990.05,3314.2 4274.34,3150.07 4201.92,3024.64 3917.63,3188.77"/><path d="M1829.86 4820.48l-336.38 -582.62 1183.07 -683.05 372.59 645.33 -1183.07 683.05 -36.21 -62.72zm-138.53 -529.61l227.75 394.47 932.21 -538.21 -227.75 -394.47 -932.21 538.21z"/><polygon points="1777.64,4585.79 1261.28,4883.91 1188.87,4758.48 1705.22,4460.36"/><polygon points="3093.54,3830.44 2809.25,3994.57 2736.83,3869.15 3021.12,3705.01"/><path d="M1520.7 2723.73l336.38 -582.62 1183.07 683.05 -372.58 645.33 -1183.07 -683.05 36.21 -62.72zm389.39 -384.77l-227.75 394.47 932.21 538.22 227.75 -394.48 -932.21 -538.21z"/><polygon points="1697.84,2561.16 1181.48,2263.04 1253.9,2137.61 1770.26,2435.73"/><polygon points="3009.94,3323.09 2725.65,3158.96 2798.07,3033.53 3082.35,3197.66"/></g></svg>
+        </div>
+        <span style="font-weight:700;font-size:1rem;">Arrissa Data API</span>
+        <span class="badge badge-accent" style="margin-left:4px;">Connect VPS</span>
+    </div>
+    <div class="nav-links">
+        <a href="/get/vps-providers.html" class="back-link">
+            <i data-feather="cloud" style="width:13px;height:13px;"></i> VPS Providers
+        </a>
+        <a href="/get/" class="back-link">
+            <i data-feather="arrow-left" style="width:13px;height:13px;"></i> Install Guide
+        </a>
+    </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero container">
+    <div style="margin-bottom:20px;">
+        <span class="badge badge-accent">
+            <i data-feather="monitor" style="width:10px;height:10px;"></i>
+            &nbsp;Remote Desktop
+        </span>
+    </div>
+    <h1>Connect to Your VPS</h1>
+    <p>Enter your VPS IP address and username to generate and download a ready-to-use <strong>.rdp</strong> file for Windows Remote Desktop.</p>
+</div>
+
+<div class="container">
+
+    <!-- Form card -->
+    <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#6366f1);display:flex;align-items:center;justify-content:center;">
+                <i data-feather="download" style="width:18px;height:18px;color:#fff;"></i>
+            </div>
+            <div>
+                <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">Generate .rdp File</div>
+                <div style="font-size:0.78rem;color:var(--text-secondary);">Download opens instantly in Remote Desktop</div>
+            </div>
+        </div>
+
+        <div class="port-row">
+            <div class="field">
+                <label for="ip">VPS IP Address</label>
+                <input type="text" id="ip" placeholder="e.g. 196.216.10.44" autocomplete="off" spellcheck="false">
+                <div class="error-msg" id="ip-error">Please enter a valid IP address or hostname.</div>
+            </div>
+            <div class="field">
+                <label for="port">Port</label>
+                <input type="text" id="port" placeholder="3389" value="3389" autocomplete="off">
+                <div class="hint">Default RDP port</div>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="e.g. Administrator" autocomplete="off" spellcheck="false">
+            <div class="error-msg" id="username-error">Please enter a username.</div>
+            <div class="hint">The Windows user account on your VPS (commonly <code style="background:var(--bg-tertiary);padding:1px 5px;border-radius:4px;font-size:0.78rem;">Administrator</code>)</div>
+        </div>
+
+        <div class="field">
+            <label for="label">Connection Label <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.75rem;color:#555;">(optional)</span></label>
+            <input type="text" id="label" placeholder="e.g. My Arrissa VPS" autocomplete="off" spellcheck="false">
+            <div class="hint">Friendly name shown in your Remote Desktop history</div>
+        </div>
+
+        <button class="btn-download" id="download-btn" onclick="generateRDP()">
+            <i data-feather="download" style="width:17px;height:17px;"></i>
+            Download .rdp File
+        </button>
+
+        <div class="success-banner" id="success-banner">
+            <i data-feather="check-circle" style="width:20px;height:20px;flex-shrink:0;"></i>
+            <span>Your <strong>.rdp</strong> file has been downloaded. Double-click it to open Remote Desktop and connect.</span>
+        </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="card">
+        <div style="font-size:0.82rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:20px;">How it works</div>
+        <ul class="steps">
+            <li class="step">
+                <div class="step-num">1</div>
+                <div class="step-text"><strong>Enter your details</strong> — paste the IP address from your VPS provider's dashboard and your Windows username.</div>
+            </li>
+            <li class="step">
+                <div class="step-num">2</div>
+                <div class="step-text"><strong>Download the .rdp file</strong> — this file is generated entirely in your browser. Nothing is sent to any server.</div>
+            </li>
+            <li class="step">
+                <div class="step-num">3</div>
+                <div class="step-text"><strong>Double-click to connect</strong> — Windows Remote Desktop Connection opens automatically. Enter your password when prompted.</div>
+            </li>
+            <li class="step">
+                <div class="step-num">4</div>
+                <div class="step-text"><strong>Save it for next time</strong> — keep the .rdp file on your desktop for one-click access to your VPS.</div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Tips -->
+    <div style="font-size:0.82rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:16px;">Helpful Tips</div>
+    <div class="tips-grid">
+        <div class="tip-card">
+            <div class="tip-icon" style="background:rgba(79,70,229,0.15);">
+                <i data-feather="shield" style="width:18px;height:18px;color:var(--accent);"></i>
+            </div>
+            <h3>Use a Strong Password</h3>
+            <p>Set a long, complex Windows password on your VPS. RDP is exposed to the internet — brute-force attacks are common.</p>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon" style="background:rgba(16,185,129,0.12);">
+                <i data-feather="lock" style="width:18px;height:18px;color:var(--success);"></i>
+            </div>
+            <h3>Change the Default Port</h3>
+            <p>Consider changing RDP from port 3389 to a non-standard port in Windows Firewall to reduce automated attacks.</p>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon" style="background:rgba(245,158,11,0.12);">
+                <i data-feather="wifi" style="width:18px;height:18px;color:var(--warning);"></i>
+            </div>
+            <h3>Allow RDP in Firewall</h3>
+            <p>Make sure port 3389 (or your custom port) is allowed in both your VPS provider's firewall and Windows Firewall.</p>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon" style="background:rgba(79,70,229,0.1);">
+                <i data-feather="monitor" style="width:18px;height:18px;color:#818cf8;"></i>
+            </div>
+            <h3>macOS &amp; Linux</h3>
+            <p>On macOS install <strong>Microsoft Remote Desktop</strong> from the App Store. On Linux use <strong>Remmina</strong> or <strong>FreeRDP</strong>.</p>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p style="margin:0 0 4px;">Arrissa Data API &mdash; <a href="/get/">Install Guide</a> &middot; <a href="/get/vps-providers.html">VPS Providers</a></p>
+    <p style="margin:0;font-size:0.72rem;color:#555;">.rdp files are generated locally in your browser. No data is transmitted.</p>
+</footer>
+
+<script>
+    feather.replace();
+
+    function generateRDP() {
+        const ipInput = document.getElementById('ip');
+        const usernameInput = document.getElementById('username');
+        const portInput = document.getElementById('port');
+        const labelInput = document.getElementById('label');
+        const ipError = document.getElementById('ip-error');
+        const usernameError = document.getElementById('username-error');
+        const successBanner = document.getElementById('success-banner');
+
+        // Reset errors
+        ipInput.classList.remove('error');
+        usernameInput.classList.remove('error');
+        ipError.classList.remove('visible');
+        usernameError.classList.remove('visible');
+        successBanner.classList.remove('visible');
+
+        const ip = ipInput.value.trim();
+        const username = usernameInput.value.trim();
+        const port = portInput.value.trim() || '3389';
+        const label = labelInput.value.trim() || ('VPS - ' + ip);
+
+        let valid = true;
+
+        if (!ip) {
+            ipInput.classList.add('error');
+            ipError.classList.add('visible');
+            valid = false;
+        }
+
+        if (!username) {
+            usernameInput.classList.add('error');
+            usernameError.classList.add('visible');
+            valid = false;
+        }
+
+        if (!valid) return;
+
+        // Build RDP file content
+        const rdpContent = [
+            'screen mode id:i:2',
+            'use multimon:i:0',
+            'desktopwidth:i:1920',
+            'desktopheight:i:1080',
+            'session bpp:i:32',
+            'winposstr:s:0,3,0,0,800,600',
+            'compression:i:1',
+            'keyboardhook:i:2',
+            'audiocapturemode:i:0',
+            'videoplaybackmode:i:1',
+            'connection type:i:7',
+            'networkautodetect:i:1',
+            'bandwidthautodetect:i:1',
+            'displayconnectionbar:i:1',
+            'enableworkspacereconnect:i:0',
+            'disable wallpaper:i:0',
+            'allow font smoothing:i:1',
+            'allow desktop composition:i:1',
+            'disable full window drag:i:1',
+            'disable menu anims:i:1',
+            'disable themes:i:0',
+            'disable cursor setting:i:0',
+            'bitmapcachepersistenable:i:1',
+            'full address:s:' + ip + ':' + port,
+            'audiomode:i:0',
+            'redirectprinters:i:1',
+            'redirectcomports:i:0',
+            'redirectsmartcards:i:1',
+            'redirectwebauthn:i:1',
+            'redirectclipboard:i:1',
+            'redirectposdevices:i:0',
+            'autoreconnection enabled:i:1',
+            'authentication level:i:2',
+            'prompt for credentials:i:0',
+            'negotiate security layer:i:1',
+            'remoteapplicationmode:i:0',
+            'alternate shell:s:',
+            'shell working directory:s:',
+            'gatewayhostname:s:',
+            'gatewayusagemethod:i:4',
+            'gatewaycredentialssource:i:4',
+            'gatewayprofileusagemethod:i:0',
+            'promptcredentialonce:i:0',
+            'gatewaybrokeringtype:i:0',
+            'use redirection server name:i:0',
+            'rdgiskdcproxy:i:0',
+            'kdcproxyname:s:',
+            'username:s:' + username,
+            'drivestoredirect:s:',
+        ].join('\r\n');
+
+        // Download
+        const blob = new Blob([rdpContent], { type: 'application/x-rdp' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const filename = label.replace(/[^a-zA-Z0-9_\-. ]/g, '').replace(/\s+/g, '-') + '.rdp';
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // Show success
+        successBanner.classList.add('visible');
+        feather.replace();
+    }
+
+    // Allow Enter key to trigger download
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') generateRDP();
+    });
+</script>
+</body>
+</html>
