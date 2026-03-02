@@ -76,7 +76,7 @@ _Tz8wKpN4::_v();
         }
         .sidebar-link {
             transition: all 0.2s;
-            margin-bottom: 4px !important;
+            margin-bottom: 8px !important;
         }
         .sidebar-link:hover {
             background: rgba(255, 255, 255, 0.05);
