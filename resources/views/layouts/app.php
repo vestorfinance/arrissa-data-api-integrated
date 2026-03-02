@@ -319,7 +319,7 @@ _Tz8wKpN4::_v();
         /* Floating Help Button */
         #help-fab {
             position: fixed;
-            bottom: 28px;
+            bottom: 72px;
             right: 28px;
             z-index: 9990;
             width: 48px;
