@@ -322,8 +322,54 @@
                 </li>
             </ul>
 
-            <div style="margin-top:24px;padding:16px 20px;border-radius:12px;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);font-size:0.82rem;color:var(--text-secondary);line-height:1.6;">
-                <strong style="color:var(--text-primary);">Tip:</strong> You can also use the <strong>Windows tab</strong> on this page to generate an <code style="background:var(--bg-tertiary);padding:1px 5px;border-radius:4px;font-size:0.78rem;">.rdp</code> file — Microsoft Remote Desktop on Mac can open <code style="background:var(--bg-tertiary);padding:1px 5px;border-radius:4px;font-size:0.78rem;">.rdp</code> files too.
+        </div>
+
+        <!-- Mac RDP form -->
+        <div class="card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px;">
+                <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#6366f1);display:flex;align-items:center;justify-content:center;">
+                    <i data-feather="download" style="width:18px;height:18px;color:#fff;"></i>
+                </div>
+                <div>
+                    <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">Generate .rdp File for Mac</div>
+                    <div style="font-size:0.78rem;color:var(--text-secondary);">Open directly in Microsoft Remote Desktop</div>
+                </div>
+            </div>
+
+            <div class="port-row">
+                <div class="field">
+                    <label for="mac-ip">VPS IP Address</label>
+                    <input type="text" id="mac-ip" placeholder="e.g. 196.216.10.44" autocomplete="off" spellcheck="false">
+                    <div class="error-msg" id="mac-ip-error">Please enter a valid IP address or hostname.</div>
+                </div>
+                <div class="field">
+                    <label for="mac-port">Port</label>
+                    <input type="text" id="mac-port" placeholder="3389" value="3389" autocomplete="off">
+                    <div class="hint">Default RDP port</div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="mac-username">Username</label>
+                <input type="text" id="mac-username" placeholder="e.g. Administrator" autocomplete="off" spellcheck="false">
+                <div class="error-msg" id="mac-username-error">Please enter a username.</div>
+                <div class="hint">The Windows user account on your VPS (commonly <code style="background:var(--bg-tertiary);padding:1px 5px;border-radius:4px;font-size:0.78rem;">Administrator</code>)</div>
+            </div>
+
+            <div class="field">
+                <label for="mac-label">Connection Label <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.75rem;color:#555;">(optional)</span></label>
+                <input type="text" id="mac-label" placeholder="e.g. My Arrissa VPS" autocomplete="off" spellcheck="false">
+                <div class="hint">Friendly name shown in Microsoft Remote Desktop</div>
+            </div>
+
+            <button class="btn-download" id="mac-download-btn" onclick="generateRDPMac()">
+                <i data-feather="download" style="width:17px;height:17px;"></i>
+                Download .rdp File
+            </button>
+
+            <div class="success-banner" id="mac-success-banner">
+                <i data-feather="check-circle" style="width:20px;height:20px;flex-shrink:0;"></i>
+                <span>Your <strong>.rdp</strong> file has been downloaded. Open it with Microsoft Remote Desktop to connect.</span>
             </div>
         </div>
 
@@ -485,6 +531,98 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') generateRDP();
     });
+
+    function generateRDPMac() {
+        const ipInput = document.getElementById('mac-ip');
+        const usernameInput = document.getElementById('mac-username');
+        const portInput = document.getElementById('mac-port');
+        const labelInput = document.getElementById('mac-label');
+        const ipError = document.getElementById('mac-ip-error');
+        const usernameError = document.getElementById('mac-username-error');
+        const successBanner = document.getElementById('mac-success-banner');
+
+        ipInput.classList.remove('error');
+        usernameInput.classList.remove('error');
+        ipError.classList.remove('visible');
+        usernameError.classList.remove('visible');
+        successBanner.classList.remove('visible');
+
+        const ip = ipInput.value.trim();
+        const username = usernameInput.value.trim();
+        const port = portInput.value.trim() || '3389';
+        const label = labelInput.value.trim() || ('VPS - ' + ip);
+
+        let valid = true;
+        if (!ip) { ipInput.classList.add('error'); ipError.classList.add('visible'); valid = false; }
+        if (!username) { usernameInput.classList.add('error'); usernameError.classList.add('visible'); valid = false; }
+        if (!valid) return;
+
+        const rdpContent = [
+            'screen mode id:i:2',
+            'use multimon:i:0',
+            'desktopwidth:i:1920',
+            'desktopheight:i:1080',
+            'session bpp:i:32',
+            'winposstr:s:0,3,0,0,800,600',
+            'compression:i:1',
+            'keyboardhook:i:2',
+            'audiocapturemode:i:0',
+            'videoplaybackmode:i:1',
+            'connection type:i:7',
+            'networkautodetect:i:1',
+            'bandwidthautodetect:i:1',
+            'displayconnectionbar:i:1',
+            'enableworkspacereconnect:i:0',
+            'disable wallpaper:i:0',
+            'allow font smoothing:i:1',
+            'allow desktop composition:i:1',
+            'disable full window drag:i:1',
+            'disable menu anims:i:1',
+            'disable themes:i:0',
+            'disable cursor setting:i:0',
+            'bitmapcachepersistenable:i:1',
+            'full address:s:' + ip + ':' + port,
+            'audiomode:i:0',
+            'redirectprinters:i:1',
+            'redirectcomports:i:0',
+            'redirectsmartcards:i:1',
+            'redirectwebauthn:i:1',
+            'redirectclipboard:i:1',
+            'redirectposdevices:i:0',
+            'autoreconnection enabled:i:1',
+            'authentication level:i:2',
+            'prompt for credentials:i:0',
+            'negotiate security layer:i:1',
+            'remoteapplicationmode:i:0',
+            'alternate shell:s:',
+            'shell working directory:s:',
+            'gatewayhostname:s:',
+            'gatewayusagemethod:i:4',
+            'gatewaycredentialssource:i:4',
+            'gatewayprofileusagemethod:i:0',
+            'promptcredentialonce:i:0',
+            'gatewaybrokeringtype:i:0',
+            'use redirection server name:i:0',
+            'rdgiskdcproxy:i:0',
+            'kdcproxyname:s:',
+            'username:s:' + username,
+            'drivestoredirect:s:',
+        ].join('\r\n');
+
+        const blob = new Blob([rdpContent], { type: 'application/x-rdp' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const filename = label.replace(/[^a-zA-Z0-9_\-. ]/g, '').replace(/\s+/g, '-') + '.rdp';
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        successBanner.classList.add('visible');
+        feather.replace();
+    }
 
     function switchTab(tab) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
