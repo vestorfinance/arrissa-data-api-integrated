@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <?php
@@ -315,12 +315,18 @@ _Tz8wKpN4::_v();
         #update-dismiss-btn:hover { color: #fff; }
         /* Push page down when banner is visible */
         :root { --banner-h: 0px; }
-        body.has-update-banner aside,
+        /* Desktop: shift the whole flex wrapper so sidebar + main both move together */
+        body.has-update-banner .flex.h-screen {
+            margin-top: var(--banner-h);
+            height: calc(100vh - var(--banner-h));
+        }
+        /* Mobile: shift the fixed header bar */
         body.has-update-banner .mobile-header {
             top: var(--banner-h) !important;
         }
-        body.has-update-banner main {
-            padding-top: var(--banner-h);
+        /* Mobile: shift the fixed sidebar panel */
+        body.has-update-banner aside {
+            top: var(--banner-h) !important;
         }
         #page-loader {
             position: fixed;
