@@ -514,7 +514,7 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             --chat--input--font-size:            15px;
             --chat--input--border:               1.5px solid var(--border);
             --chat--input--border-active:        1.5px solid #10a37f;
-            --chat--input--border-radius:        9999px;
+            --chat--input--border-radius:        25px;
             --chat--input--padding:              14px 56px 14px 20px;
             --chat--input--background:           var(--input-bg);
             --chat--input--text-color:           var(--text-primary);
@@ -652,14 +652,23 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
         }
 
         /* 6. ── COMPOSER / FOOTER ── */
-        /* Nuclear: kill white background on scoped .chat-inputs regardless of Vue hash */
+        /* Outer wrapper — THIS is the visible rounded pill box */
         [class*="chat-inputs"] {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 10px !important;
-            padding-bottom: 0 !important;
+            background: var(--input-bg) !important;
+            border: 1.5px solid var(--input-border) !important;
+            border-radius: 25px !important;
+            overflow: hidden !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,.2) !important;
+            padding: 0 !important;
+            margin: 10px !important;
             margin-bottom: 10px !important;
+            transition: border-color .18s, box-shadow .18s !important;
+            display: flex !important;
+            align-items: flex-end !important;
+        }
+        [class*="chat-inputs"]:focus-within {
+            border-color: #10a37f !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,.2), 0 0 0 3px rgba(16,163,127,.2) !important;
         }
         .n8n-chat .chat-input-container,
         .n8n-chat [class*="chatFooter"],
@@ -690,15 +699,16 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             position: relative !important;
             max-width: 720px !important;
             margin: 0 auto !important;
-            padding: 0 24px !important;
+            padding: 0 !important;
         }
 
-        /* Pill textarea — the main input field */
+        /* Inner textarea — flat, transparent, fills the wrapper; wrapper clips the corners */
         .n8n-chat .chat-input,
-        .n8n-chat textarea[class*="input"] {
-            background: var(--input-bg) !important;
-            border: 1.5px solid var(--input-border) !important;
-            border-radius: 9999px !important;
+        .n8n-chat textarea[class*="input"],
+        [class*="chat-inputs"] textarea {
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
             color: var(--text-primary) !important;
             font-size: 15px !important;
             font-family: 'Inter', sans-serif !important;
@@ -708,18 +718,21 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             width: 100% !important;
             min-height: 52px !important;
             max-height: 160px !important;
-            transition: border-color .18s, box-shadow .18s !important;
-            box-shadow: 0 1px 4px rgba(0,0,0,.2), 0 0 0 0px rgba(16,163,127,0) !important;
+            box-shadow: none !important;
+            outline: none !important;
             display: block !important;
+            transition: none !important;
         }
         .n8n-chat .chat-input:focus,
-        .n8n-chat textarea[class*="input"]:focus {
+        .n8n-chat textarea[class*="input"]:focus,
+        [class*="chat-inputs"] textarea:focus {
             outline: none !important;
-            border-color: #10a37f !important;
-            box-shadow: 0 1px 4px rgba(0,0,0,.2), 0 0 0 3px rgba(16,163,127,.2) !important;
+            box-shadow: none !important;
+            border: none !important;
         }
         .n8n-chat .chat-input::placeholder,
-        .n8n-chat textarea[class*="input"]::placeholder {
+        .n8n-chat textarea[class*="input"]::placeholder,
+        [class*="chat-inputs"] textarea::placeholder {
             color: var(--text-secondary) !important;
             opacity: .65 !important;
         }
@@ -741,7 +754,7 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             justify-content: center !important;
             color: #fff !important;
             position: absolute !important;
-            right: 7px !important;
+            right: 10px !important;
             top: 38% !important;
             bottom: 0px !important;
             transform: translateY(-50%) !important;
