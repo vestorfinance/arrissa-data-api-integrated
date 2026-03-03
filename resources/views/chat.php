@@ -324,7 +324,7 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             display: none;
             position: fixed;
             bottom: 0; left: 0; right: 0;
-            height: 36px;
+            height: 52px;
             background: var(--bg-primary);
             border-top: 1px solid var(--border);
             align-items: center; justify-content: center;
@@ -359,7 +359,7 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             overflow: hidden;
         }
         @media (min-width: 768px) {
-            #chat-area { bottom: 36px; }
+            #chat-area { bottom: 52px; }
         }
 
         .chat-frame {
