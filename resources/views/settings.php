@@ -5,6 +5,16 @@ require_once __DIR__ . '/../../app/Database.php';
 $success = $_GET['success'] ?? '';
 $error = $_GET['error'] ?? '';
 
+// Load chat config
+$chatConfigFile = __DIR__ . '/../../config/chat.json';
+$chatCfg = file_exists($chatConfigFile) ? (json_decode(file_get_contents($chatConfigFile), true) ?? []) : [];
+$chatWebhook     = $chatCfg['webhook_url']      ?? '';
+$chatTitle_s     = $chatCfg['chat_title']       ?? 'Arrissa AI';
+$chatSubtitle_s  = $chatCfg['chat_subtitle']    ?? 'Your AI assistant';
+$chatMsgs_s      = implode("\n", $chatCfg['initial_messages'] ?? ["Hello! I'm Arrissa AI. How can I help you today?", "Feel free to ask me anything."]);
+$chatStreaming_s  = !empty($chatCfg['enable_streaming']);
+$chatModels_s    = $chatCfg['available_models'] ?? ['analysis-model-1' => 'Analysis Model 1', 'analysis-model-2' => 'Analysis Model 2', 'analysis-model-3' => 'Analysis Model 3'];
+
 $db = Database::getInstance();
 $username = Auth::getUser();
 
@@ -34,6 +44,7 @@ ob_start();
             elseif ($success === 'api_key') echo 'Refreshed';
             elseif ($success === 'password') echo 'Updated';
             elseif ($success === 'base_url') echo 'Saved';
+            elseif ($success === 'chat_config') echo 'Chat settings saved';
             else echo 'Error';
         ?>
     </div>
@@ -114,6 +125,76 @@ ob_start();
         <div id="updateOutput" style="display:none;" class="mt-3 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap break-all" style="background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-secondary); max-height: 160px; overflow-y: auto;"></div>
     </div>
 
+    <!-- ── Arrissa AI Chat Settings ── -->
+    <div id="chat-settings" class="p-4 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background: var(--accent);">
+                    <i data-feather="message-square" style="width:14px;height:14px;color:#fff;"></i>
+                </div>
+                <div>
+                    <div class="text-sm font-semibold" style="color: var(--text-primary);">Arrissa AI Chat</div>
+                    <div class="text-xs" style="color: var(--text-secondary);">Configure the /chat page powered by n8n</div>
+                </div>
+            </div>
+            <a href="/chat" target="_blank" class="text-xs px-3 py-2 rounded-full flex items-center gap-1.5" style="background: var(--input-bg); color: var(--text-secondary); border: 1px solid var(--input-border); text-decoration:none;">
+                <i data-feather="external-link" style="width:12px;height:12px;"></i> Open Chat
+            </a>
+        </div>
+
+        <form method="POST" action="/settings/chat-config" class="space-y-3">
+
+            <div>
+                <label class="text-xs mb-1.5 block" style="color: var(--text-secondary);">Webhook URL <span style="color:var(--danger);">*</span></label>
+                <input type="url" name="webhook_url" value="<?= htmlspecialchars($chatWebhook) ?>" placeholder="https://your-n8n.com/webhook/..." class="w-full px-4 py-3 text-sm focus:outline-none" style="background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border); border-radius: 9999px;">
+            </div>
+
+            <div class="grid grid-cols-1 gap-3" style="grid-template-columns: 1fr 1fr;">
+                <div>
+                    <label class="text-xs mb-1.5 block" style="color: var(--text-secondary);">Chat Title</label>
+                    <input type="text" name="chat_title" value="<?= htmlspecialchars($chatTitle_s) ?>" class="w-full px-4 py-3 text-sm focus:outline-none" style="background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border); border-radius: 9999px;">
+                </div>
+                <div>
+                    <label class="text-xs mb-1.5 block" style="color: var(--text-secondary);">Subtitle</label>
+                    <input type="text" name="chat_subtitle" value="<?= htmlspecialchars($chatSubtitle_s) ?>" class="w-full px-4 py-3 text-sm focus:outline-none" style="background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border); border-radius: 9999px;">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-xs mb-1.5 block" style="color: var(--text-secondary);">Initial messages <span style="color: var(--text-secondary); font-style:italic;">(one per line)</span></label>
+                <textarea name="initial_messages" rows="3" class="w-full px-4 py-3 text-sm focus:outline-none resize-none" style="background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border); border-radius: 16px; font-family: inherit;"><?= htmlspecialchars($chatMsgs_s) ?></textarea>
+            </div>
+
+            <div class="flex items-center gap-3 px-1">
+                <input type="checkbox" name="enable_streaming" id="chatStreaming" value="1" <?= $chatStreaming_s ? 'checked' : '' ?> style="width:16px;height:16px;accent-color:var(--accent);border-radius:4px!important;">
+                <label for="chatStreaming" class="text-sm cursor-pointer" style="color: var(--text-secondary);">Enable streaming responses</label>
+            </div>
+
+            <!-- Available Models -->
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <label class="text-xs" style="color: var(--text-secondary);">Available Models</label>
+                    <button type="button" onclick="addModelRow()" class="text-xs px-3 py-1.5 flex items-center gap-1" style="background: var(--input-bg); color: var(--text-secondary); border: 1px solid var(--input-border); border-radius: 9999px;">
+                        <i data-feather="plus" style="width:11px;height:11px;"></i> Add Model
+                    </button>
+                </div>
+                <div id="model-rows" class="space-y-2">
+                    <?php foreach ($chatModels_s as $mk => $mv): ?>
+                    <div class="model-row flex items-center gap-2">
+                        <input type="text" name="model_key[]" value="<?= htmlspecialchars($mk) ?>" placeholder="model-key" class="flex-1 px-3 py-2 text-sm focus:outline-none font-mono" style="background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border); border-radius: 9999px; min-width: 0;">
+                        <input type="text" name="model_label[]" value="<?= htmlspecialchars($mv) ?>" placeholder="Display Name" class="flex-1 px-3 py-2 text-sm focus:outline-none" style="background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border); border-radius: 9999px; min-width: 0;">
+                        <button type="button" onclick="removeModelRow(this)" class="w-8 h-8 flex items-center justify-center flex-shrink-0" style="background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); border-radius: 9999px; color: var(--danger); cursor:pointer;">
+                            <i data-feather="x" style="width:13px;height:13px;"></i>
+                        </button>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-3 text-sm font-semibold" style="background: var(--text-primary); color: var(--bg-primary); border-radius: 9999px;">Save Chat Settings</button>
+        </form>
+    </div>
+
     <!-- n8n Update -->
     <div class="p-4 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
         <div class="flex justify-between items-center">
@@ -169,6 +250,25 @@ ob_start();
 </div>
 
 <script>
+function addModelRow() {
+    const row = document.createElement('div');
+    row.className = 'model-row flex items-center gap-2';
+    row.innerHTML = `
+        <input type="text" name="model_key[]" placeholder="model-key" class="flex-1 px-3 py-2 text-sm focus:outline-none font-mono" style="background:var(--input-bg);color:var(--text-primary);border:1px solid var(--input-border);border-radius:9999px;min-width:0;">
+        <input type="text" name="model_label[]" placeholder="Display Name" class="flex-1 px-3 py-2 text-sm focus:outline-none" style="background:var(--input-bg);color:var(--text-primary);border:1px solid var(--input-border);border-radius:9999px;min-width:0;">
+        <button type="button" onclick="removeModelRow(this)" class="w-8 h-8 flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:9999px;color:var(--danger);cursor:pointer;">
+            <i data-feather="x" style="width:13px;height:13px;"></i>
+        </button>`;
+    document.getElementById('model-rows').appendChild(row);
+    feather.replace();
+}
+
+function removeModelRow(btn) {
+    const rows = document.querySelectorAll('#model-rows .model-row');
+    if (rows.length <= 1) return; // keep at least one
+    btn.closest('.model-row').remove();
+}
+
 function showRefreshKeyModal() {
     document.getElementById('refreshKeyModal').style.display = 'flex';
     feather.replace();

@@ -764,6 +764,10 @@ _Tz8wKpN4::_v();
                     <i data-feather="grid" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Dashboard</span>
                 </a>
+                <a href="/chat" class="sidebar-link <?php echo ($page ?? '') == 'chat' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'chat' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                    <i data-feather="message-square" style="width: 20px; height: 20px;"></i>
+                    <span class="text-base font-medium">Arrissa AI</span>
+                </a>
                 <a href="/brokers" class="sidebar-link flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: var(--accent); border: 1px solid var(--accent); background: transparent; <?php echo ($page ?? '') == 'brokers' ? 'background: rgba(79,70,229,0.08) !important;' : ''; ?>">
                     <i data-feather="briefcase" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Brokers</span>

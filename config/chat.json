@@ -1,0 +1,15 @@
+{
+    "webhook_url": "",
+    "chat_title": "Arrissa AI",
+    "chat_subtitle": "Your AI assistant",
+    "initial_messages": [
+        "Hello! I'm Arrissa AI. How can I help you today?",
+        "Feel free to ask me anything."
+    ],
+    "enable_streaming": false,
+    "available_models": {
+        "analysis-model-1": "Analysis Model 1",
+        "analysis-model-2": "Analysis Model 2",
+        "analysis-model-3": "Analysis Model 3"
+    }
+}

@@ -20,6 +20,9 @@ switch ($request_uri) {
     case '/dashboard':
         $page = 'dashboard';
         break;
+    case '/chat':
+        $page = 'chat';
+        break;
     case '/settings':
         if ($request_method === 'POST') {
             require_once __DIR__ . '/../app/Controllers/SettingsController.php';
