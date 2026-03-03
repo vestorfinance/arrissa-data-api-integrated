@@ -473,7 +473,7 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             box-shadow: none !important;
             padding: 10px !important;
             padding-bottom: 0 !important;
-            margin-bottom: 0 !important;
+            margin-bottom: 10px !important;
         }
         .n8n-chat .chat-input-container,
         .n8n-chat [class*="chatFooter"],
