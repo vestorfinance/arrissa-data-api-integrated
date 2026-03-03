@@ -218,6 +218,135 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             cursor: default;
         }
 
+        /* ── Hamburger (mobile only) ── */
+        .topbar-hamburger {
+            display: none;
+            width: 34px; height: 34px;
+            border-radius: 9999px;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            color: var(--text-secondary);
+            align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0;
+            transition: background .15s, color .15s;
+        }
+        .topbar-hamburger:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .topbar-hamburger svg { width: 17px; height: 17px; }
+        @media (max-width: 767px) { .topbar-hamburger { display: flex; } }
+
+        /* ── Mobile sidebar drawer ── */
+        #mobile-sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.55);
+            z-index: 300;
+            backdrop-filter: blur(2px);
+        }
+        #mobile-sidebar-overlay.open { display: block; }
+
+        #mobile-sidebar {
+            position: fixed;
+            top: 0; left: -280px;
+            width: 260px; height: 100%;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            z-index: 310;
+            display: flex; flex-direction: column;
+            padding: 0;
+            transition: left .25s cubic-bezier(.4,0,.2,1);
+            overflow-y: auto;
+        }
+        #mobile-sidebar.open { left: 0; }
+
+        .msb-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .msb-brand {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .msb-brand-icon {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .msb-brand-icon svg { width: 18px; height: 18px; fill: #fff; }
+        .msb-brand-name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+        .msb-close {
+            width: 28px; height: 28px; border-radius: 50%;
+            border: none; background: transparent;
+            color: var(--text-secondary); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background .15s, color .15s;
+        }
+        .msb-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .msb-close svg { width: 16px; height: 16px; }
+
+        .msb-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+        .msb-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 14px; font-weight: 500;
+            text-decoration: none;
+            transition: background .15s, color .15s;
+        }
+        .msb-link:hover, .msb-link.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .msb-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .msb-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+        .msb-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .msb-user {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .msb-user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 13px; flex-shrink: 0;
+        }
+        .msb-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+        .msb-user-role { font-size: 11px; color: var(--text-secondary); }
+
+        /* ── Desktop: Powered by footer ── */
+        #powered-by-footer {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 36px;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border);
+            align-items: center; justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            z-index: 100;
+            letter-spacing: .01em;
+        }
+        @media (min-width: 768px) { #powered-by-footer { display: flex; } }
+        #powered-by-footer .pb-dot {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: var(--ai-primary);
+            opacity: .7;
+        }
+        #powered-by-footer a {
+            color: var(--ai-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        #powered-by-footer a:hover { text-decoration: underline; }
+
         /* ── Chat area ── */
         #chat-area {
             position: fixed;
@@ -228,6 +357,9 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             padding: 0;
             background: var(--bg-primary);
             overflow: hidden;
+        }
+        @media (min-width: 768px) {
+            #chat-area { bottom: 36px; }
         }
 
         .chat-frame {
@@ -631,8 +763,51 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
 </head>
 <body>
 
+    <!-- ── Mobile sidebar overlay ── -->
+    <div id="mobile-sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- ── Mobile sidebar ── -->
+    <nav id="mobile-sidebar">
+        <div class="msb-header">
+            <div class="msb-brand">
+                <div class="msb-brand-icon">
+                    <svg viewBox="0 0 7000 7000" xmlns="http://www.w3.org/2000/svg"><g><path d="M3534.57 2921.26l509.33 278.51 0 600.85 -543.85 297.38 -543.84 -297.38 0 -600.85 543.84 -297.38 34.51 18.87zm166.69 255.62l-201.2 -110.02 -399.01 218.18 0 430.3 399.01 218.19 399.01 -218.19 0 -430.3 -197.81 -108.16z"/><path d="M3206.76 1423.91l672.75 0 0 1366.1 -745.17 0 0 -1366.1 72.42 0zm527.92 144.83l-455.5 0 0 1076.43 455.5 0 0 -1076.43z"/></g></svg>
+                </div>
+                <span class="msb-brand-name"><?= htmlspecialchars($chatTitle) ?></span>
+            </div>
+            <button class="msb-close" onclick="closeSidebar()">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="msb-nav">
+            <a href="/dashboard" class="msb-link"><i data-feather="grid"></i> Dashboard</a>
+            <a href="/chat" class="msb-link active"><i data-feather="message-square"></i> Arrissa AI</a>
+            <div class="msb-divider"></div>
+            <a href="/brokers" class="msb-link"><i data-feather="briefcase"></i> Brokers</a>
+            <a href="/market-data" class="msb-link"><i data-feather="bar-chart-2"></i> Market Data</a>
+            <a href="/news" class="msb-link"><i data-feather="rss"></i> News</a>
+            <div class="msb-divider"></div>
+            <a href="/settings" class="msb-link"><i data-feather="settings"></i> Settings</a>
+            <a href="/logout" class="msb-link"><i data-feather="log-out"></i> Logout</a>
+        </div>
+        <div class="msb-footer">
+            <div class="msb-user">
+                <div class="msb-user-avatar"><?= strtoupper(substr($username ?? 'U', 0, 1)) ?></div>
+                <div>
+                    <div class="msb-user-name"><?= htmlspecialchars($username ?? 'User') ?></div>
+                    <div class="msb-user-role">Arrissa AI</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <!-- ── Top-bar ── -->
     <header id="chat-topbar">
+        <!-- Hamburger (mobile) -->
+        <button class="topbar-hamburger" onclick="openSidebar()" title="Menu">
+            <i data-feather="menu"></i>
+        </button>
+
         <!-- Logo -->
         <div class="topbar-logo">
             <svg viewBox="0 0 7000 7000" xmlns="http://www.w3.org/2000/svg">
@@ -702,6 +877,13 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             </div>
         </div>
     </div>
+
+    <!-- ── Powered by (desktop) ── -->
+    <footer id="powered-by-footer">
+        <span class="pb-dot"></span>
+        Powered by <a href="/chat">Arrissa AI</a>
+        <span class="pb-dot"></span>
+    </footer>
 
     <script type="module">
         import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
@@ -811,6 +993,20 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
 
     <script>
         feather.replace();
+
+        // Mobile sidebar
+        function openSidebar() {
+            document.getElementById('mobile-sidebar').classList.add('open');
+            document.getElementById('mobile-sidebar-overlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            document.getElementById('mobile-sidebar').classList.remove('open');
+            document.getElementById('mobile-sidebar-overlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        window.openSidebar = openSidebar;
+        window.closeSidebar = closeSidebar;
 
         // Theme
         const THEME_KEY = 'arrissa_theme';
