@@ -96,6 +96,35 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+        /* ── Page loader ── */
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity .35s ease, visibility .35s ease;
+        }
+        #page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .page-loader-ring {
+            width: 28px;
+            height: 28px;
+            border: 2.5px solid rgba(255,255,255,.1);
+            border-top-color: var(--ai-primary);
+            border-radius: 50%;
+            animation: pl-spin .7s linear infinite;
+        }
+        body.light-theme .page-loader-ring {
+            border-color: rgba(0,0,0,.08);
+            border-top-color: var(--ai-primary);
+        }
+        @keyframes pl-spin { to { transform: rotate(360deg); } }
+
         html, body {
             height: 100%; width: 100%;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -832,6 +861,11 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
 </head>
 <body>
 
+    <!-- ── Page load overlay ── -->
+    <div id="page-loader">
+        <div class="page-loader-ring"></div>
+    </div>
+
     <!-- ── Mobile sidebar overlay ── -->
     <div id="mobile-sidebar-overlay" onclick="closeSidebar()"></div>
 
@@ -1119,6 +1153,12 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
 
     <script>
         feather.replace();
+
+        // Dismiss page loader once everything (fonts, scripts, widget) is ready
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('page-loader');
+            if (loader) loader.classList.add('hidden');
+        });
 
         // Mobile sidebar
         function openSidebar() {
