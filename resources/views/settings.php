@@ -5,14 +5,6 @@ require_once __DIR__ . '/../../app/Database.php';
 $success = $_GET['success'] ?? '';
 $error = $_GET['error'] ?? '';
 
-// Load chat config from database
-$chatWebhook     = getSetting($db, 'chat_webhook_url',      '');
-$chatTitle_s     = getSetting($db, 'chat_title',            'Arrissa AI');
-$chatSubtitle_s  = getSetting($db, 'chat_subtitle',         'Your AI assistant');
-$chatMsgs_s      = implode("\n", json_decode(getSetting($db, 'chat_initial_messages', json_encode(["Hello! I'm Arrissa AI. How can I help you today?", "Feel free to ask me anything."])), true) ?? []);
-$chatStreaming_s  = getSetting($db, 'chat_enable_streaming', '0') === '1';
-$chatModels_s    = json_decode(getSetting($db, 'chat_available_models', json_encode(['analysis-model-1' => 'Analysis Model 1', 'analysis-model-2' => 'Analysis Model 2', 'analysis-model-3' => 'Analysis Model 3'])), true) ?? ['analysis-model-1' => 'Analysis Model 1'];
-
 $db = Database::getInstance();
 $username = Auth::getUser();
 
@@ -23,9 +15,17 @@ function getSetting($db, $key, $default = '') {
     return $result ? $result['value'] : $default;
 }
 
-$appName = getSetting($db, 'app_name', 'Arrissa Data API');
-$apiKey = getSetting($db, 'api_key', 'arr_' . bin2hex(random_bytes(8)));
+$appName    = getSetting($db, 'app_name',     'Arrissa Data API');
+$apiKey     = getSetting($db, 'api_key',      'arr_' . bin2hex(random_bytes(8)));
 $appBaseUrl = getSetting($db, 'app_base_url', 'http://' . $_SERVER['HTTP_HOST']);
+
+// Load chat config from database
+$chatWebhook    = getSetting($db, 'chat_webhook_url',    '');
+$chatTitle_s    = getSetting($db, 'chat_title',          'Arrissa AI');
+$chatSubtitle_s = getSetting($db, 'chat_subtitle',       'Your AI assistant');
+$chatMsgs_s     = implode("\n", json_decode(getSetting($db, 'chat_initial_messages', json_encode(["Hello! I'm Arrissa AI. How can I help you today?", "Feel free to ask me anything."])), true) ?? []);
+$chatStreaming_s = getSetting($db, 'chat_enable_streaming', '0') === '1';
+$chatModels_s   = json_decode(getSetting($db, 'chat_available_models', json_encode(['analysis-model-1' => 'Analysis Model 1', 'analysis-model-2' => 'Analysis Model 2', 'analysis-model-3' => 'Analysis Model 3'])), true) ?? ['analysis-model-1' => 'Analysis Model 1'];
 
 $title = 'Settings';
 $page = 'settings';
