@@ -4,10 +4,6 @@
  * Standalone page: login-gated, no sidebar, app design spirit.
  */
 require_once __DIR__ . '/../../app/Auth.php';
-require_once __DIR__ . '/../../app/_Qvr9mBx3.php';
-require_once __DIR__ . '/../../app/_Tz8wKpN4.php';
-_Qvr9mBx3::_v();
-_Tz8wKpN4::_v();
 Auth::check();
 
 // ── Load config ───────────────────────────────────────────────────────────────
