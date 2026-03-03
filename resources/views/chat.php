@@ -319,6 +319,59 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
         .msb-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
         .msb-user-role { font-size: 11px; color: var(--text-secondary); }
 
+        /* Sidebar section label */
+        .msb-section-label {
+            font-size: 10px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .08em;
+            color: var(--text-secondary);
+            padding: 14px 14px 6px;
+        }
+        /* Model select inside sidebar */
+        .msb-model-select {
+            appearance: none;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 9999px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 9px 36px 9px 16px;
+            cursor: pointer;
+            width: 100%;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 14px;
+        }
+        .msb-model-select:focus { outline: none; border-color: #10a37f; }
+        .msb-model-select option { background: var(--bg-secondary); color: var(--text-primary); }
+        .msb-model-wrap { padding: 0 12px 4px; }
+
+        /* Action buttons in sidebar */
+        .msb-action {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 14px; font-weight: 500;
+            background: none; border: none; width: 100%;
+            cursor: pointer; text-align: left;
+            font-family: inherit;
+            transition: background .15s, color .15s;
+            text-decoration: none;
+        }
+        .msb-action:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .msb-action svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+        /* Hide topbar items that move to sidebar on mobile */
+        @media (max-width: 767px) {
+            .model-select-wrap { display: none !important; }
+            .topbar-btn { display: none !important; }
+            .theme-toggle-btn { display: none !important; }
+            .topbar-home { display: none !important; }
+        }
+
         /* ── Desktop: Powered by footer ── */
         #powered-by-footer {
             display: none;
@@ -781,15 +834,34 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             </button>
         </div>
         <div class="msb-nav">
-            <a href="/dashboard" class="msb-link"><i data-feather="grid"></i> Dashboard</a>
-            <a href="/chat" class="msb-link active"><i data-feather="message-square"></i> Arrissa AI</a>
+            <!-- Model selector -->
+            <?php if (count($availableModels) > 0): ?>
+            <div class="msb-section-label">Model</div>
+            <div class="msb-model-wrap">
+                <select class="msb-model-select" onchange="changeModel(this.value); closeSidebar();">
+                    <?php foreach ($availableModels as $k => $v): ?>
+                    <option value="<?= htmlspecialchars($k) ?>" <?= $k === $selectedModel ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <div class="msb-divider"></div>
-            <a href="/brokers" class="msb-link"><i data-feather="briefcase"></i> Brokers</a>
-            <a href="/market-data" class="msb-link"><i data-feather="bar-chart-2"></i> Market Data</a>
-            <a href="/news" class="msb-link"><i data-feather="rss"></i> News</a>
+            <?php endif; ?>
+
+            <!-- Chat actions -->
+            <div class="msb-section-label">Chat</div>
+            <button class="msb-action" onclick="startNewChat(); closeSidebar();">
+                <i data-feather="edit-2"></i> New Conversation
+            </button>
+            <button class="msb-action" onclick="toggleTheme(); closeSidebar();" id="msb-theme-btn">
+                <i data-feather="moon" id="msb-theme-icon"></i> Toggle Theme
+            </button>
             <div class="msb-divider"></div>
-            <a href="/settings" class="msb-link"><i data-feather="settings"></i> Settings</a>
-            <a href="/logout" class="msb-link"><i data-feather="log-out"></i> Logout</a>
+
+            <!-- Navigation -->
+            <div class="msb-section-label">Navigate</div>
+            <a href="/dashboard" class="msb-action"><i data-feather="grid"></i> Dashboard</a>
+            <a href="/settings" class="msb-action"><i data-feather="settings"></i> Settings</a>
+            <a href="/logout" class="msb-action"><i data-feather="log-out"></i> Logout</a>
         </div>
         <div class="msb-footer">
             <div class="msb-user">
@@ -1014,7 +1086,11 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
         function applyTheme(t) {
             document.body.classList.toggle('light-theme', t === 'light');
             const ic = document.getElementById('theme-icon');
-            if (ic) { ic.setAttribute('data-feather', t === 'light' ? 'sun' : 'moon'); feather.replace(); }
+            const icMsb = document.getElementById('msb-theme-icon');
+            const iconName = t === 'light' ? 'sun' : 'moon';
+            if (ic) { ic.setAttribute('data-feather', iconName); }
+            if (icMsb) { icMsb.setAttribute('data-feather', iconName); }
+            feather.replace();
         }
         function toggleTheme() {
             const next = document.body.classList.contains('light-theme') ? 'dark' : 'light';
