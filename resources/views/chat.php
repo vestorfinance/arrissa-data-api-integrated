@@ -270,109 +270,195 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
         }
         .no-webhook-icon svg { width: 28px; height: 28px; color: var(--accent); }
 
-        /* ── n8n widget overrides (dark + accent) ── */
+        /* ── n8n CSS tokens ── */
         :root {
-            --chat--color-primary:           var(--ai-primary) !important;
-            --chat--color-primary-shade-50:  var(--ai-hover)   !important;
-            --chat--color-secondary:         var(--ai-primary) !important;
-            --chat--color-light:             var(--bg-secondary) !important;
-            --chat--color-light-shade-50:    var(--bg-tertiary)  !important;
-            --chat--color-medium:            var(--border)       !important;
-            --chat--color-dark:              var(--bg-primary)   !important;
-            --chat--color-white:             var(--text-primary) !important;
-            --chat--border-radius:           16px !important;
-            --chat--header-height:           0    !important;
-            --chat--header--padding:         0    !important;
-            --chat--header--background:      transparent !important;
-            --chat--header--color:           transparent !important;
-            --chat--header--border-top:      none !important;
-            --chat--header--border-bottom:   none !important;
-            --chat--textarea--height:        52px !important;
-            --chat--message--font-size:      15px !important;
-            --chat--message--padding:        14px 18px !important;
-            --chat--message--border-radius:  18px !important;
-            --chat--message--bot--background: var(--bg-tertiary) !important;
-            --chat--message--bot--color:      var(--text-primary) !important;
-            --chat--message--user--background: var(--ai-primary) !important;
-            --chat--message--user--color:      #fff !important;
+            --chat--color-primary:            var(--ai-primary);
+            --chat--color-primary-shade-50:   var(--ai-hover);
+            --chat--color-secondary:          var(--ai-primary);
+            --chat--color-light:              var(--bg-secondary);
+            --chat--color-light-shade-50:     var(--bg-tertiary);
+            --chat--color-medium:             var(--border);
+            --chat--color-dark:               var(--bg-primary);
+            --chat--color-white:              var(--text-primary);
+            --chat--border-radius:            16px;
+            --chat--header-height:            0px;
+            --chat--header--padding:          0px;
+            --chat--header--background:       transparent;
+            --chat--header--color:            transparent;
+            --chat--header--border-top:       none;
+            --chat--header--border-bottom:    none;
+            --chat--textarea--height:         56px;
+            --chat--message--font-size:       14.5px;
+            --chat--message--padding:         12px 16px;
+            --chat--message--border-radius:   18px;
+            --chat--message--bot--background: var(--bg-tertiary);
+            --chat--message--bot--color:      var(--text-primary);
+            --chat--message--user--background: var(--ai-primary);
+            --chat--message--user--color:     #fff;
         }
 
-        /* hide n8n default header */
+        /* ── Kill default header ── */
         .n8n-chat .chat-header,
         .n8n-chat-header,
         [class*="chat-header"] {
-            display: none !important; height: 0 !important;
-            padding: 0 !important; margin: 0 !important;
+            display: none !important;
+            height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden !important;
         }
 
+        /* ── Root container ── */
         .n8n-chat {
             background: var(--bg-primary) !important;
             color: var(--text-primary) !important;
-            font-family: inherit !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
             height: 100% !important;
             display: flex !important;
             flex-direction: column !important;
             overflow: hidden !important;
         }
 
-        .n8n-chat .chat-messages-container {
+        /* ── Messages scroll area ── */
+        .n8n-chat .chat-messages-container,
+        .n8n-chat [class*="messages"] {
             background: var(--bg-primary) !important;
-            flex: 1 !important;
+            flex: 1 1 0% !important;
             overflow-y: auto !important;
-            padding: 20px 20px 90px !important;
+            padding: 24px 28px 32px !important;
             scrollbar-width: thin;
-            scrollbar-color: var(--input-border) var(--bg-secondary);
+            scrollbar-color: var(--input-border) transparent;
         }
-        .n8n-chat .chat-messages-container::-webkit-scrollbar { width: 6px; }
-        .n8n-chat .chat-messages-container::-webkit-scrollbar-track { background: var(--bg-secondary); }
-        .n8n-chat .chat-messages-container::-webkit-scrollbar-thumb { background: var(--input-border); border-radius: 3px; }
+        .n8n-chat .chat-messages-container::-webkit-scrollbar { width: 5px; }
+        .n8n-chat .chat-messages-container::-webkit-scrollbar-track { background: transparent; }
+        .n8n-chat .chat-messages-container::-webkit-scrollbar-thumb { background: var(--input-border); border-radius: 4px; }
 
-        .n8n-chat .chat-input-container {
-            background: var(--card-bg) !important;
-            border-top: 1px solid var(--border) !important;
-            padding: 14px 16px !important;
-            padding-bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
+        /* ── Message bubbles ── */
+        .n8n-chat .chat-message { margin-bottom: 4px !important; }
+        .n8n-chat .chat-message .chat-message-markdown,
+        .n8n-chat .chat-message .chat-message-text {
+            font-size: 14.5px !important;
+            line-height: 1.65 !important;
+            letter-spacing: -0.01em !important;
+        }
+        /* bot bubble */
+        .n8n-chat .chat-message-from-bot .chat-message-text,
+        .n8n-chat .chat-messages-message-from-bot .chat-message-text {
+            background: var(--bg-tertiary) !important;
+            color: var(--text-primary) !important;
+            border-radius: 4px 18px 18px 18px !important;
+        }
+        /* user bubble */
+        .n8n-chat .chat-message-from-user .chat-message-text,
+        .n8n-chat .chat-messages-message-from-user .chat-message-text {
+            background: var(--ai-primary) !important;
+            color: #fff !important;
+            border-radius: 18px 4px 18px 18px !important;
+        }
+
+        /* ── Input section — the "composer" ── */
+        .n8n-chat .chat-input-container,
+        .n8n-chat [class*="chat-footer"],
+        .n8n-chat [class*="input-wrapper"] {
+            background: var(--bg-primary) !important;
+            border-top: none !important;
+            padding: 8px 20px 16px !important;
+            padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
             flex-shrink: 0 !important;
         }
 
-        .n8n-chat .chat-input {
+        /* Inner row that wraps textarea + send button */
+        .n8n-chat .chat-input-container > *,
+        .n8n-chat [class*="chat-footer"] > * {
+            position: relative !important;
+        }
+
+        /* The textarea */
+        .n8n-chat .chat-input,
+        .n8n-chat textarea {
             background: var(--input-bg) !important;
-            border: 1px solid var(--input-border) !important;
-            border-radius: 9999px !important;
+            border: 1.5px solid var(--input-border) !important;
+            border-radius: 16px !important;
             color: var(--text-primary) !important;
             font-size: 15px !important;
-            font-family: inherit !important;
-            padding: 14px 54px 14px 20px !important;
+            font-family: 'Inter', sans-serif !important;
+            line-height: 1.55 !important;
+            padding: 15px 56px 15px 18px !important;
             resize: none !important;
             width: 100% !important;
-            transition: border-color .15s !important;
+            min-height: 56px !important;
+            max-height: 220px !important;
+            transition: border-color .18s ease, box-shadow .18s ease !important;
+            box-shadow: 0 2px 12px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.12) !important;
         }
-        .n8n-chat .chat-input:focus {
+        .n8n-chat .chat-input:focus,
+        .n8n-chat textarea:focus {
             outline: none !important;
             border-color: var(--ai-primary) !important;
-            box-shadow: 0 0 0 3px rgba(16,163,127,.12) !important;
+            box-shadow: 0 2px 12px rgba(0,0,0,.18), 0 0 0 3px rgba(16,163,127,.18) !important;
         }
-        .n8n-chat .chat-input::placeholder { color: var(--text-secondary) !important; }
+        .n8n-chat .chat-input::placeholder,
+        .n8n-chat textarea::placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.7 !important;
+        }
 
-        .n8n-chat .chat-input-send-button {
+        /* ── Send button — rounded square, bottom-right anchored ── */
+        .n8n-chat .chat-input-send-button,
+        .n8n-chat [class*="send-button"],
+        .n8n-chat button[type="submit"] {
             background: var(--ai-primary) !important;
             border: none !important;
-            border-radius: 9999px !important;
-            width: 40px !important; height: 40px !important;
-            display: flex !important; align-items: center !important; justify-content: center !important;
+            border-radius: 11px !important;
+            width: 38px !important;
+            height: 38px !important;
+            min-width: 38px !important;
+            min-height: 38px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
             color: #fff !important;
             position: absolute !important;
-            right: 8px !important; top: 50% !important;
-            transform: translateY(-50%) !important;
+            right: 10px !important;
+            bottom: 10px !important;
+            top: auto !important;
+            transform: none !important;
             cursor: pointer !important;
-            transition: background .15s, transform .15s !important;
+            transition: background .15s, transform .12s cubic-bezier(.34,1.56,.64,1), box-shadow .15s !important;
+            box-shadow: 0 2px 8px rgba(16,163,127,.35) !important;
         }
-        .n8n-chat .chat-input-send-button:hover {
+        .n8n-chat .chat-input-send-button:hover,
+        .n8n-chat [class*="send-button"]:hover,
+        .n8n-chat button[type="submit"]:hover {
             background: var(--ai-hover) !important;
-            transform: translateY(-50%) scale(1.06) !important;
+            transform: scale(1.07) !important;
+            box-shadow: 0 4px 14px rgba(16,163,127,.45) !important;
+        }
+        .n8n-chat .chat-input-send-button:active,
+        .n8n-chat [class*="send-button"]:active {
+            transform: scale(0.94) !important;
+            transition-duration: .06s !important;
         }
 
-        /* spinner whilst loading */
+        /* Typing / loading dots */
+        .n8n-chat [class*="loading"] span,
+        .n8n-chat [class*="typing"] span {
+            background: var(--ai-primary) !important;
+        }
+
+        /* ── Hint line below textarea ── */
+        .n8n-chat .chat-input-container::after {
+            content: 'Enter to send · Shift + Enter for new line';
+            display: block;
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0.55;
+            text-align: center;
+            padding-top: 7px;
+            letter-spacing: .01em;
+        }
+
+        /* ── Loading spinner ── */
         .chat-loading {
             display: flex; align-items: center; justify-content: center;
             flex-direction: column; gap: 14px;
@@ -380,15 +466,15 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
             color: var(--text-secondary); font-size: 14px;
         }
         .chat-spinner {
-            width: 36px; height: 36px;
-            border: 3px solid var(--bg-tertiary);
+            width: 32px; height: 32px;
+            border: 2.5px solid var(--bg-tertiary);
             border-top-color: var(--ai-primary);
             border-radius: 50%;
-            animation: spin .8s linear infinite;
+            animation: spin .75s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* theme toggle */
+        /* ── Theme toggle ── */
         .theme-toggle-btn {
             width: 34px; height: 34px;
             border-radius: 9999px;
@@ -402,10 +488,13 @@ $firstModel    = $availableModels[$selectedModel] ?? reset($availableModels);
         .theme-toggle-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
         .theme-toggle-btn svg { width: 16px; height: 16px; }
 
+        /* ── Responsive ── */
         @media (max-width: 768px) {
             .chat-frame { max-width: 100%; border-left: none; border-right: none; }
             #chat-area { padding: 0; }
-            .n8n-chat .chat-messages-container { padding: 14px 14px 80px !important; }
+            .n8n-chat .chat-messages-container { padding: 16px 16px 0 !important; }
+            .n8n-chat .chat-input-container,
+            .n8n-chat [class*="chat-footer"] { padding: 8px 12px 12px !important; }
         }
     </style>
 </head>
