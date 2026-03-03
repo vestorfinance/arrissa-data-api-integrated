@@ -93,13 +93,19 @@ try {
 
     // ── Default settings ──────────────────────────────────────────────────────
     $defaults = [
-        'app_name'            => 'Arrissa Data API',
-        'api_key'             => 'arr_' . bin2hex(random_bytes(8)),
-        'app_base_url'        => 'http://localhost',
-        'events_last_updated' => '',
+        'app_name'                => 'Arrissa Data API',
+        'api_key'                 => 'arr_' . bin2hex(random_bytes(8)),
+        'app_base_url'            => 'http://localhost',
+        'events_last_updated'     => '',
+        'chat_webhook_url'        => '',
+        'chat_title'              => 'Arrissa AI',
+        'chat_subtitle'           => 'Your AI assistant',
+        'chat_initial_messages'   => json_encode(['Hello! I\'m Arrissa AI. How can I help you today?', 'Feel free to ask me anything.']),
+        'chat_enable_streaming'   => '0',
+        'chat_available_models'   => json_encode(['analysis-model-1' => 'Analysis Model 1', 'analysis-model-2' => 'Analysis Model 2', 'analysis-model-3' => 'Analysis Model 3']),
     ];
     foreach ($defaults as $key => $value) {
-        $db->exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('$key', '$value')");
+        $db->exec("INSERT OR IGNORE INTO settings (key, value) VALUES ('$key', '" . SQLite3::escapeString($value) . "')");
     }
 
     $db->exec("CREATE INDEX IF NOT EXISTS idx_tools_category ON tools(category_id)");

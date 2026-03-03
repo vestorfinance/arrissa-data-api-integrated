@@ -5,15 +5,13 @@ require_once __DIR__ . '/../../app/Database.php';
 $success = $_GET['success'] ?? '';
 $error = $_GET['error'] ?? '';
 
-// Load chat config
-$chatConfigFile = __DIR__ . '/../../config/chat.json';
-$chatCfg = file_exists($chatConfigFile) ? (json_decode(file_get_contents($chatConfigFile), true) ?? []) : [];
-$chatWebhook     = $chatCfg['webhook_url']      ?? '';
-$chatTitle_s     = $chatCfg['chat_title']       ?? 'Arrissa AI';
-$chatSubtitle_s  = $chatCfg['chat_subtitle']    ?? 'Your AI assistant';
-$chatMsgs_s      = implode("\n", $chatCfg['initial_messages'] ?? ["Hello! I'm Arrissa AI. How can I help you today?", "Feel free to ask me anything."]);
-$chatStreaming_s  = !empty($chatCfg['enable_streaming']);
-$chatModels_s    = $chatCfg['available_models'] ?? ['analysis-model-1' => 'Analysis Model 1', 'analysis-model-2' => 'Analysis Model 2', 'analysis-model-3' => 'Analysis Model 3'];
+// Load chat config from database
+$chatWebhook     = getSetting($db, 'chat_webhook_url',      '');
+$chatTitle_s     = getSetting($db, 'chat_title',            'Arrissa AI');
+$chatSubtitle_s  = getSetting($db, 'chat_subtitle',         'Your AI assistant');
+$chatMsgs_s      = implode("\n", json_decode(getSetting($db, 'chat_initial_messages', json_encode(["Hello! I'm Arrissa AI. How can I help you today?", "Feel free to ask me anything."])), true) ?? []);
+$chatStreaming_s  = getSetting($db, 'chat_enable_streaming', '0') === '1';
+$chatModels_s    = json_decode(getSetting($db, 'chat_available_models', json_encode(['analysis-model-1' => 'Analysis Model 1', 'analysis-model-2' => 'Analysis Model 2', 'analysis-model-3' => 'Analysis Model 3'])), true) ?? ['analysis-model-1' => 'Analysis Model 1'];
 
 $db = Database::getInstance();
 $username = Auth::getUser();

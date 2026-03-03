@@ -4,17 +4,25 @@
  * Standalone page: login-gated (enforced by root router), no sidebar.
  */
 require_once __DIR__ . '/../../app/Auth.php';
+require_once __DIR__ . '/../../app/Database.php';
 
-// ── Load config ───────────────────────────────────────────────────────────────
-$configFile = __DIR__ . '/../../config/chat.json';
-$cfg = json_decode(file_get_contents($configFile), true) ?? [];
+// ── Load config from database ─────────────────────────────────────────────────
+$db = Database::getInstance();
+function chatSetting($db, $key, $default = '') {
+    $r = $db->query("SELECT value FROM settings WHERE key = ?", [$key])->fetch();
+    return $r ? $r['value'] : $default;
+}
 
-$webhookUrl      = $cfg['webhook_url']      ?? '';
-$chatTitle       = $cfg['chat_title']       ?? 'Arrissa AI';
-$chatSubtitle    = $cfg['chat_subtitle']    ?? 'Your AI assistant';
-$initialMessages = $cfg['initial_messages'] ?? ["Hello! I'm Arrissa AI. How can I help you today?", "Feel free to ask me anything."];
-$enableStreaming  = !empty($cfg['enable_streaming']);
-$availableModels = $cfg['available_models'] ?? ['analysis-model-1' => 'Analysis Model 1'];
+$webhookUrl      = chatSetting($db, 'chat_webhook_url', '');
+$chatTitle       = chatSetting($db, 'chat_title',       'Arrissa AI');
+$chatSubtitle    = chatSetting($db, 'chat_subtitle',    'Your AI assistant');
+$initialMessages = json_decode(chatSetting($db, 'chat_initial_messages',
+    json_encode(["Hello! I'm Arrissa AI. How can I help you today?", "Feel free to ask me anything."])), true)
+    ?? ["Hello! I'm Arrissa AI. How can I help you today?", "Feel free to ask me anything."];
+$enableStreaming  = chatSetting($db, 'chat_enable_streaming', '0') === '1';
+$availableModels = json_decode(chatSetting($db, 'chat_available_models',
+    json_encode(['analysis-model-1' => 'Analysis Model 1', 'analysis-model-2' => 'Analysis Model 2', 'analysis-model-3' => 'Analysis Model 3'])), true)
+    ?? ['analysis-model-1' => 'Analysis Model 1'];
 
 // ── Session ───────────────────────────────────────────────────────────────────
 // Handle model change POST → return JSON, create new session

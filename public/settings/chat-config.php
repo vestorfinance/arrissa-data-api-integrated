@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../app/Auth.php';
+require_once __DIR__ . '/../../app/Database.php';
 Auth::check();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -7,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$configFile = __DIR__ . '/../../config/chat.json';
+$db = Database::getInstance();
 
 // Build models array from parallel POST arrays
 $modelKeys   = $_POST['model_key']   ?? [];
@@ -31,16 +32,22 @@ if (empty($msgs)) {
     $msgs = ["Hello! How can I help you today?"];
 }
 
-$cfg = [
-    'webhook_url'      => trim($_POST['webhook_url'] ?? ''),
-    'chat_title'       => trim($_POST['chat_title'] ?? 'Arrissa AI'),
-    'chat_subtitle'    => trim($_POST['chat_subtitle'] ?? 'Your AI assistant'),
-    'initial_messages' => $msgs,
-    'enable_streaming' => !empty($_POST['enable_streaming']),
-    'available_models' => $models,
+$settings = [
+    'chat_webhook_url'      => trim($_POST['webhook_url'] ?? ''),
+    'chat_title'            => trim($_POST['chat_title'] ?? 'Arrissa AI'),
+    'chat_subtitle'         => trim($_POST['chat_subtitle'] ?? 'Your AI assistant'),
+    'chat_initial_messages' => json_encode($msgs, JSON_UNESCAPED_UNICODE),
+    'chat_enable_streaming' => empty($_POST['enable_streaming']) ? '0' : '1',
+    'chat_available_models' => json_encode($models, JSON_UNESCAPED_UNICODE),
 ];
 
-file_put_contents($configFile, json_encode($cfg, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+foreach ($settings as $key => $value) {
+    $db->query(
+        "INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+        [$key, $value]
+    );
+}
 
 header('Location: /settings?success=chat_config#chat-settings');
 exit;
+
