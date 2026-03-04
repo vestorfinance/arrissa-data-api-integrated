@@ -131,7 +131,7 @@ ob_start();
 
         <div class="rounded-2xl overflow-hidden" style="border: 1px solid var(--border);">
             <!-- header row -->
-            <div class="grid grid-cols-12 px-6 py-3 text-xs font-semibold uppercase tracking-wider" style="background-color:var(--bg-secondary);color:var(--text-muted);">
+            <div class="grid grid-cols-12 px-6 py-3 text-xs font-semibold uppercase tracking-wider" style="background-color:var(--bg-secondary);color:var(--text-secondary);">
                 <div class="col-span-3">Parameter</div>
                 <div class="col-span-2">Type</div>
                 <div class="col-span-7">Description</div>
@@ -155,10 +155,10 @@ ob_start();
                     <?php if ($p[2] === 'required'): ?>
                     <span class="ml-2 text-xs px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,.15);color:#ef4444;">required</span>
                     <?php else: ?>
-                    <span class="ml-2 text-xs px-2 py-0.5 rounded-full" style="background:rgba(99,102,241,.1);color:var(--text-muted);">optional</span>
+                    <span class="ml-2 text-xs px-2 py-0.5 rounded-full" style="background:rgba(99,102,241,.1);color:var(--text-secondary);">optional</span>
                     <?php endif; ?>
                 </div>
-                <div class="col-span-2 text-xs pt-1" style="color:var(--text-muted);"><?php echo $p[1]; ?></div>
+                <div class="col-span-2 text-xs pt-1" style="color:var(--text-secondary);"><?php echo $p[1]; ?></div>
                 <div class="col-span-7" style="color:var(--text-secondary);"><?php echo $p[3]; ?></div>
             </div>
             <?php } ?>
@@ -375,7 +375,121 @@ ob_start();
         </div>
     </div>
 
+    <div class="divider"></div>
+
+    <!-- Live Tester -->
+    <div class="mb-10">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, var(--accent), var(--success));">
+                <i data-feather="play-circle" style="width:24px;height:24px;color:white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">Live Tester</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Try the API directly from this page</p>
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="text-xs font-semibold mb-2 block" style="color:var(--text-primary);">Currency <span style="color:var(--text-secondary);font-weight:400;">(optional)</span></label>
+                    <input type="text" id="leFilterCurrency" placeholder="USD,EUR,GBP"
+                        class="w-full px-3 py-2 rounded-xl text-sm outline-none"
+                        style="background-color:var(--input-bg);border:1px solid var(--input-border);color:var(--text-primary);">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold mb-2 block" style="color:var(--text-primary);">Event ID <span style="color:var(--text-secondary);font-weight:400;">(optional)</span></label>
+                    <input type="text" id="leFilterEventId" placeholder="USD_NFP,EUR_CPI"
+                        class="w-full px-3 py-2 rounded-xl text-sm outline-none"
+                        style="background-color:var(--input-bg);border:1px solid var(--input-border);color:var(--text-primary);">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold mb-2 block" style="color:var(--text-primary);">Impact <span style="color:var(--text-secondary);font-weight:400;">(optional)</span></label>
+                    <select id="leFilterImpact"
+                        class="w-full px-3 py-2 rounded-xl text-sm outline-none"
+                        style="background-color:var(--input-bg);border:1px solid var(--input-border);color:var(--text-primary);">
+                        <option value="">All</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold mb-2 block" style="color:var(--text-primary);">Pretend Date <span style="color:var(--text-secondary);font-weight:400;">(optional)</span></label>
+                    <input type="date" id="leFilterPretendDate"
+                        class="w-full px-3 py-2 rounded-xl text-sm outline-none"
+                        style="background-color:var(--input-bg);border:1px solid var(--input-border);color:var(--text-primary);">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold mb-2 block" style="color:var(--text-primary);">Pretend Time UTC <span style="color:var(--text-secondary);font-weight:400;">(optional)</span></label>
+                    <input type="time" id="leFilterPretendTime"
+                        class="w-full px-3 py-2 rounded-xl text-sm outline-none"
+                        style="background-color:var(--input-bg);border:1px solid var(--input-border);color:var(--text-primary);">
+                </div>
+                <div class="flex items-end pb-2">
+                    <label class="flex items-center gap-2 text-sm cursor-pointer" style="color:var(--text-secondary);">
+                        <input type="checkbox" id="leFilterMustHave" class="w-4 h-4 rounded" style="accent-color:var(--accent);">
+                        Require actual value
+                    </label>
+                </div>
+            </div>
+
+            <button id="leTestBtn" type="button" onclick="runLeTest()"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
+                style="background: linear-gradient(135deg, var(--accent), #6366f1); color: white; border: none; cursor: pointer;">
+                <i data-feather="send" style="width:16px;height:16px;display:inline;"></i> Send Request
+            </button>
+
+            <div id="leTestResult" class="hidden mt-4">
+                <pre id="leTestOutput"
+                    class="p-4 rounded-xl overflow-x-auto api-code"
+                    style="background-color:var(--bg-primary);border:1px solid var(--border);color:var(--text-secondary);max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;"></pre>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<script>
+async function runLeTest() {
+    const btn    = document.getElementById('leTestBtn');
+    const result = document.getElementById('leTestResult');
+    const output = document.getElementById('leTestOutput');
+
+    btn.disabled  = true;
+    btn.innerHTML = '<i data-feather="loader" style="width:16px;height:16px;display:inline;"></i> Loading…';
+    feather.replace();
+
+    const params = new URLSearchParams({ api_key: '<?= htmlspecialchars($apiKey) ?>' });
+
+    const currency    = document.getElementById('leFilterCurrency').value.trim();
+    const eventId     = document.getElementById('leFilterEventId').value.trim();
+    const impact      = document.getElementById('leFilterImpact').value;
+    const pretendDate = document.getElementById('leFilterPretendDate').value;
+    const pretendTime = document.getElementById('leFilterPretendTime').value;
+    const mustHave    = document.getElementById('leFilterMustHave').checked;
+
+    if (currency)    params.set('currency',     currency);
+    if (eventId)     params.set('event_id',     eventId);
+    if (impact)      params.set('impact',       impact);
+    if (pretendDate) params.set('pretend_date', pretendDate);
+    if (pretendTime) params.set('pretend_time', pretendTime + ':00');
+    if (mustHave)    params.set('must_have',    'actual');
+
+    try {
+        const res  = await fetch('<?= htmlspecialchars($baseUrl) ?>/api/latest-events?' + params.toString());
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+        output.textContent = 'Error: ' + e.message;
+    }
+
+    result.classList.remove('hidden');
+    btn.disabled  = false;
+    btn.innerHTML = '<i data-feather="send" style="width:16px;height:16px;display:inline;"></i> Send Request';
+    feather.replace();
+}
+</script>
 
 <?php
 $content = ob_get_clean();
