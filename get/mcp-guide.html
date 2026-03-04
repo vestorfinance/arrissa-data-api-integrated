@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Server Guide — Arrissa Data</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #4f46e5;
+            --accent-hover: #6366f1;
+            --border: #3a3a3a;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --card-bg: #1f1f1f;
+            --input-bg: #262626;
+            --input-border: #404040;
+        }
+        * { box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--input-border) var(--bg-secondary); }
+        *::-webkit-scrollbar { width: 6px; height: 6px; }
+        *::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        *::-webkit-scrollbar-thumb { background-color: var(--input-border); border-radius: 3px; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-primary); color: var(--text-primary); margin: 0; line-height: 1.6; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .top-nav { position: sticky; top: 0; z-index: 100; background-color: rgba(15,15,15,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { display: flex; align-items: center; gap: 12px; }
+        .nav-logo-mcp { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#4f46e5,#10b981); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.62rem; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+        .nav-links { display: flex; gap: 12px; align-items: center; }
+        .nav-links a { color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; transition: color 0.15s; }
+        .nav-links a:hover { color: var(--text-primary); text-decoration: none; }
+        .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; border: 1px solid var(--border); border-radius: 9999px; padding: 6px 14px; transition: all 0.15s; }
+        .back-link:hover { border-color: var(--accent); color: var(--text-primary); text-decoration: none; }
+        .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+        .hero { text-align: center; padding: 72px 24px 48px; }
+        .hero h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 16px; }
+        .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 580px; margin: 0 auto; }
+        .mcp-logo-big { width: 72px; height: 72px; border-radius: 24px; background: linear-gradient(135deg,#4f46e5,#10b981); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 1rem; font-weight: 900; color: #fff; letter-spacing: -0.04em; }
+        .configurator { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 32px; margin-bottom: 48px; }
+        .config-title { font-size: 1rem; font-weight: 700; margin: 0 0 20px; color: var(--text-primary); }
+        .config-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        @media (max-width: 700px) { .config-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) and (min-width: 701px) { .config-grid { grid-template-columns: 1fr 1fr; } }
+        label.field-label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+        input.text-field { width: 100%; background-color: var(--input-bg); border: 1px solid var(--input-border); border-radius: 9999px; padding: 10px 16px; font-size: 0.875rem; color: var(--text-primary); font-family: inherit; outline: none; transition: border-color 0.15s; }
+        input.text-field:focus { border-color: var(--accent); }
+        .env-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+        .env-tab { padding: 10px 20px; border-radius: 9999px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .env-tab:hover { border-color: var(--accent); color: var(--text-primary); }
+        .env-tab.active { background-color: var(--accent); border-color: var(--accent); color: #fff; }
+        .section { margin-bottom: 64px; }
+        .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+        .section-icon { width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .section-header h2 { font-size: 1.5rem; font-weight: 700; margin: 0 0 4px; }
+        .section-header p { font-size: 0.875rem; color: var(--text-secondary); margin: 0; }
+        .steps { display: flex; flex-direction: column; gap: 20px; }
+        .step { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 24px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background-color: var(--accent); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+        .step-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; margin-bottom: 12px; }
+        .step-body { font-size: 0.875rem; color: var(--text-secondary); }
+        .step-body p { margin: 0 0 12px; }
+        .step-body p:last-child { margin-bottom: 0; }
+        .code-block { position: relative; background-color: #0d0d0d; border: 1px solid var(--input-border); border-radius: 14px; margin: 12px 0; overflow: hidden; }
+        .code-block pre { margin: 30px 0 0 0; padding: 16px 50px 16px 16px; font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace; font-size: 0.8rem; color: #e2e8f0; overflow-x: auto; white-space: pre; }
+        .code-lang { position: absolute; top: 10px; left: 14px; font-size: 0.65rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; }
+        .copy-btn { position: absolute; top: 8px; right: 10px; background-color: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 8px; padding: 5px 10px; font-size: 0.7rem; cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; gap: 4px; }
+        .copy-btn:hover { background-color: var(--accent); color: #fff; border-color: var(--accent); }
+        .copy-btn.copied { background-color: var(--success); color: #fff; border-color: var(--success); }
+        .callout { border-radius: 14px; padding: 14px 16px; margin: 12px 0; display: flex; align-items: flex-start; gap: 12px; font-size: 0.85rem; }
+        .callout-info { background-color: rgba(79,70,229,0.1); border: 1px solid rgba(79,70,229,0.3); color: var(--text-secondary); }
+        .callout-warn { background-color: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.35); color: var(--text-secondary); }
+        .callout-success { background-color: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: var(--text-secondary); }
+        .callout-icon { flex-shrink: 0; margin-top: 1px; }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+        .badge-accent { background-color: rgba(79,70,229,0.15); color: var(--accent); border: 1px solid rgba(79,70,229,0.3); }
+        .badge-mcp { background: linear-gradient(90deg,rgba(79,70,229,0.15),rgba(16,185,129,0.15)); color: #10b981; border: 1px solid rgba(16,185,129,0.35); }
+        .badge-success { background-color: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+        .badge-warn { background-color: rgba(245,158,11,0.12); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
+        .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 48px 0; }
+        .page-layout { display: flex; gap: 40px; align-items: flex-start; }
+        .toc { width: 220px; flex-shrink: 0; position: sticky; top: 72px; background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; font-size: 0.8rem; }
+        .toc-title { font-weight: 700; color: var(--text-primary); margin-bottom: 12px; font-size: 0.82rem; }
+        .toc a { display: block; color: var(--text-secondary); padding: 5px 0; transition: color 0.15s; }
+        .toc a:hover { color: var(--text-primary); text-decoration: none; }
+        .toc a.sub { padding-left: 12px; font-size: 0.75rem; }
+        .main-content { flex: 1; min-width: 0; }
+        @media (max-width: 768px) { .toc { display: none; } }
+        code { background-color: var(--bg-tertiary); padding: 2px 7px; border-radius: 5px; font-size: 0.82em; font-family: monospace; color: #c4b5fd; }
+        footer { border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; margin-top: 64px; }
+        .env-panel { display: none; }
+        .env-panel.active { display: block; }
+        .hl-domain { color: #a5f3fc; }
+        .hl-ip { color: #fde68a; }
+        .hl-key { color: #86efac; }
+        .guide-card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 24px; display: flex; align-items: center; gap: 20px; text-decoration: none; transition: border-color 0.2s, transform 0.15s; }
+        .guide-card:hover { border-color: var(--accent); transform: translateY(-2px); text-decoration: none; }
+        .guide-card-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .guide-card-text h3 { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px; }
+        .guide-card-text p { font-size: 0.82rem; color: var(--text-secondary); margin: 0; }
+        .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        @media (max-width: 600px) { .tools-grid { grid-template-columns: 1fr 1fr; } }
+        .tool-pill { background-color: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: 0.78rem; }
+        .tool-pill-name { font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+        .tool-pill-count { color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<nav class="top-nav">
+    <div class="nav-logo">
+        <div class="nav-logo-mcp">MCP</div>
+        <span style="font-weight:700;font-size:1rem;">Arrissa MCP</span>
+        <span class="badge badge-mcp" style="margin-left:4px;">Server Guide</span>
+    </div>
+    <div class="nav-links">
+        <a href="#install">Install</a>
+        <a href="#auth">Auth</a>
+        <a href="#claude">Claude</a>
+        <a href="#cursor">Cursor</a>
+        <a href="#tools">Tools</a>
+        <a href="/get/" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:9999px;padding:6px 14px;color:var(--text-secondary);font-size:0.8rem;font-weight:600;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text-primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'">
+            <i data-feather="arrow-left" style="width:13px;height:13px;"></i> Install Guide
+        </a>
+        <a href="/get/n8n-install.html" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:9999px;padding:6px 14px;color:var(--text-secondary);font-size:0.8rem;font-weight:600;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text-primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'">
+            <i data-feather="zap" style="width:13px;height:13px;"></i> n8n Guide
+        </a>
+    </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero container">
+    <div class="mcp-logo-big">MCP</div>
+    <h1>MCP Server Guide</h1>
+    <p>Run the Arrissa Data MCP server and connect <strong style="color:var(--text-primary);">63 tools</strong> — market data, economic calendar, chart images, orders, and more — directly inside Claude, Cursor, or any MCP-compatible AI client.</p>
+</div>
+
+<div class="container">
+
+    <!-- What you get -->
+    <div style="margin-bottom:48px;">
+        <div class="tools-grid">
+            <div class="tool-pill">
+                <div class="tool-pill-name">📈 Market Data</div>
+                <div class="tool-pill-count">8 tools</div>
+            </div>
+            <div class="tool-pill">
+                <div class="tool-pill-name">📊 Chart Images</div>
+                <div class="tool-pill-count">9 tools</div>
+            </div>
+            <div class="tool-pill">
+                <div class="tool-pill-name">📅 Economic Calendar</div>
+                <div class="tool-pill-count">15 tools</div>
+            </div>
+            <div class="tool-pill">
+                <div class="tool-pill-name">🧾 Orders</div>
+                <div class="tool-pill-count">20 tools</div>
+            </div>
+            <div class="tool-pill">
+                <div class="tool-pill-name">🔬 Market Analysis</div>
+                <div class="tool-pill-count">3 tools</div>
+            </div>
+            <div class="tool-pill">
+                <div class="tool-pill-name">🌐 Web Content</div>
+                <div class="tool-pill-count">8 tools</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configurator -->
+    <div class="configurator">
+        <p class="config-title"><i data-feather="settings" style="width:16px;height:16px;display:inline;vertical-align:-3px;margin-right:6px;color:var(--accent);"></i>Quick Configurator — enter your details to get personalised commands</p>
+        <div class="config-grid">
+            <div>
+                <label class="field-label" for="domainInput">Your Domain / Hostname</label>
+                <input class="text-field" type="text" id="domainInput" placeholder="e.g. arrissadata.com" oninput="updateAll()">
+            </div>
+            <div>
+                <label class="field-label" for="portInput">MCP Server Port</label>
+                <input class="text-field" type="text" id="portInput" placeholder="3000" oninput="updateAll()">
+            </div>
+            <div>
+                <label class="field-label" for="apiKeyInput">Your API Key <span style="font-weight:400;color:var(--text-secondary);text-transform:none;letter-spacing:0;">(from Settings)</span></label>
+                <input class="text-field" type="text" id="apiKeyInput" placeholder="your-api-key-here" oninput="updateAll()">
+            </div>
+        </div>
+        <label class="field-label">Choose Your Environment</label>
+        <div class="env-tabs">
+            <button class="env-tab active" onclick="switchEnv('ubuntu')">
+                <i data-feather="server" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-right:6px;"></i>Ubuntu + Caddy
+            </button>
+            <button class="env-tab" onclick="switchEnv('xampp')">
+                <i data-feather="monitor" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-right:6px;"></i>Windows VPS + XAMPP
+            </button>
+            <button class="env-tab" onclick="switchEnv('wamp')">
+                <i data-feather="home" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-right:6px;"></i>Windows Localhost + WAMP
+            </button>
+        </div>
+    </div>
+
+    <!-- Page layout with TOC -->
+    <div class="page-layout">
+        <aside class="toc">
+            <div class="toc-title">On This Page</div>
+            <a href="#install">Installation</a>
+            <a href="#service" class="sub">Run as Service</a>
+            <a href="#caddy" class="sub">Caddy (Ubuntu)</a>
+            <a href="#auth">Authentication</a>
+            <a href="#claude">Claude Desktop</a>
+            <a href="#cursor">Cursor</a>
+            <a href="#test">Test the Server</a>
+            <a href="#tools">All 63 Tools</a>
+            <a href="#related">Related Guides</a>
+        </aside>
+
+        <div class="main-content">
+
+<!-- ═══════════════════════════════════════════════════ UBUNTU + CADDY -->
+<div class="env-panel active" id="panel-ubuntu">
+
+    <div class="section" id="install">
+        <div class="section-header">
+            <div class="section-icon" style="background:linear-gradient(135deg,#4f46e5,#6366f1);">
+                <i data-feather="download" style="width:22px;height:22px;color:#fff;"></i>
+            </div>
+            <div>
+                <h2>Install &amp; Build <span class="badge badge-accent">Ubuntu + Caddy</span></h2>
+                <p>Node.js 18+ required. The MCP server lives inside the Arrissa repo.</p>
+            </div>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-title"><span class="step-num">1</span>Install Node.js 20 LTS</div>
+                <div class="step-body">
+                    <div class="code-block">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+node -v  # should print v20.x.x</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">2</span>Install dependencies &amp; build</div>
+                <div class="step-body">
+                    <p>The <code>mcp-server/</code> folder is part of the main Arrissa repo — no separate clone needed.</p>
+                    <div class="code-block">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>cd /var/www/arrissa/mcp-server
+npm install
+npm run build</pre>
+                    </div>
+                    <div class="callout callout-success">
+                        <i data-feather="check-circle" class="callout-icon" style="width:16px;height:16px;color:var(--success);"></i>
+                        <span>On success <code>npm run build</code> exits with no errors and creates the <code>dist/</code> folder. The server reads the API key and base URL directly from the SQLite database — no <code>.env</code> file needed.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="step" id="service">
+                <div class="step-title"><span class="step-num">3</span>Run as a systemd service</div>
+                <div class="step-body">
+                    <p>Create a systemd unit so the MCP server starts on boot and restarts on crash:</p>
+                    <div class="code-block">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre id="u-service-unit">sudo tee /etc/systemd/system/arrissa-mcp.service &lt;&lt;'EOF'
+[Unit]
+Description=Arrissa Data MCP Server
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/arrissa/mcp-server
+ExecStart=/usr/bin/node dist/index.js
+Restart=always
+RestartSec=5
+Environment=PORT=3000
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable arrissa-mcp
+sudo systemctl start arrissa-mcp
+sudo systemctl status arrissa-mcp</pre>
+                    </div>
+                    <div class="callout callout-info">
+                        <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                        <span>Check logs any time with <code>sudo journalctl -u arrissa-mcp -f</code>. To restart after a rebuild: <code>sudo systemctl restart arrissa-mcp</code></span>
+                    </div>
+                </div>
+            </div>
+            <div class="step" id="caddy">
+                <div class="step-title"><span class="step-num">4</span>Expose via Caddy (recommended)</div>
+                <div class="step-body">
+                    <p>Add a route to your existing Caddyfile so the MCP endpoint is available at <code class="hl-domain" id="u-mcp-path">https://yourdomain.com/mcp-server</code> — no extra port needed:</p>
+                    <div class="code-block">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre id="u-caddy-block">sudo tee -a /etc/caddy/Caddyfile &lt;&lt;'EOF'
+
+# Arrissa MCP Server — add this block inside your existing yourdomain.com { } block
+# or as a separate subdomain block:
+mcp.yourdomain.com {
+    reverse_proxy localhost:3000
+    encode gzip
+}
+EOF
+
+sudo systemctl reload caddy</pre>
+                    </div>
+                    <div class="callout callout-info">
+                        <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                        <span><strong>Prefer a path route?</strong> Inside your existing <code>yourdomain.com { }</code> block add: <code>handle /mcp* { reverse_proxy localhost:3000 }</code> — then your endpoint becomes <code>https://yourdomain.com/mcp</code>.</span>
+                    </div>
+                    <p style="margin-top:12px;">After reloading Caddy, verify the server is up:</p>
+                    <div class="code-block">
+                        <span class="code-lang">bash</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre id="u-health-check">curl https://mcp.yourdomain.com/health</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /panel-ubuntu -->
+
+<!-- ═══════════════════════════════════════════════════ WINDOWS XAMPP -->
+<div class="env-panel" id="panel-xampp">
+
+    <div class="section" id="install">
+        <div class="section-header">
+            <div class="section-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">
+                <i data-feather="download" style="width:22px;height:22px;color:#fff;"></i>
+            </div>
+            <div>
+                <h2>Install &amp; Build <span class="badge badge-warn">Windows + XAMPP</span></h2>
+                <p>Node.js 18+ required. Run in PowerShell as Administrator.</p>
+            </div>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-title"><span class="step-num">1</span>Install Node.js 20 LTS</div>
+                <div class="step-body">
+                    <p>Download the Windows installer from <a href="https://nodejs.org" target="_blank">nodejs.org</a> and install. Then verify:</p>
+                    <div class="code-block">
+                        <span class="code-lang">powershell</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>node -v   # v20.x.x
+npm -v</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">2</span>Install dependencies &amp; build</div>
+                <div class="step-body">
+                    <div class="code-block">
+                        <span class="code-lang">powershell</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>cd C:\xampp\htdocs\arrissa\mcp-server
+npm install
+npm run build</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="step" id="service">
+                <div class="step-title"><span class="step-num">3</span>Run as a Windows Scheduled Task (auto-start)</div>
+                <div class="step-body">
+                    <p>Register a task that starts the MCP server at boot (run PowerShell <strong>as Administrator</strong>):</p>
+                    <div class="code-block">
+                        <span class="code-lang">powershell</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>$nodeExe = (Get-Command node).Source
+$script  = "C:\xampp\htdocs\arrissa\mcp-server\dist\index.js"
+$workDir = "C:\xampp\htdocs\arrissa\mcp-server"
+$action  = New-ScheduledTaskAction -Execute $nodeExe -Argument $script -WorkingDirectory $workDir
+$trigger = New-ScheduledTaskTrigger -AtStartup
+$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -RestartOnIdle $false
+$env     = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0
+Register-ScheduledTask -TaskName "ArrissaMCPServer" -Action $action -Trigger $trigger -Settings $settings -RunLevel Highest -Force
+
+# Start it now without rebooting
+Start-ScheduledTask -TaskName "ArrissaMCPServer"</pre>
+                    </div>
+                    <div class="callout callout-info">
+                        <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                        <span>To stop: <code>Stop-ScheduledTask -TaskName "ArrissaMCPServer"</code> &nbsp;|&nbsp; To remove: <code>Unregister-ScheduledTask -TaskName "ArrissaMCPServer" -Confirm:$false</code></span>
+                    </div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">4</span>Verify the server is running</div>
+                <div class="step-body">
+                    <div class="code-block">
+                        <span class="code-lang">powershell</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>Invoke-RestMethod http://localhost:3000/health | ConvertTo-Json</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /panel-xampp -->
+
+<!-- ═══════════════════════════════════════════════════ WINDOWS WAMP -->
+<div class="env-panel" id="panel-wamp">
+
+    <div class="section" id="install">
+        <div class="section-header">
+            <div class="section-icon" style="background:linear-gradient(135deg,#10b981,#059669);">
+                <i data-feather="download" style="width:22px;height:22px;color:#fff;"></i>
+            </div>
+            <div>
+                <h2>Install &amp; Build <span class="badge badge-success">Windows + WAMP</span></h2>
+                <p>Node.js 18+ required. Run in PowerShell.</p>
+            </div>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-title"><span class="step-num">1</span>Install Node.js 20 LTS</div>
+                <div class="step-body">
+                    <p>Download from <a href="https://nodejs.org" target="_blank">nodejs.org</a> and install. Verify:</p>
+                    <div class="code-block">
+                        <span class="code-lang">powershell</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>node -v   # v20.x.x
+npm -v</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">2</span>Install dependencies &amp; build</div>
+                <div class="step-body">
+                    <div class="code-block">
+                        <span class="code-lang">powershell</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>cd C:\wamp64\www\mcp-server
+npm install
+npm run build</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="step" id="service">
+                <div class="step-title"><span class="step-num">3</span>Run as a Windows Scheduled Task (auto-start)</div>
+                <div class="step-body">
+                    <p>Run PowerShell <strong>as Administrator</strong>:</p>
+                    <div class="code-block">
+                        <span class="code-lang">powershell</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>$nodeExe = (Get-Command node).Source
+$script  = "C:\wamp64\www\mcp-server\dist\index.js"
+$workDir = "C:\wamp64\www\mcp-server"
+$action  = New-ScheduledTaskAction -Execute $nodeExe -Argument $script -WorkingDirectory $workDir
+$trigger = New-ScheduledTaskTrigger -AtStartup
+$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -RestartOnIdle $false
+Register-ScheduledTask -TaskName "ArrissaMCPServer" -Action $action -Trigger $trigger -Settings $settings -RunLevel Highest -Force
+
+# Start it now without rebooting
+Start-ScheduledTask -TaskName "ArrissaMCPServer"</pre>
+                    </div>
+                    <div class="callout callout-info">
+                        <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                        <span>For local dev you can just run <code>node dist/index.js</code> directly in a terminal — no scheduled task needed.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-title"><span class="step-num">4</span>Verify the server is running</div>
+                <div class="step-body">
+                    <div class="code-block">
+                        <span class="code-lang">powershell</span>
+                        <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                        <pre>Invoke-RestMethod http://localhost:3000/health | ConvertTo-Json</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /panel-wamp -->
+
+<!-- ═══════════════════════════════════════════════════ AUTH (COMMON) -->
+<div class="divider"></div>
+
+<div class="section" id="auth">
+    <div class="section-header">
+        <div class="section-icon" style="background:linear-gradient(135deg,#ef4444,#f59e0b);">
+            <i data-feather="key" style="width:22px;height:22px;color:#fff;"></i>
+        </div>
+        <div>
+            <h2>Authentication</h2>
+            <p>Every request to <code>/mcp</code> must include your API key as a header</p>
+        </div>
+    </div>
+    <div class="steps">
+        <div class="step">
+            <div class="step-title"><span class="step-num">!</span>Required header</div>
+            <div class="step-body">
+                <p>The MCP server reads your API key from the Arrissa database. Every request to the <code>/mcp</code> endpoint must carry:</p>
+                <div class="code-block">
+                    <span class="code-lang">http</span>
+                    <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                    <pre>x-api-key: <span class="hl-key" id="auth-key-display">YOUR_API_KEY</span></pre>
+                </div>
+                <p>Find your API key at <strong>Settings → API Key</strong> inside the Arrissa dashboard. Requests with a missing or wrong key receive <code>401 Unauthorized</code>.</p>
+                <div class="callout callout-warn">
+                    <i data-feather="alert-triangle" class="callout-icon" style="width:16px;height:16px;color:var(--warning);"></i>
+                    <span>Keep your API key secret. Never commit it to version control or expose it client-side. Rotate it from the Settings page if it is ever leaked.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ CLAUDE DESKTOP -->
+<div class="section" id="claude">
+    <div class="section-header">
+        <div class="section-icon" style="background:linear-gradient(135deg,#d97706,#f59e0b);">
+            <i data-feather="cpu" style="width:22px;height:22px;color:#fff;"></i>
+        </div>
+        <div>
+            <h2>Connect Claude Desktop</h2>
+            <p>Add the Arrissa MCP server to your Claude Desktop config</p>
+        </div>
+    </div>
+    <div class="steps">
+        <div class="step">
+            <div class="step-title"><span class="step-num">1</span>Open your Claude Desktop config file</div>
+            <div class="step-body">
+                <p><strong>macOS / Linux:</strong> <code>~/.config/claude/claude_desktop_config.json</code></p>
+                <p><strong>Windows:</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code></p>
+                <p>Create the file if it does not exist. Then add (or merge) the <code>mcpServers</code> block:</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-title"><span class="step-num">2</span>Remote server (Ubuntu + Caddy)</div>
+            <div class="step-body">
+                <div class="code-block">
+                    <span class="code-lang">json</span>
+                    <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                    <pre id="claude-remote-config">{
+  "mcpServers": {
+    "arrissa-data": {
+      "type": "http",
+      "url": "https://mcp.yourdomain.com/mcp",
+      "headers": {
+        "x-api-key": "YOUR_API_KEY"
+      }
+    }
+  }
+}</pre>
+                </div>
+                <div class="callout callout-info">
+                    <i data-feather="info" class="callout-icon" style="width:16px;height:16px;color:var(--accent);"></i>
+                    <span>If you used a path route instead of a subdomain, the URL would be <code id="claude-path-note">https://yourdomain.com/mcp</code></span>
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-title"><span class="step-num">3</span>Local server (Windows localhost)</div>
+            <div class="step-body">
+                <div class="code-block">
+                    <span class="code-lang">json</span>
+                    <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                    <pre id="claude-local-config">{
+  "mcpServers": {
+    "arrissa-data": {
+      "type": "http",
+      "url": "http://localhost:3000/mcp",
+      "headers": {
+        "x-api-key": "YOUR_API_KEY"
+      }
+    }
+  }
+}</pre>
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-title"><span class="step-num">4</span>Restart Claude Desktop</div>
+            <div class="step-body">
+                <p>Quit and relaunch Claude Desktop. Open a new conversation — you should see <strong>arrissa-data</strong> in the tools panel (hammer icon). Ask Claude to <em>"list available Arrissa tools"</em> to confirm all 63 are loaded.</p>
+                <div class="callout callout-success">
+                    <i data-feather="check-circle" class="callout-icon" style="width:16px;height:16px;color:var(--success);"></i>
+                    <span>Try asking: <em>"Get me the latest USD economic events from the Arrissa calendar"</em> — Claude will invoke <code>get_latest_economic_events</code> automatically.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ CURSOR -->
+<div class="section" id="cursor">
+    <div class="section-header">
+        <div class="section-icon" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);">
+            <i data-feather="code" style="width:22px;height:22px;color:#fff;"></i>
+        </div>
+        <div>
+            <h2>Connect Cursor</h2>
+            <p>Use Arrissa tools directly in the Cursor AI editor</p>
+        </div>
+    </div>
+    <div class="steps">
+        <div class="step">
+            <div class="step-title"><span class="step-num">1</span>Open Cursor MCP settings</div>
+            <div class="step-body">
+                <p>In Cursor go to <strong>Settings → MCP</strong> (or edit <code>~/.cursor/mcp.json</code> directly):</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-title"><span class="step-num">2</span>Add the Arrissa server</div>
+            <div class="step-body">
+                <div class="code-block">
+                    <span class="code-lang">json</span>
+                    <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                    <pre id="cursor-config">{
+  "mcpServers": {
+    "arrissa-data": {
+      "url": "https://mcp.yourdomain.com/mcp",
+      "headers": {
+        "x-api-key": "YOUR_API_KEY"
+      }
+    }
+  }
+}</pre>
+                </div>
+                <p style="margin-top:12px;">For local use replace the URL with <code>http://localhost:3000/mcp</code>.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-title"><span class="step-num">3</span>Reload &amp; verify</div>
+            <div class="step-body">
+                <p>Reload the Cursor window. In the chat panel (<code>Ctrl+L</code>) you should now see the Arrissa tools available. Test with: <em>"What economic events are scheduled for today?"</em></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ TEST -->
+<div class="section" id="test">
+    <div class="section-header">
+        <div class="section-icon" style="background:linear-gradient(135deg,#10b981,#059669);">
+            <i data-feather="activity" style="width:22px;height:22px;color:#fff;"></i>
+        </div>
+        <div>
+            <h2>Test the Server</h2>
+            <p>Verify auth and tool discovery work correctly</p>
+        </div>
+    </div>
+    <div class="steps">
+        <div class="step">
+            <div class="step-title"><span class="step-num">1</span>Health check (no auth required)</div>
+            <div class="step-body">
+                <div class="code-block">
+                    <span class="code-lang">bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                    <pre id="test-health">curl https://mcp.yourdomain.com/health</pre>
+                </div>
+                <p>Expected response includes <code>"status": "ok"</code> and <code>"tools": 63</code>.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-title"><span class="step-num">2</span>MCP initialize — with auth header</div>
+            <div class="step-body">
+                <div class="code-block">
+                    <span class="code-lang">bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                    <pre id="test-init">curl -s -X POST https://mcp.yourdomain.com/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2025-03-26",
+      "capabilities": {},
+      "clientInfo": { "name": "test", "version": "1.0" }
+    }
+  }' | jq .</pre>
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-title"><span class="step-num">3</span>Confirm 401 without the header</div>
+            <div class="step-body">
+                <div class="code-block">
+                    <span class="code-lang">bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)"><i data-feather="copy" style="width:11px;height:11px;"></i> Copy</button>
+                    <pre id="test-unauth">curl -s -X POST https://mcp.yourdomain.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
+# Should return: {"error":"Unauthorized","message":"Provide your Arrissa API key in the x-api-key request header"}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ TOOLS LIST -->
+<div class="section" id="tools">
+    <div class="section-header">
+        <div class="section-icon" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">
+            <i data-feather="tool" style="width:22px;height:22px;color:#fff;"></i>
+        </div>
+        <div>
+            <h2>All 63 Tools</h2>
+            <p>Grouped by category — every tool is available to any connected AI client</p>
+        </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+        <div class="step">
+            <div class="step-title" style="margin-bottom:16px;"><span class="step-num" style="background:linear-gradient(135deg,#10b981,#059669);">📈</span> Market Data — 8 tools</div>
+            <div class="step-body">
+                <ul style="margin:0 0 0 16px;padding:0;list-style:disc;line-height:2.2;">
+                    <li><code>get_market_data</code> — OHLCV candles for a symbol &amp; timeframe</li>
+                    <li><code>get_latest_candle</code> — Most recent candle only</li>
+                    <li><code>get_multiple_symbols</code> — Batch candle fetch for multiple symbols</li>
+                    <li><code>get_symbol_info</code> — Broker symbol specification (digits, lots, spread…)</li>
+                    <li><code>get_multiple_symbol_info</code> — Batch symbol info</li>
+                    <li><code>get_tma_cg_data</code> — TMA + CG indicator values</li>
+                    <li><code>get_quarters_theory_data</code> — Quarters Theory levels</li>
+                    <li><code>get_available_symbols</code> — List symbols with data in the DB</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title" style="margin-bottom:16px;"><span class="step-num" style="background:linear-gradient(135deg,#4f46e5,#818cf8);">📊</span> Chart Images — 9 tools</div>
+            <div class="step-body">
+                <ul style="margin:0 0 0 16px;padding:0;list-style:disc;line-height:2.2;">
+                    <li><code>get_chart_image</code> — Standard candlestick chart PNG</li>
+                    <li><code>get_chart_image_with_indicators</code> — Chart with overlay indicators</li>
+                    <li><code>get_multi_timeframe_chart</code> — Side-by-side multi-TF chart</li>
+                    <li><code>get_chart_stream_url</code> — Live streaming chart URL</li>
+                    <li><code>list_chart_streams</code> — All active chart stream URLs</li>
+                    <li><code>get_chart_stream_image</code> — Snapshot of a stream</li>
+                    <li><code>create_chart_stream</code> — Create a new stream URL</li>
+                    <li><code>delete_chart_stream</code> — Remove a stream</li>
+                    <li><code>get_chart_comparison</code> — Compare two symbols on one chart</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title" style="margin-bottom:16px;"><span class="step-num" style="background:linear-gradient(135deg,#d97706,#f59e0b);">📅</span> Economic Calendar — 15 tools</div>
+            <div class="step-body">
+                <ul style="margin:0 0 0 16px;padding:0;list-style:disc;line-height:2.2;">
+                    <li><code>get_economic_events</code> — Events by date range / period</li>
+                    <li><code>get_today_events</code> — Today's events</li>
+                    <li><code>get_upcoming_events</code> — Next N upcoming events</li>
+                    <li><code>get_latest_economic_events</code> — Most recent occurrence of every event type</li>
+                    <li><code>get_high_impact_events</code> — High-impact only</li>
+                    <li><code>get_events_by_currency</code> — Events for one or more currencies</li>
+                    <li><code>get_this_week_events</code> — Current week events</li>
+                    <li><code>get_next_week_events</code> — Next week's scheduled events</li>
+                    <li><code>get_event_by_id</code> — Single event detail by ID</li>
+                    <li><code>search_events</code> — Free-text search over event names</li>
+                    <li><code>get_nfp_history</code> — Full Non-Farm Payrolls history</li>
+                    <li><code>get_cpi_history</code> — CPI release history</li>
+                    <li><code>get_fomc_history</code> — FOMC rate decision history</li>
+                    <li><code>get_similar_scenes</code> — Find past events matching current conditions</li>
+                    <li><code>get_event_statistics</code> — Aggregated stats for an event type</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title" style="margin-bottom:16px;"><span class="step-num" style="background:linear-gradient(135deg,#dc2626,#ef4444);">🧾</span> Orders — 20 tools</div>
+            <div class="step-body">
+                <ul style="margin:0 0 0 16px;padding:0;list-style:disc;line-height:2.2;">
+                    <li><code>get_open_orders</code> / <code>get_pending_orders</code> / <code>get_closed_orders</code></li>
+                    <li><code>get_order_by_ticket</code> / <code>get_orders_by_symbol</code></li>
+                    <li><code>get_account_summary</code> / <code>get_account_balance</code> / <code>get_equity</code></li>
+                    <li><code>get_daily_pnl</code> / <code>get_weekly_pnl</code> / <code>get_monthly_pnl</code></li>
+                    <li><code>get_win_rate</code> / <code>get_drawdown</code> / <code>get_profit_factor</code></li>
+                    <li><code>get_trade_history</code> / <code>get_best_trades</code> / <code>get_worst_trades</code></li>
+                    <li><code>get_symbol_performance</code> / <code>get_trading_hours_analysis</code></li>
+                    <li><code>get_risk_metrics</code> / <code>get_position_sizing</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title" style="margin-bottom:16px;"><span class="step-num" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);">🔬</span> Market Analysis — 3 tools</div>
+            <div class="step-body">
+                <ul style="margin:0 0 0 16px;padding:0;list-style:disc;line-height:2.2;">
+                    <li><code>analyze_market_conditions</code> — Trend, volatility, regime summary</li>
+                    <li><code>get_correlation_matrix</code> — Cross-asset correlation</li>
+                    <li><code>get_volatility_analysis</code> — ATR, historical volatility, range stats</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title" style="margin-bottom:16px;"><span class="step-num" style="background:linear-gradient(135deg,#0891b2,#06b6d4);">🌐</span> Web Content — 8 tools</div>
+            <div class="step-body">
+                <ul style="margin:0 0 0 16px;padding:0;list-style:disc;line-height:2.2;">
+                    <li><code>scrape_url</code> — Fetch and clean text from any URL</li>
+                    <li><code>scrape_multiple_urls</code> — Batch scrape</li>
+                    <li><code>get_page_title</code> / <code>get_page_links</code></li>
+                    <li><code>extract_article_content</code> — Article text extraction</li>
+                    <li><code>search_web_content</code> — Keyword search within a scraped page</li>
+                    <li><code>get_source_name</code> — Derive publisher name from URL</li>
+                    <li><code>get_financial_news</code> — News from Reuters / Yahoo Finance / similar</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+        </div><!-- /main-content -->
+    </div><!-- /page-layout -->
+
+    <!-- Related Guides -->
+    <div class="divider"></div>
+    <div style="margin-bottom:64px;" id="related">
+        <h2 style="font-size:1.3rem;font-weight:700;margin:0 0 20px;">Related Guides</h2>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+            <a href="/get/" class="guide-card">
+                <div class="guide-card-icon" style="background:linear-gradient(135deg,#4f46e5,#6366f1);">
+                    <i data-feather="server" style="width:20px;height:20px;color:#fff;"></i>
+                </div>
+                <div class="guide-card-text">
+                    <h3>API Installation Guide</h3>
+                    <p>Set up the Arrissa Data API on Ubuntu + Caddy, Windows XAMPP, or Windows WAMP.</p>
+                </div>
+                <i data-feather="arrow-right" style="width:18px;height:18px;color:var(--text-secondary);margin-left:auto;flex-shrink:0;"></i>
+            </a>
+            <a href="/get/n8n-install.html" class="guide-card">
+                <div class="guide-card-icon" style="background:linear-gradient(135deg,#ea4b71,#ff6d5a);">
+                    <span style="font-size:1rem;font-weight:900;color:#fff;letter-spacing:-0.04em;">n8n</span>
+                </div>
+                <div class="guide-card-text">
+                    <h3>n8n — Installation Guide</h3>
+                    <p>Automate workflows with n8n and connect it to the Arrissa Data API.</p>
+                </div>
+                <i data-feather="arrow-right" style="width:18px;height:18px;color:var(--text-secondary);margin-left:auto;flex-shrink:0;"></i>
+            </a>
+        </div>
+    </div>
+
+</div><!-- /container -->
+
+<footer>
+    <p>&copy; 2026 Arrissa Data. <a href="https://arrissadata.com/get">arrissadata.com/get</a></p>
+</footer>
+
+<script>
+feather.replace();
+
+function getDomain()  { return (document.getElementById('domainInput').value.trim()  || 'yourdomain.com'); }
+function getPort()    { return (document.getElementById('portInput').value.trim()    || '3000'); }
+function getApiKey()  { return (document.getElementById('apiKeyInput').value.trim()  || 'YOUR_API_KEY'); }
+
+function updateAll() {
+    const domain = getDomain();
+    const port   = getPort();
+    const apiKey = getApiKey();
+
+    // Auth section
+    setText('auth-key-display', apiKey);
+
+    // Caddy block
+    setCode('u-caddy-block', el => el.textContent
+        .replace(/mcp\.yourdomain\.com/g, `mcp.${domain}`)
+        .replace(/yourdomain\.com/g, domain)
+        .replace(/localhost:3000/g, `localhost:${port}`)
+    );
+    setText('u-mcp-path', `https://mcp.${domain}/mcp`);
+
+    // Health / test
+    setCode('u-health-check', el => el.textContent.replace(/mcp\.yourdomain\.com/g, `mcp.${domain}`));
+    setCode('test-health',    el => el.textContent.replace(/mcp\.yourdomain\.com/g, `mcp.${domain}`));
+    setCode('test-init',      el => el.textContent
+        .replace(/mcp\.yourdomain\.com/g, `mcp.${domain}`)
+        .replace(/YOUR_API_KEY/g, apiKey)
+    );
+    setCode('test-unauth',    el => el.textContent.replace(/mcp\.yourdomain\.com/g, `mcp.${domain}`));
+
+    // Claude configs
+    setCode('claude-remote-config', el => el.textContent
+        .replace(/mcp\.yourdomain\.com/g, `mcp.${domain}`)
+        .replace(/YOUR_API_KEY/g, apiKey)
+    );
+    setCode('claude-local-config', el => el.textContent
+        .replace(/localhost:3000/g, `localhost:${port}`)
+        .replace(/YOUR_API_KEY/g, apiKey)
+    );
+    setText('claude-path-note', `https://${domain}/mcp`);
+
+    // Cursor config
+    setCode('cursor-config', el => el.textContent
+        .replace(/mcp\.yourdomain\.com/g, `mcp.${domain}`)
+        .replace(/YOUR_API_KEY/g, apiKey)
+    );
+
+    // systemd unit port
+    setCode('u-service-unit', el => el.textContent.replace(/PORT=3000/g, `PORT=${port}`));
+}
+
+function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+}
+function setCode(id, fn) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!el.dataset.orig) el.dataset.orig = el.textContent;
+    el.textContent = fn({ textContent: el.dataset.orig });
+}
+
+function switchEnv(env) {
+    document.querySelectorAll('.env-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.env-panel').forEach(p => p.classList.remove('active'));
+    const tab = document.querySelector(`.env-tab[onclick="switchEnv('${env}')"]`);
+    if (tab) tab.classList.add('active');
+    const panel = document.getElementById(`panel-${env}`);
+    if (panel) panel.classList.add('active');
+}
+
+function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+        btn.classList.add('copied');
+        btn.innerHTML = '<i data-feather="check" style="width:11px;height:11px;"></i> Copied!';
+        feather.replace();
+        setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<i data-feather="copy" style="width:11px;height:11px;"></i> Copy';
+            feather.replace();
+        }, 2000);
+    });
+}
+
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+});
+
+updateAll();
+</script>
+</body>
+</html>
