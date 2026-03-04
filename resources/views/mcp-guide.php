@@ -302,7 +302,10 @@ sudo systemctl status arrissa-mcp</pre>
                     </div>
                     <div class="mcp-callout mcp-callout-info">
                         <i data-feather="info" class="mcp-callout-icon" style="width:15px;height:15px;color:var(--accent);"></i>
-                        <span>Check logs any time with <code class="mcp-inline">sudo journalctl -u arrissa-mcp -f</code>. To restart after a rebuild: <code class="mcp-inline">sudo systemctl restart arrissa-mcp</code></span>
+                        <div>
+                            <p style="margin:0 0 6px;"><code class="mcp-inline">systemctl status</code> opens in a pager — press <kbd style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:5px;padding:1px 7px;font-size:0.8em;font-family:monospace;color:var(--text-primary);">q</kbd> to exit back to the prompt.</p>
+                            <p style="margin:0;">Follow logs live: <code class="mcp-inline">sudo journalctl -u arrissa-mcp -f</code> &nbsp;|&nbsp; Restart after a rebuild: <code class="mcp-inline">sudo systemctl restart arrissa-mcp</code></p>
+                        </div>
                     </div>
                 </div>
             </div>
