@@ -830,6 +830,10 @@ _Tz8wKpN4::_v();
                     <i data-feather="globe" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">URL API Guide</span>
                 </a>
+                <a href="/tma-cg-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'tma-cg-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'tma-cg-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                    <i data-feather="activity" style="width: 20px; height: 20px;"></i>
+                    <span class="text-base font-medium">TMA + CG API Guide</span>
+                </a>
                 <?php
                     $tmpSubPages = ['tmp-guide', 'tmp-manage'];
                     $tmpGroupOpen = in_array($page ?? '', $tmpSubPages);

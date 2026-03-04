@@ -223,6 +223,38 @@ ob_start();
             </div>
         </div>
 
+        <!-- News Sources Highlight -->
+        <div class="p-5 rounded-2xl mb-6" style="background: linear-gradient(135deg, rgba(16,163,127,0.08), rgba(79,70,229,0.08)); border: 1px solid var(--border);">
+            <div class="flex items-center mb-4">
+                <i data-feather="rss" class="mr-3" style="width:18px;height:18px;color:var(--success);"></i>
+                <h4 class="font-semibold" style="color:var(--text-primary);">Ready-Made Economic News Sources</h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Reuters -->
+                <div class="p-4 rounded-xl" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
+                    <div class="flex items-center mb-2">
+                        <span class="section-badge mr-2" style="background: rgba(239,68,68,0.15); color:#ef4444;">Reuters</span>
+                        <span class="text-xs" style="color:var(--text-muted);">World Economy News</span>
+                    </div>
+                    <pre class="p-3 rounded-lg overflow-x-auto api-code" style="background-color: var(--bg-primary); border: 1px solid var(--border); color: var(--text-secondary); white-space: pre-wrap; word-break: break-all; font-size:0.72rem;"><?php echo htmlspecialchars($baseUrl); ?>/api/url-api
+  ?api_key=<?php echo htmlspecialchars($apiKey); ?>
+  &url=https://www.reuters.com/markets/econ-world/</pre>
+                    <p class="text-xs mt-2" style="color:var(--text-secondary);">Returns <code style="color:var(--accent);">"source_name": "Reuters"</code> — global economic &amp; market news headlines.</p>
+                </div>
+                <!-- Yahoo Finance -->
+                <div class="p-4 rounded-xl" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
+                    <div class="flex items-center mb-2">
+                        <span class="section-badge mr-2" style="background: rgba(99,102,241,0.15); color:#818cf8;">Yahoo Finance</span>
+                        <span class="text-xs" style="color:var(--text-muted);">Economy Topic Feed</span>
+                    </div>
+                    <pre class="p-3 rounded-lg overflow-x-auto api-code" style="background-color: var(--bg-primary); border: 1px solid var(--border); color: var(--text-secondary); white-space: pre-wrap; word-break: break-all; font-size:0.72rem;"><?php echo htmlspecialchars($baseUrl); ?>/api/url-api
+  ?api_key=<?php echo htmlspecialchars($apiKey); ?>
+  &url=https://sg.finance.yahoo.com/topic/economy/</pre>
+                    <p class="text-xs mt-2" style="color:var(--text-secondary);">Returns <code style="color:var(--accent);">"source_name": "Yahoo Finance"</code> — economy topic articles &amp; summaries.</p>
+                </div>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
             <!-- Basic -->
@@ -305,8 +337,7 @@ ob_start();
   "title": "Page Title Here",
   "content": "Extracted readable text...",
   "http_status": 200,
-  "url": "https://example.com",
-  "effective_url": "https://example.com/",
+  "source_name": "Example",
   "content_length": 1842,
   "attempts": 1
 }</pre>

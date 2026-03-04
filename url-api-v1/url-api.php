@@ -55,6 +55,33 @@ function getRandomUserAgent() {
     return $userAgents[array_rand($userAgents)];
 }
 
+function deriveSourceName($url) {
+    $host = strtolower(parse_url($url, PHP_URL_HOST) ?? $url);
+    $host = preg_replace('/^www\./', '', $host);
+    $known = [
+        'reuters.com'           => 'Reuters',
+        'finance.yahoo.com'     => 'Yahoo Finance',
+        'sg.finance.yahoo.com'  => 'Yahoo Finance',
+        'bloomberg.com'         => 'Bloomberg',
+        'investing.com'         => 'Investing.com',
+        'forexfactory.com'      => 'Forex Factory',
+        'tradingeconomics.com'  => 'Trading Economics',
+        'marketwatch.com'       => 'MarketWatch',
+        'cnbc.com'              => 'CNBC',
+        'ft.com'                => 'Financial Times',
+        'wsj.com'               => 'Wall Street Journal',
+        'yahoo.com'             => 'Yahoo Finance',
+    ];
+    foreach ($known as $pattern => $name) {
+        if ($host === $pattern || str_ends_with($host, '.' . $pattern)) {
+            return $name;
+        }
+    }
+    $parts = explode('.', $host);
+    $count = count($parts);
+    return $count >= 2 ? ucfirst($parts[$count - 2]) : ucfirst($host);
+}
+
 function setupAuthentication($ch, $url) {
     // Method 1: Basic HTTP Authentication
     if (isset($_GET['auth_user']) && isset($_GET['auth_pass'])) {
@@ -435,13 +462,13 @@ if (empty($html)) {
 try {
     $extracted = extractMeaningfulContent($html);
     
+    $sourceUrl = !empty($fetchResult['effective_url']) ? $fetchResult['effective_url'] : $url;
     $response = [
         'success' => true,
+        'source_name' => deriveSourceName($sourceUrl),
         'title' => $extracted['title'],
         'content' => $extracted['content'],
         'http_status' => $fetchResult['http_code'],
-        'url' => $url,
-        'effective_url' => $fetchResult['effective_url'],
         'content_length' => strlen($extracted['content']),
         'attempts' => $fetchResult['attempts']
     ];

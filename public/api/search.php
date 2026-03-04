@@ -98,6 +98,20 @@ try {
             'icon' => 'list'
         ],
         [
+            'title' => 'URL API',
+            'keywords' => 'url api fetch scrape web page content html text extract title body http https bearer token basic auth session cookie custom headers proxy request external reuters yahoo finance bloomberg news economic source_name website',
+            'description' => 'Fetch & extract readable text from any URL — Reuters, Yahoo Finance and more',
+            'url' => '/url-api-guide',
+            'icon' => 'globe'
+        ],
+        [
+            'title' => 'TMA + CG API',
+            'keywords' => 'tma cg api triangular moving average center of gravity premium discount zone bands deviation fibonacci upper lower equilibrium buy sell indicator mt5 metatrader signal',
+            'description' => 'TMA bands & premium/discount zone detection',
+            'url' => '/tma-cg-api-guide',
+            'icon' => 'activity'
+        ],
+        [
             'title' => 'Chart Image API',
             'keywords' => 'chart image api screenshot capture png jpg jpeg svg canvas visualization graph',
             'description' => 'Chart image generation endpoint',
