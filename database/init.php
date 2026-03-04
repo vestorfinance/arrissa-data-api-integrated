@@ -484,6 +484,16 @@ try {
             'response_type'     => 'json',
             'enabled'           => 1,
         ],
+        [
+            'category'          => 'economic-calendar',
+            'tool_name'         => 'get_latest_economic_events',
+            'tool_format'       => '{base_url}/news-api-v1/latest-events-api.php?api_key={api_key}',
+            'inputs_explanation'=> "currency     = (optional) comma-separated currency filter  e.g. USD,EUR\nevent_id     = (optional) comma-separated consistent_event_ids  e.g. USD_NFP,EUR_CPI\nimpact       = (optional) comma-separated impact levels: High, Medium, Low\nmust_have    = (optional) actual → only return events that already have an actual value\npretend_date = (optional) treat this date as today YYYY-MM-DD (for backtesting)\npretend_time = (optional) used with pretend_date HH:MM:SS UTC",
+            'description'       => 'Get the latest (most recent) occurrence of every distinct economic event type up to now or a pretend date/time. Returns one row per event type (grouped by consistent_event_id) showing its last known actual, forecast, and previous values.',
+            'search_phrase'     => 'get latest most recent occurrence of every economic event type',
+            'response_type'     => 'json',
+            'enabled'           => 1,
+        ],
         // ── orders ────────────────────────────────────────────────────────────
         [
             'category'          => 'orders',

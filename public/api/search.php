@@ -84,6 +84,13 @@ try {
             'icon' => 'file-text'
         ],
         [
+            'title' => 'Latest Economic Events API',
+            'keywords' => 'latest economic events api most recent last occurrence event type consistent event id currency filter pretend date backtesting actual forecast previous nfp cpi gdp interest rate',
+            'description' => 'Get the most recent occurrence of every economic event type up to now or a pretend date',
+            'url' => '/news-api-guide',
+            'icon' => 'clock'
+        ],
+        [
             'title' => 'Similar Scene API',
             'keywords' => 'similar scene api historical event occurrences pattern analysis machine learning training backtesting correlation market reaction timeframe m1 m30 h1 h4 d1 symbol xauusd eurusd event matching synchronized ohlc candles multi-timeframe scenario replay matching events',
             'description' => 'Historical event patterns with synchronized multi-timeframe market data',

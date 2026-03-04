@@ -115,6 +115,12 @@ if ($uri === '/api/economic-events') {
     exit;
 }
 
+// Handle latest economic events API — one row per event type up to now / pretend_date
+if ($uri === '/api/latest-events') {
+    include __DIR__ . '/news-api-v1/latest-events-api.php';
+    exit;
+}
+
 // Handle TMP categories API (requires api_key)
 if ($uri === '/api/tmp-categories') {
     include __DIR__ . '/public/api/tmp-categories.php';
