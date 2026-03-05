@@ -173,6 +173,12 @@ if ($uri === '/') {
 require_once __DIR__ . '/app/Auth.php';
 Auth::check();
 
+// /help always redirects to dashboard
+if ($uri === '/help') {
+    header('Location: /dashboard');
+    exit;
+}
+
 // Route handling
 switch ($uri) {
     case '/dashboard':
