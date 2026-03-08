@@ -539,7 +539,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 //--------------------------------------------
 function authenticate() {
     global $pdo;
-    $api_key = $_GET['api_key'] ?? null;
+    $api_key = $_GET['api_key'] ?? $_SERVER['HTTP_X_API_KEY'] ?? null;
     if (!$api_key) {
         echo json_encode(['vestor_data' => ['error'=>'Missing API key']]);
         exit;

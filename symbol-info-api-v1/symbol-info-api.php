@@ -132,7 +132,7 @@ function parse_ignore_sunday($ignore_sunday) {
 // Authentication function
 function authenticate() {
     global $db;
-    $api_key = $_GET['api_key'] ?? null;
+    $api_key = $_GET['api_key'] ?? $_SERVER['HTTP_X_API_KEY'] ?? null;
     if (!$api_key) {
         http_response_code(401);
         echo json_encode(['arrissa_data' => ['error'=>'Missing API key']]);

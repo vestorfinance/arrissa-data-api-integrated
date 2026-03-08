@@ -9,6 +9,14 @@ BASE URL  : {base_url}   (e.g. http://localhost  or  https://yourdomain.com)
 API KEY   : {api_key}    (stored in DB settings table, required on every request)
 
 --------------------------------------------------------
+AUTHENTICATION METHODS  (two options — use either one per request)
+  Type 1 — Query parameter  : append ?api_key={api_key} to the URL
+  Type 2 — Request header   : X-API-Key: {api_key}
+                              (use this when you cannot put the key in the URL,
+                               e.g. POST bodies, MCP clients, or secure integrations)
+--------------------------------------------------------
+
+--------------------------------------------------------
 CATEGORIES
   1. market-data         — OHLC candle data from MT5 via EA
   2. chart-images        — Candlestick chart PNG generation
@@ -22,7 +30,7 @@ CATEGORIES
 ========================================================
 CATEGORY: market-data
 Endpoint  : {base_url}/market-data-api-v1/market-data-api.php
-Auth      : ?api_key={api_key}
+Auth      : ?api_key={api_key}  OR  header: X-API-Key: {api_key}
 Requires  : MT5 EA → "Arrissa Data MT5 Market Data API.ex5"
 Response  : JSON  { "vestor_data": { "candles": [...], ... } }
 ========================================================
@@ -163,7 +171,7 @@ search_phrase     : get historical candles at a specific past date and time
 ========================================================
 CATEGORY: chart-images
 Endpoint  : {base_url}/chart-image-api-v1/chart-image-api.php
-Auth      : ?api_key={api_key}
+Auth      : ?api_key={api_key}  OR  header: X-API-Key: {api_key}
 Requires  : MT5 EA → "Arrissa Data MT5 Market Data API.ex5"
 Response  : PNG image  (Content-Type: image/png)
             Exception: streaming=url mode returns JSON
@@ -282,7 +290,7 @@ search_phrase     : open live streaming chart page
 ========================================================
 CATEGORY: economic-calendar
 Endpoint  : {base_url}/news-api-v1/news-api.php
-Auth      : ?api_key={api_key}
+Auth      : ?api_key={api_key}  OR  header: X-API-Key: {api_key}
 Response  : JSON  { "response_for": "...", "vestor_data": { "count": N, "events": [...] } }
 ========================================================
 
@@ -434,7 +442,7 @@ search_phrase     : get all economic events including future scheduled events
 ========================================================
 CATEGORY: economic-calendar (sub: similar-scene)
 Endpoint  : {base_url}/news-api-v1/similar-scene-api.php
-Auth      : ?api_key={api_key}
+Auth      : ?api_key={api_key}  OR  header: X-API-Key: {api_key}
 Response  : JSON  { "vestor_data": { "occurrences": [...], "statistics": {...} } }
 ========================================================
 
@@ -461,7 +469,7 @@ search_phrase     : get historical similar market scenes at economic events
 ========================================================
 CATEGORY: orders
 Endpoint  : {base_url}/orders-api-v1/orders-api.php
-Auth      : ?api_key={api_key}
+Auth      : ?api_key={api_key}  OR  header: X-API-Key: {api_key}
 Requires  : MT5 EA → "Arrissa Data MT5 Orders API.ex5"
 Response  : JSON  { "request_id": "...", "request_type": "...", ... }
 ========================================================
@@ -680,7 +688,7 @@ search_phrase     : get profit and loss summary
 ========================================================
 CATEGORY: market-analysis — Symbol Info
 Endpoint  : {base_url}/symbol-info-api-v1/symbol-info-api.php
-Auth      : ?api_key={api_key}
+Auth      : ?api_key={api_key}  OR  header: X-API-Key: {api_key}
 Requires  : MT5 EA → "Arrissa Data Symbol Info API.ex5"
 Response  : JSON  { "arrissa_data": { "symbol_behaviour_data": {...} } }
 ========================================================
@@ -706,7 +714,7 @@ search_phrase     : get symbol behavior volatility analysis
 ========================================================
 CATEGORY: market-analysis — TMA + CG
 Endpoint  : {base_url}/tma-cg-api-v1/tma-cg-api.php
-Auth      : ?api_key={api_key}
+Auth      : ?api_key={api_key}  OR  header: X-API-Key: {api_key}
 Requires  : MT5 EA → "TMA CG Data EA.ex5"
 Response  : JSON  { "status": "success", "symbol": "...", "zone": "premium|discount|equilibrium",
                     "percentage": float, "current_price": float, "tma_middle": float,
@@ -730,7 +738,7 @@ search_phrase     : get TMA CG premium discount zone and percentage
 ========================================================
 CATEGORY: market-analysis — Quarters Theory
 Endpoint  : {base_url}/quarters-theory-api-v1/quarters-theory-api.php
-Auth      : ?api_key={api_key}
+Auth      : ?api_key={api_key}  OR  header: X-API-Key: {api_key}
 Requires  : MT5 EA → "Richchild Quarters Theory Data EA.ex5"
 Response  : JSON  { "arrissa_data": { "symbol": "...", "quarters_data": {...} } }
 ========================================================
@@ -750,7 +758,7 @@ search_phrase     : get quarters theory price levels and zones
 ========================================================
 CATEGORY: web-content
 Endpoint  : {base_url}/url-api-v1/url-api.php
-Auth      : ?api_key={api_key}  (system API key — auto-injected)
+Auth      : ?api_key={api_key}  OR  header: X-API-Key: {api_key}  (system API key — auto-injected)
 Response  : JSON  { "success": true, "title": "...", "content": "...",
                     "http_status": 200, "url": "...", "content_length": N }
 ========================================================

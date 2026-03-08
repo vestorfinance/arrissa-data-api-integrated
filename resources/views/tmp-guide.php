@@ -164,6 +164,16 @@ ob_start();
         <h2 class="text-2xl font-bold mb-1" style="color: var(--text-primary);">Categories API</h2>
         <p class="text-sm mb-5" style="color: var(--text-secondary);">Returns all tool categories with tool counts. Requires API key.</p>
 
+        <!-- Auth note -->
+        <div class="rounded-2xl p-4 mb-5 flex gap-3" style="background-color: rgba(79,70,229,0.07); border: 1px solid rgba(79,70,229,0.2);">
+            <i data-feather="key" style="width:16px;height:16px;color:var(--accent);flex-shrink:0;margin-top:2px;"></i>
+            <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+                <strong style="color:var(--text-primary);">Auth — two options (use either):</strong><br>
+                Type 1 &mdash; Query param: <code style="color:var(--accent);">?api_key={api_key}</code><br>
+                Type 2 &mdash; Request header: <code style="color:var(--accent);">X-API-Key: {api_key}</code>
+            </p>
+        </div>
+
         <!-- Endpoint -->
         <div class="rounded-2xl p-5 mb-4" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
             <div class="flex items-center justify-between mb-3">
@@ -267,10 +277,18 @@ ob_start();
     <div class="mb-10">
         <h2 class="text-2xl font-bold mb-1" style="color: var(--text-primary);">Tool Capabilities API</h2>
         <p class="text-sm mb-5" style="color: var(--text-secondary);">
-            Returns <code style="color:var(--accent);">search_phrase</code> values for a category — or all categories if none is specified. Used by AI agents to discover what each category can do.
+            Returns <code style="color:var(--accent);">search_phrase</code> values for a category &mdash; or all categories if none is specified. Used by AI agents to discover what each category can do.
         </p>
 
-        <!-- Endpoint box -->
+        <!-- Auth note -->
+        <div class="rounded-2xl p-4 mb-5 flex gap-3" style="background-color: rgba(79,70,229,0.07); border: 1px solid rgba(79,70,229,0.2);">
+            <i data-feather="key" style="width:16px;height:16px;color:var(--accent);flex-shrink:0;margin-top:2px;"></i>
+            <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+                <strong style="color:var(--text-primary);">Auth &mdash; two options (use either):</strong><br>
+                Type 1 &mdash; Query param: <code style="color:var(--accent);">?api_key={api_key}</code><br>
+                Type 2 &mdash; Request header: <code style="color:var(--accent);">X-API-Key: {api_key}</code>
+            </p>
+        </div>
         <div class="rounded-2xl p-5 mb-4" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
             <div class="flex items-center justify-between mb-3">
                 <span class="text-xs font-semibold uppercase tracking-widest" style="color: var(--text-secondary);">Endpoint</span>
@@ -395,10 +413,18 @@ ob_start();
     <div class="mb-10">
         <h2 class="text-2xl font-bold mb-1" style="color: var(--text-primary);">Get Tool API</h2>
         <p class="text-sm mb-5" style="color: var(--text-secondary);">
-            Pass a <code style="color:var(--accent);">search_phrase</code> to receive two fields: <code style="color:var(--accent);">tool_url</code> — the fully-resolved URL with <code style="color:var(--text-primary);">base_url</code> and <code style="color:var(--text-primary);">api_key</code> already substituted — and <code style="color:var(--accent);">inputs_explanation</code> describing each remaining placeholder. The URL is ready to call immediately.
+            Pass a <code style="color:var(--accent);">search_phrase</code> to receive two fields: <code style="color:var(--accent);">tool_url</code> &mdash; the fully-resolved URL with <code style="color:var(--text-primary);">base_url</code> and <code style="color:var(--text-primary);">api_key</code> already substituted &mdash; and <code style="color:var(--accent);">inputs_explanation</code> describing each remaining placeholder. The URL is ready to call immediately.
         </p>
 
-        <!-- Endpoint box -->
+        <!-- Auth note -->
+        <div class="rounded-2xl p-4 mb-5 flex gap-3" style="background-color: rgba(79,70,229,0.07); border: 1px solid rgba(79,70,229,0.2);">
+            <i data-feather="key" style="width:16px;height:16px;color:var(--accent);flex-shrink:0;margin-top:2px;"></i>
+            <p class="text-sm leading-relaxed" style="color: var(--text-secondary);">
+                <strong style="color:var(--text-primary);">Auth &mdash; two options (use either):</strong><br>
+                Type 1 &mdash; Query param: <code style="color:var(--accent);">?api_key={api_key}</code><br>
+                Type 2 &mdash; Request header: <code style="color:var(--accent);">X-API-Key: {api_key}</code>
+            </p>
+        </div>
         <div class="rounded-2xl p-5 mb-4" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
             <div class="flex items-center justify-between mb-3">
                 <span class="text-xs font-semibold uppercase tracking-widest" style="color: var(--text-secondary);">Endpoint</span>

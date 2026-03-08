@@ -20,7 +20,7 @@ try {
     $pdo = $db->getConnection();
 
     // ── Auth ──────────────────────────────────────────────────────────────────
-    $api_key = $_GET['api_key'] ?? null;
+    $api_key = $_GET['api_key'] ?? $_SERVER['HTTP_X_API_KEY'] ?? null;
 
     if (!$api_key) {
         http_response_code(404);

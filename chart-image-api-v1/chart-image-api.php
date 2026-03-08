@@ -74,7 +74,7 @@ if (!$BASE_URL) {
 ///////////////////////
 // 1) Collect & validate
 ///////////////////////
-$apiKey      = $_GET['api_key']      ?? null;
+$apiKey      = $_GET['api_key'] ?? $_SERVER['HTTP_X_API_KEY'] ?? null;
 $symbol      = $_GET['symbol']       ?? null;
 $timeframe   = $_GET['timeframe']    ?? null;
 $count       = isset($_GET['count']) ? (int)$_GET['count'] : 100;
