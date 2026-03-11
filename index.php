@@ -175,6 +175,12 @@ if ($uri === '/api/instance-heartbeat') {
     exit;
 }
 
+// Network stats data — JSON feed for the network-stats page (arrissadata.com only)
+if ($uri === '/api/network-stats-data') {
+    include __DIR__ . '/public/api/network-stats-data.php';
+    exit;
+}
+
 // Front page disabled — redirect to login
 if ($uri === '/') {
     header('Location: /login');
