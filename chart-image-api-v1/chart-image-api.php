@@ -50,6 +50,12 @@
 //   fib           (boolean, optional) - draws Fibonacci retracement levels
 //   period_separators (string, optional) - can be 5M,15M,30M,1H,4H,day,week,month,year
 //   high_low      (boolean, optional) - draws high/low lines for each period segment
+//   entry_price   (float, optional)   - entry price for trade (requires sl + tp to draw SL/TP graphic)
+//   entry_date    (YYYY-MM-DD, optional) - date of trade entry (used to locate entry candle)
+//   entry_time    (HH:MM, optional)   - time of trade entry
+//   sl            (float, optional)   - stop loss price
+//   tp            (float, optional)   - take profit price
+//   forward       (int, optional)     - number of candles to load AFTER entry_date/time to show trade outcome
 // Fetches from vestorfinance API and draws a 16:9 candlestick chart via GD,
 // with optional EMAs, ATR, Fibonacci levels, dynamic height based solely on candle range,
 // padding on the right, full-price precision, left-aligned X-axis labels,
@@ -77,7 +83,7 @@ if (!$BASE_URL) {
 $apiKey      = $_GET['api_key'] ?? $_SERVER['HTTP_X_API_KEY'] ?? null;
 $symbol      = $_GET['symbol']       ?? null;
 $timeframe   = $_GET['timeframe']    ?? null;
-$count       = isset($_GET['count']) ? (int)$_GET['count'] : 100;
+$count       = isset($_GET['count']) ? (int)$_GET['count'] : 150;
 $pretendDate = $_GET['pretend_date'] ?? null;
 $pretendTime = $_GET['pretend_time'] ?? null;
 $rangeType   = $_GET['rangeType']    ?? null;
@@ -90,6 +96,12 @@ $periodSeparators = $_GET['period_separators'] ?? null;
 $showHighLow = isset($_GET['high_low']) && $_GET['high_low'] === 'true';
 $streaming   = $_GET['streaming'] ?? null;
 $theme       = $_GET['theme'] ?? 'light';
+$entryPrice  = isset($_GET['entry_price']) ? (float)$_GET['entry_price'] : null;
+$entryDate   = $_GET['entry_date']         ?? null;
+$entryTime   = $_GET['entry_time']         ?? null;
+$slPrice     = isset($_GET['sl'])          ? (float)$_GET['sl']          : null;
+$tpPrice     = isset($_GET['tp'])          ? (float)$_GET['tp']          : null;
+$forwardCount = isset($_GET['forward'])   ? max(0, (int)$_GET['forward']) : 0;
 
 if (!$apiKey) {
     http_response_code(404);
@@ -162,6 +174,10 @@ $params = [
     'timeframe' => $timeframe,
     'count'     => $count,
 ];
+// entry_date/entry_time take precedence over pretend_date/pretend_time
+if ($entryDate)   $pretendDate = $entryDate;
+if ($entryTime)   $pretendTime = $entryTime;
+
 if ($pretendDate)  $params['pretend_date'] = $pretendDate;
 if ($pretendTime)  $params['pretend_time'] = $pretendTime;
 if ($rangeType)    $params['rangeType']   = $rangeType;
@@ -196,7 +212,57 @@ $origCandles = $data['candles'];
 
 // Keep original order - API returns oldest first, we want oldest on left, newest on right
 $candles = $origCandles;
-$n       = count($candles);
+
+//////////////////////////
+// 4b) Fetch forward candles (after entry time) if requested
+//////////////////////////
+if ($forwardCount > 0 && ($pretendDate || $entryDate)) {
+    // Timestamp of the entry candle
+    $entryTsForForward = strtotime(
+        ($pretendDate ?? date('Y-m-d')) . ' ' . ($pretendTime ?? '00:00')
+    );
+
+    // Compute timeframe interval in seconds so we can build a future pretend_date
+    $tfUpper = strtoupper($timeframe);
+    $tfSeconds = 60; // default 1 minute
+    if      (preg_match('/^M(\d+)$/', $tfUpper, $m))  $tfSeconds = (int)$m[1] * 60;
+    elseif  (preg_match('/^H(\d+)$/', $tfUpper, $m))  $tfSeconds = (int)$m[1] * 3600;
+    elseif  ($tfUpper === 'D1')                        $tfSeconds = 86400;
+    elseif  ($tfUpper === 'W1')                        $tfSeconds = 604800;
+    elseif  ($tfUpper === 'MN1')                       $tfSeconds = 2592000;
+
+    // Set pretend time to entry + forward candles + small buffer (5 extra candles)
+    $fwdEndTs    = $entryTsForForward + ($forwardCount + 5) * $tfSeconds;
+    $fwdEndDate  = date('Y-m-d', $fwdEndTs);
+    $fwdEndTime  = date('H:i', $fwdEndTs);
+
+    $fwdParams = [
+        'api_key'      => $apiKey,
+        'symbol'       => $symbol,
+        'timeframe'    => $timeframe,
+        'count'        => $forwardCount + 10,
+        'pretend_date' => $fwdEndDate,
+        'pretend_time' => $fwdEndTime,
+    ];
+    $fwdRaw = @file_get_contents($BASE_URL . '/market-data-api-v1/market-data-api.php?' . http_build_query($fwdParams));
+    if ($fwdRaw !== false) {
+        $fwdJson = json_decode($fwdRaw, true);
+        $fwdData = isset($fwdJson['vestor_data']) ? $fwdJson['vestor_data'] : $fwdJson;
+        if (isset($fwdData['candles']) && is_array($fwdData['candles'])) {
+            $fwdAppended = 0;
+            foreach ($fwdData['candles'] as $fwdCandle) {
+                $candleTs = parseTimeString($fwdCandle['time']);
+                if ($candleTs !== null && $candleTs > $entryTsForForward) {
+                    $candles[] = $fwdCandle;
+                    $fwdAppended++;
+                    if ($fwdAppended >= $forwardCount) break;
+                }
+            }
+        }
+    }
+}
+
+$n = count($candles);
 if ($n === 0) {
     header('Content-Type: text/plain', true, 502);
     exit('No candle data returned');
@@ -208,10 +274,13 @@ $lastCandle  = $candles[$n-1];   // Newest candle (rightmost on chart)
 
 $closes = array_column($candles, 'close');
 
-// Current price should be the most recent close (last candle)
-$currentPrice = isset($data['currentPrice'])
-    ? (float)$data['currentPrice']
-    : (float)$candles[$n-1]['close'];  // Most recent candle (last in array)
+// When forward candles are loaded, current price = last forward candle's close
+// Otherwise use the API's reported currentPrice
+$currentPrice = $forwardCount > 0
+    ? (float)$candles[$n-1]['close']
+    : (isset($data['currentPrice'])
+        ? (float)$data['currentPrice']
+        : (float)$candles[$n-1]['close']);
 
 //////////////////////////
 // 5) Period Separators Helper Functions
@@ -480,6 +549,12 @@ $highs = array_column($candles, 'high');
 $lows  = array_column($candles, 'low');
 $candleMaxP  = max($highs);  // Actual highest candle point
 $candleMinP  = min($lows);   // Actual lowest candle point
+
+// Expand range to ensure SL, TP, and entry price are visible on chart
+if ($entryPrice !== null) { $candleMaxP = max($candleMaxP, $entryPrice); $candleMinP = min($candleMinP, $entryPrice); }
+if ($slPrice    !== null) { $candleMaxP = max($candleMaxP, $slPrice);    $candleMinP = min($candleMinP, $slPrice); }
+if ($tpPrice    !== null) { $candleMaxP = max($candleMaxP, $tpPrice);    $candleMinP = min($candleMinP, $tpPrice); }
+
 $candleRange = $candleMaxP - $candleMinP;
 if ($candleRange <= 0) $candleRange = 1;
 
@@ -667,6 +742,18 @@ if ($showHighLow && !empty($periodHighLows)) {
     }
 }
 
+// Check trade level label widths (SL/TP/Entry)
+if ($entryPrice !== null || $slPrice !== null || $tpPrice !== null) {
+    foreach ([
+        'Entry ' . number_format((float)($entryPrice ?? 0), $precision, '.', ''),
+        'SL '    . number_format((float)($slPrice    ?? 0), $precision, '.', ''),
+        'TP '    . number_format((float)($tpPrice    ?? 0), $precision, '.', ''),
+    ] as $tradeLbl) {
+        $tradeDims = getTextDimensions($tradeLbl, $fontMedium, 10);
+        $maxLabelW = max($maxLabelW, $tradeDims['width'] + 12);
+    }
+}
+
 // Current price text width
 $priceText = number_format($currentPrice, $precision, '.', '');
 $priceDims = getTextDimensions($priceText, $fontMedium, $labelFontSize);
@@ -690,8 +777,9 @@ $marginBottom = 80;
 // chart dims
 $chartWFull = $W - $marginLeft - $marginRight; // Total width available
 $chartW     = $chartWFull; // Full width for grid and axes
-$rightPaddingPercent = 0.05; // 5% padding between last candle and price axis
-$candleAreaW = $chartW * (1 - $rightPaddingPercent); // Width for candles only (95%)
+// When SL/TP overlay is shown without forward candles, extend right padding to give the graphic room
+$rightPaddingPercent = ($entryPrice !== null && $slPrice !== null && $tpPrice !== null && $forwardCount === 0) ? 0.25 : 0.05;
+$candleAreaW = $chartW * (1 - $rightPaddingPercent); // Width for candles only
 $xStepFull  = $candleAreaW / $n; // Step size for candles
 $chartX0    = $marginLeft;
 $chartY0    = $marginTop;
@@ -779,9 +867,91 @@ for ($dx=0; $dx<2; $dx++){
 //////////////////////////
 // 19) Title
 //////////////////////////
+
+// Pre-compute trade status badge (used next to title)
+$tradeBadgeText  = null;
+$tradeBadgeBgCol = null;
+if ($entryPrice !== null && $slPrice !== null && $tpPrice !== null) {
+    $isBuyEarly = $tpPrice > $entryPrice;
+    if ($forwardCount > 0 && $n > 0) {
+        // Scan forward candles for first TP/SL hit
+        $preEntryIdx = 0;
+        if ($entryDate || $entryTime) {
+            $preTsTarget = strtotime(($entryDate ?? date('Y-m-d')) . ' ' . ($entryTime ?? '00:00'));
+            $preMinDiff  = PHP_INT_MAX;
+            for ($i = 0; $i < $n; $i++) {
+                $cts = parseTimeString($candles[$i]['time']);
+                if ($cts !== null) {
+                    $d = abs($cts - $preTsTarget);
+                    if ($d < $preMinDiff) { $preMinDiff = $d; $preEntryIdx = $i; }
+                }
+            }
+        }
+        $preOutcome = null;
+        for ($i = $preEntryIdx + 1; $i < $n; $i++) {
+            $hi = (float)$candles[$i]['high'];
+            $lo = (float)$candles[$i]['low'];
+            if ($isBuyEarly) {
+                if ($hi >= $tpPrice)  { $preOutcome = 'tp'; break; }
+                if ($lo <= $slPrice)  { $preOutcome = 'sl'; break; }
+            } else {
+                if ($lo <= $tpPrice)  { $preOutcome = 'tp'; break; }
+                if ($hi >= $slPrice)  { $preOutcome = 'sl'; break; }
+            }
+        }
+        if ($preOutcome === 'tp') {
+            $tradeBadgeText  = 'TP HIT';
+            $tradeBadgeBgCol = imagecolorallocate($img, 38, 166, 154);  // Teal
+        } elseif ($preOutcome === 'sl') {
+            $tradeBadgeText  = 'SL HIT';
+            $tradeBadgeBgCol = imagecolorallocate($img, 239, 83, 80);   // Red
+        } else {
+            // Neither hit — check current price side
+            $lastClose = (float)$candles[$n - 1]['close'];
+            $inProfitNow = $isBuyEarly ? ($lastClose > $entryPrice) : ($lastClose < $entryPrice);
+            if ($inProfitNow) {
+                $tradeBadgeText  = 'RUNNING PROFIT';
+                $tradeBadgeBgCol = imagecolorallocate($img, 38, 166, 154);  // Teal
+            } else {
+                $tradeBadgeText  = 'DRAWDOWN';
+                $tradeBadgeBgCol = imagecolorallocate($img, 239, 83, 80);   // Red
+            }
+        }
+    } else {
+        // No forward candles — just show direction
+        $tradeBadgeText  = $isBuyEarly ? 'LONG' : 'SHORT';
+        $tradeBadgeBgCol = $isBuyEarly
+            ? imagecolorallocate($img, 38, 166, 154)
+            : imagecolorallocate($img, 239, 83, 80);
+    }
+}
+
 $title = "{$symbol} {$timeframe} Chart by flowbase.com";
 $titleDims = getTextDimensions($title, $fontSemiBold, $titleFontSize);
-$titleX = intval(($W - $titleDims['width']) / 2);
+
+// Draw badge next to title if trade overlay is active
+if ($tradeBadgeText !== null) {
+    $badgeFontSize = 11;
+    $badgePadX = 10; $badgePadY = 5;
+    $badgeDims = getTextDimensions($tradeBadgeText, $fontBold, $badgeFontSize);
+    $badgeW    = $badgeDims['width']  + $badgePadX * 2;
+    $badgeH    = $badgeDims['height'] + $badgePadY * 2;
+    $gap       = 12;
+    $totalW    = $titleDims['width'] + $gap + $badgeW;
+    $titleX    = intval(($W - $totalW) / 2);
+    $badgeX    = $titleX + $titleDims['width'] + $gap;
+    $badgeY1   = intval(35 - $titleDims['height'] - 2);
+    $badgeY2   = intval($badgeY1 + $badgeH);
+    // Draw rounded-rectangle badge (simulate with filled rect)
+    imagefilledrectangle($img, $badgeX, $badgeY1, $badgeX + $badgeW, $badgeY2, $tradeBadgeBgCol);
+    imagettftext($img, $badgeFontSize, 0,
+        $badgeX + $badgePadX,
+        intval($badgeY1 + $badgePadY + $badgeDims['height']),
+        $white, $fontBold, $tradeBadgeText
+    );
+} else {
+    $titleX = intval(($W - $titleDims['width']) / 2);
+}
 imagettftext($img, $titleFontSize, 0, $titleX, 35, $textColor, $fontSemiBold, $title);
 
 //////////////////////////
@@ -938,7 +1108,214 @@ if ($showHighLow && !empty($periodHighLows)) {
 }
 
 //////////////////////////
-// 26) Current price line & label with red triangle
+// 26) SL/TP Trade Level Overlays
+//////////////////////////
+if ($entryPrice !== null && $slPrice !== null && $tpPrice !== null) {
+    // Find the closest candle to entry_date + entry_time
+    $entryIdx = 0;
+    if ($entryDate || $entryTime) {
+        $entryTsTarget = strtotime(($entryDate ?? date('Y-m-d')) . ' ' . ($entryTime ?? '00:00'));
+        $minDiff = PHP_INT_MAX;
+        for ($i = 0; $i < $n; $i++) {
+            $candleTs = parseTimeString($candles[$i]['time']);
+            if ($candleTs !== null) {
+                $diff = abs($candleTs - $entryTsTarget);
+                if ($diff < $minDiff) {
+                    $minDiff = $diff;
+                    $entryIdx = $i;
+                }
+            }
+        }
+    }
+
+    $xEntry = intval($chartX0 + $entryIdx * $xStep + $xStep / 2);
+    $xRight = intval($chartX0 + $chartW);
+
+    // When no forward candles, extend lines 5% of chart width beyond the last candle
+    $xLineEnd = $forwardCount > 0 ? $xRight : intval($chartX0 + ($n + $n * 0.25) * $xStep);
+
+    $yEntry = intval($chartY0 + ($maxP - $entryPrice) * $ysf);
+    $ySL    = intval($chartY0 + ($maxP - $slPrice) * $ysf);
+    $yTP    = intval($chartY0 + ($maxP - $tpPrice) * $ysf);
+
+    $slLineColor    = imagecolorallocate($img, 239, 83, 80);   // Red
+    $tpLineColor    = imagecolorallocate($img, 38, 166, 154);  // Teal/Green
+    $entryLineColor = imagecolorallocate($img, 255, 152, 0);   // Orange
+
+    // Risk/Reward calculation
+    $risk   = abs($entryPrice - $slPrice);
+    $reward = abs($tpPrice - $entryPrice);
+    $rr     = $risk > 0 ? round($reward / $risk, 2) : 0;
+    $isBuy  = $tpPrice > $entryPrice; // long if TP above entry
+
+    // Semi-transparent zone fills (alpha: 0=opaque, 127=fully transparent)
+    imagealphablending($img, true);
+    $slFillColor = imagecolorallocatealpha($img, 239, 83, 80, 100);
+    $tpFillColor = imagecolorallocatealpha($img, 38, 166, 154, 100);
+
+    // Draw SL zone (shaded region between entry price and SL)
+    imagefilledrectangle($img,
+        $xEntry, min($yEntry, $ySL),
+        $xLineEnd, max($yEntry, $ySL),
+        $slFillColor
+    );
+
+    // Draw TP zone (shaded region between entry price and TP)
+    imagefilledrectangle($img,
+        $xEntry, min($yEntry, $yTP),
+        $xLineEnd, max($yEntry, $yTP),
+        $tpFillColor
+    );
+
+    // Draw vertical dashed line at entry candle
+    drawDashedLine($img, $xEntry, $chartY0, $xEntry, intval($chartY0 + $chartH), $entryLineColor, 4, 3);
+
+    // Draw Entry price line (thick dashed orange) from entry candle to line end
+    for ($offset = -1; $offset <= 1; $offset++) {
+        drawDashedLine($img, $xEntry, $yEntry + $offset, $xLineEnd, $yEntry + $offset, $entryLineColor);
+    }
+
+    // Draw SL line (thick dashed red) from entry candle to line end
+    for ($offset = -1; $offset <= 1; $offset++) {
+        drawDashedLine($img, $xEntry, $ySL + $offset, $xLineEnd, $ySL + $offset, $slLineColor);
+    }
+
+    // Draw TP line (thick dashed teal) from entry candle to line end
+    for ($offset = -1; $offset <= 1; $offset++) {
+        drawDashedLine($img, $xEntry, $yTP + $offset, $xLineEnd, $yTP + $offset, $tpLineColor);
+    }
+
+    // Draw entry marker: filled circle at entry price on entry candle
+    imagefilledellipse($img, $xEntry, $yEntry, 14, 14, $entryLineColor);
+    imageellipse($img, $xEntry, $yEntry, 16, 16, $white);
+
+    // ---------------------------------------------------------------
+    // Diagonal dashed line: entry → first hit (TP or SL), or current price if neither hit
+    // ---------------------------------------------------------------
+    $diagColor = imagecolorallocate($img, 160, 160, 160);
+
+    // Scan forward candles to find first TP or SL hit
+    $diagEndX     = $xLineEnd;
+    $diagEndPrice = $tpPrice; // default: aim at TP
+    $diagEndColor = $diagColor;
+    $tradeOutcome = null; // 'tp', 'sl', or null
+
+    if ($forwardCount > 0 && $entryIdx < $n - 1) {
+        for ($i = $entryIdx + 1; $i < $n; $i++) {
+            $hi = (float)$candles[$i]['high'];
+            $lo = (float)$candles[$i]['low'];
+            $cx2 = intval($chartX0 + $i * $xStep + $xStep / 2);
+
+            // Check TP hit first, then SL (for buy: TP above, SL below; for sell: reversed)
+            if ($isBuy) {
+                if ($hi >= $tpPrice && $lo <= $slPrice) {
+                    // Both hit same candle — use whichever is closer to entry close
+                    $tradeOutcome = 'tp'; // assume TP for ambiguous case
+                    $diagEndX = $cx2; $diagEndPrice = $tpPrice; $diagEndColor = $tpLineColor; break;
+                } elseif ($hi >= $tpPrice) {
+                    $tradeOutcome = 'tp';
+                    $diagEndX = $cx2; $diagEndPrice = $tpPrice; $diagEndColor = $tpLineColor; break;
+                } elseif ($lo <= $slPrice) {
+                    $tradeOutcome = 'sl';
+                    $diagEndX = $cx2; $diagEndPrice = $slPrice; $diagEndColor = $slLineColor; break;
+                }
+            } else {
+                if ($lo <= $tpPrice && $hi >= $slPrice) {
+                    $tradeOutcome = 'tp';
+                    $diagEndX = $cx2; $diagEndPrice = $tpPrice; $diagEndColor = $tpLineColor; break;
+                } elseif ($lo <= $tpPrice) {
+                    $tradeOutcome = 'tp';
+                    $diagEndX = $cx2; $diagEndPrice = $tpPrice; $diagEndColor = $tpLineColor; break;
+                } elseif ($hi >= $slPrice) {
+                    $tradeOutcome = 'sl';
+                    $diagEndX = $cx2; $diagEndPrice = $slPrice; $diagEndColor = $slLineColor; break;
+                }
+            }
+        }
+
+        // If neither hit, end at last candle's actual close price
+        if ($tradeOutcome === null) {
+            $lastClose    = (float)$candles[$n - 1]['close'];
+            $diagEndX     = intval($chartX0 + ($n - 1) * $xStep + $xStep / 2);
+            $diagEndPrice = $lastClose;
+            $diagEndColor = $diagColor;
+        }
+    }
+
+    // Only draw diagonal and outcome marker if TP or SL was actually hit
+    if ($tradeOutcome !== null) {
+        $diagEndY = intval($chartY0 + ($maxP - $diagEndPrice) * $ysf);
+        for ($offset = -1; $offset <= 1; $offset++) {
+            drawDashedLine($img, $xEntry, $yEntry + $offset, $diagEndX, $diagEndY + $offset, $diagEndColor, 6, 4);
+        }
+        imagefilledellipse($img, $diagEndX, $diagEndY, 12, 12, $diagEndColor);
+        imageellipse($img, $diagEndX, $diagEndY, 14, 14, $white);
+    }
+
+    // Draw R:R badge inside the TP zone (TradingView style)
+    $rrText     = '1:' . $rr . ' ' . ($isBuy ? 'LONG' : 'SHORT');
+    $rrFontSize = 11;
+    $rrDims     = getTextDimensions($rrText, $fontBold, $rrFontSize);
+    $rrX        = intval($xEntry + 10);
+    // Vertically center in TP zone
+    $rrY        = intval((min($yEntry, $yTP) + max($yEntry, $yTP)) / 2 + $rrDims['height'] / 2);
+    // Only draw if zone is tall enough
+    if (abs($yEntry - $yTP) > $rrDims['height'] + 8) {
+        imagettftext($img, $rrFontSize, 0, $rrX, $rrY, $tpLineColor, $fontBold, $rrText);
+    }
+
+    // Draw R label inside SL zone
+    $riskText  = 'R';
+    $riskDims  = getTextDimensions($riskText, $fontBold, $rrFontSize);
+    $riskX     = intval($xEntry + 10);
+    $riskY     = intval((min($yEntry, $ySL) + max($yEntry, $ySL)) / 2 + $riskDims['height'] / 2);
+    if (abs($yEntry - $ySL) > $riskDims['height'] + 8) {
+        imagettftext($img, $rrFontSize, 0, $riskX, $riskY, $slLineColor, $fontBold, $riskText);
+    }
+
+    // Draw labeled colored boxes on right side for Entry, SL, TP
+    $tradeLabFontSize = 10;
+    $labPad = 4;
+    $drawTradeLabel = function(string $text, int $yPos, int $color) use (&$img, $xRight, $white, $fontMedium, $tradeLabFontSize, $labPad) {
+        $dims = getTextDimensions($text, $fontMedium, $tradeLabFontSize);
+        $lx   = $xRight + 6;
+        $ly1  = intval($yPos - $dims['height'] / 2 - $labPad);
+        $lx2  = intval($lx + $dims['width'] + $labPad * 2);
+        $ly2  = intval($yPos + $dims['height'] / 2 + $labPad);
+        imagefilledrectangle($img, $lx, $ly1, $lx2, $ly2, $color);
+        imagettftext($img, $tradeLabFontSize, 0,
+            intval($lx + $labPad),
+            intval($yPos + $dims['height'] / 2),
+            $white, $fontMedium, $text
+        );
+    };
+
+    $drawTradeLabel('Entry ' . number_format($entryPrice, $precision, '.', ''), $yEntry, $entryLineColor);
+    $drawTradeLabel('SL '    . number_format($slPrice,    $precision, '.', ''), $ySL,    $slLineColor);
+    $drawTradeLabel('TP '    . number_format($tpPrice,    $precision, '.', ''), $yTP,    $tpLineColor);
+
+    // Draw R:R summary box (bottom-left of trade zone area)
+    $rrSummary     = '1:' . $rr . ' R:R  |  Risk ' . number_format($risk, $precision, '.', '') . '  |  Reward ' . number_format($reward, $precision, '.', '');
+    $rrSummarySize = 10;
+    $rrSummaryDims = getTextDimensions($rrSummary, $fontSemiBold, $rrSummarySize);
+    $rrSummaryX    = intval($xEntry + 8);
+    $rrSummaryY    = intval(max($yEntry, $ySL, $yTP) + $rrSummaryDims['height'] + 8);
+    // Keep inside chart
+    if ($rrSummaryY < intval($chartY0 + $chartH) - 4) {
+        $bgPad = 4;
+        imagefilledrectangle($img,
+            $rrSummaryX - $bgPad,
+            $rrSummaryY - $rrSummaryDims['height'] - $bgPad,
+            $rrSummaryX + $rrSummaryDims['width'] + $bgPad,
+            $rrSummaryY + $bgPad,
+            $theme === 'dark' ? $black : $white
+        );
+        imagettftext($img, $rrSummarySize, 0, $rrSummaryX, $rrSummaryY, $textColor, $fontSemiBold, $rrSummary);
+    }
+}
+
+//////////////////////////
+// 27) Current price line & label with red triangle
 //////////////////////////
 $yCurrent = intval($chartY0 + ($maxP - $currentPrice) * $ysf);
 $lineCol  = imagecolorallocate($img,200,0,0);

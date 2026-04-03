@@ -492,14 +492,126 @@ ob_start();
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">Historical date for backtesting charts</td>
                         </tr>
-                        <tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">pretend_time</code></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">HH:MM</td>
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">Historical time for backtesting charts</td>
                         </tr>
+                        <!-- Trade Overlay Parameters -->
+                        <tr style="border-bottom: 1px solid var(--border); background-color: rgba(255,152,0,0.04);">
+                            <td class="py-4 px-6" colspan="4"><span class="text-xs font-bold uppercase tracking-wider" style="color: #ff9800;">Trade Overlay Parameters (SL / TP)</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: rgba(255,152,0,0.15); color: #ff9800;">entry_price</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">float</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Trade entry price. Required together with <code>sl</code> and <code>tp</code> to draw the trade overlay.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: rgba(255,152,0,0.15); color: #ff9800;">entry_date</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">YYYY-MM-DD</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Date of trade entry. Automatically sets <code>pretend_date</code> so candles are fetched as of entry time.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: rgba(255,152,0,0.15); color: #ff9800;">entry_time</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">HH:MM</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Time of trade entry. Automatically sets <code>pretend_time</code>.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: rgba(239,83,80,0.15); color: #ef5350;">sl</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">float</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Stop loss price. Draws a red dashed line with red shaded risk zone between entry and SL.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: rgba(38,166,154,0.15); color: #26a69a;">tp</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">float</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Take profit price. Draws a teal dashed line with green shaded reward zone between entry and TP.</td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: rgba(38,166,154,0.15); color: #26a69a;">forward</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">integer</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Number of candles to load <strong>after</strong> entry time to show how the trade played out. The diagonal dashed line ends at the first candle that hits TP or SL, or at the last close if neither was hit.</td>
+                        </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Trade Overlay Section -->
+    <div class="mb-10">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, #ff9800, #ef5350);">
+                <i data-feather="trending-up" style="width: 24px; height: 24px; color: white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">Trade Overlay — SL / TP</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">TradingView-style SL and TP zones, risk:reward ratio, and outcome diagonal</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="p-5 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center mb-3" style="background-color: rgba(255,152,0,0.2);">
+                    <i data-feather="crosshair" style="width: 16px; height: 16px; color: #ff9800;"></i>
+                </div>
+                <h4 class="text-sm font-semibold mb-1" style="color: var(--text-primary);">Entry Marker</h4>
+                <p class="text-xs" style="color: var(--text-secondary);">Orange circle at the exact entry candle + vertical dashed line marking the timestamp</p>
+            </div>
+            <div class="p-5 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center mb-3" style="background-color: rgba(239,83,80,0.2);">
+                    <i data-feather="shield" style="width: 16px; height: 16px; color: #ef5350;"></i>
+                </div>
+                <h4 class="text-sm font-semibold mb-1" style="color: var(--text-primary);">SL Zone</h4>
+                <p class="text-xs" style="color: var(--text-secondary);">Red dashed line + translucent red zone between entry and stop loss. &ldquo;R&rdquo; label inside zone.</p>
+            </div>
+            <div class="p-5 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center mb-3" style="background-color: rgba(38,166,154,0.2);">
+                    <i data-feather="target" style="width: 16px; height: 16px; color: #26a69a;"></i>
+                </div>
+                <h4 class="text-sm font-semibold mb-1" style="color: var(--text-primary);">TP Zone</h4>
+                <p class="text-xs" style="color: var(--text-secondary);">Teal dashed line + translucent green zone. Shows <code>1:X R:R LONG/SHORT</code> label inside zone.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="p-5 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center mb-3" style="background-color: rgba(160,160,160,0.15);">
+                    <i data-feather="git-commit" style="width: 16px; height: 16px; color: #aaa;"></i>
+                </div>
+                <h4 class="text-sm font-semibold mb-1" style="color: var(--text-primary);">Outcome Diagonal (requires <code>forward</code>)</h4>
+                <p class="text-xs" style="color: var(--text-secondary);">Dashed diagonal from entry to the first candle that hits TP (teal) or SL (red). Ends at last candle close (gray) if neither was hit.</p>
+            </div>
+            <div class="p-5 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center mb-3" style="background-color: rgba(255,152,0,0.2);">
+                    <i data-feather="bar-chart" style="width: 16px; height: 16px; color: #ff9800;"></i>
+                </div>
+                <h4 class="text-sm font-semibold mb-1" style="color: var(--text-primary);">R:R Summary Bar</h4>
+                <p class="text-xs" style="color: var(--text-secondary);">Auto-drawn below the zones: <code>1:X R:R | Risk [amount] | Reward [amount]</code></p>
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl mb-4" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Example — Entry view (no forward candles)</h3>
+            <p class="text-xs mb-3" style="color: var(--text-secondary);">Shows the trade setup as it looked at entry. SL/TP zones extend to the right edge of the chart.</p>
+            <div class="p-4 rounded-xl api-code text-xs overflow-x-auto" style="background-color: var(--bg-primary); color: var(--accent); border: 1px solid var(--input-border);">
+                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=BTCUSD&amp;timeframe=M1&amp;count=60&amp;entry_price=67826.31&amp;entry_date=2026-03-31&amp;entry_time=20:00&amp;sl=67454.80&amp;tp=68292.46</pre>
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Example — With forward candles (trade outcome)</h3>
+            <p class="text-xs mb-3" style="color: var(--text-secondary);">Loads 100 candles after entry. Diagonal ends at the candle where price first hits TP or SL.</p>
+            <div class="p-4 rounded-xl api-code text-xs overflow-x-auto" style="background-color: var(--bg-primary); color: var(--accent); border: 1px solid var(--input-border);">
+                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=BTCUSD&amp;timeframe=M1&amp;count=60&amp;entry_price=67826.31&amp;entry_date=2026-03-31&amp;entry_time=20:00&amp;sl=67454.80&amp;tp=68292.46&amp;forward=100</pre>
             </div>
         </div>
     </div>
@@ -684,7 +796,7 @@ ob_start();
         <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Ready to Generate Charts?</h3>
         <p class="text-sm mb-4" style="color: var(--text-secondary);">All examples use your configured API key and endpoint. Click any example above to view the generated chart.</p>
         <div class="text-xs" style="color: var(--text-secondary);">
-            <p><strong style="color: var(--text-primary);">Features:</strong> 16:9 aspect ratio, professional styling, EMA/ATR indicators, Fibonacci levels, period separators, live streaming (500ms refresh), dark/light themes, backtesting support</p>
+            <p><strong style="color: var(--text-primary);">Features:</strong> 16:9 aspect ratio, professional styling, EMA/ATR indicators, Fibonacci levels, period separators, live streaming (500ms refresh), dark/light themes, backtesting support, SL/TP trade overlays with R:R ratio &amp; outcome diagonal</p>
         </div>
     </div>
 </div>
