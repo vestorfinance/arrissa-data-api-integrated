@@ -447,12 +447,12 @@ function validate_request_parameters($params) {
     return $errors;
 }
 
-// Garbage-collect stale files older than 60 s
+// Garbage-collect stale files older than 35 s (just above the 30 s request timeout)
 foreach (glob("$queueDir/*.req.json") as $f) {
     if (!is_file($f) || filemtime($f) === false) {
         continue;
     }
-    if (filemtime($f) < time() - 60) {
+    if (filemtime($f) < time() - 35) {
         @unlink($f);
         @unlink(str_replace('.req.json', '.res.json', $f));
     }
@@ -461,7 +461,7 @@ foreach (glob("$queueDir/*.res.json") as $f) {
     if (!is_file($f) || filemtime($f) === false) {
         continue;
     }
-    if (filemtime($f) < time() - 60) {
+    if (filemtime($f) < time() - 35) {
         @unlink($f);
     }
 }
@@ -673,8 +673,12 @@ if ($symbol && $rangeType) {
               ($volumeInfo['detected'] ? " with volume: {$volumeInfo['parameter']}=" . ($volumeInfo['enabled'] ? 'true' : 'false') : ""));
 
     $start   = time();
-    $timeout = 240;
+    $timeout = 30;
     while (time() - $start < $timeout) {
+        // If our req file was garbage-collected by another process, abort early
+        if (!file_exists($reqFile) && !file_exists($resFile)) {
+            break;
+        }
         if (file_exists($resFile)) {
             $response = json_decode(file_get_contents($resFile), true);
             if (!empty($response['request_id']) && $response['request_id'] === $request_id) {
@@ -713,6 +717,8 @@ if ($symbol && $rangeType) {
         usleep(200000);
     }
 
+    // Timeout: cancel the pending request so the EA does not process it
+    @unlink($reqFile);
     http_response_code(504);
     debug_log("Client GET timeout waiting for EA for request_id=$request_id");
     echo json_encode(['vestor_data' => ['error'=>'Timeout waiting for Data Server']]);
@@ -818,8 +824,12 @@ elseif ($symbol && $timeframe && $count) {
               ($volumeInfo['detected'] ? " with volume: {$volumeInfo['parameter']}=" . ($volumeInfo['enabled'] ? 'true' : 'false') : ""));
 
     $start   = time();
-    $timeout = 240;
+    $timeout = 30;
     while (time() - $start < $timeout) {
+        // If our req file was garbage-collected by another process, abort early
+        if (!file_exists($reqFile) && !file_exists($resFile)) {
+            break;
+        }
         if (file_exists($resFile)) {
             $response = json_decode(file_get_contents($resFile), true);
             if (!empty($response['request_id']) && $response['request_id'] === $request_id) {
@@ -854,6 +864,8 @@ elseif ($symbol && $timeframe && $count) {
         usleep(200000);
     }
 
+    // Timeout: cancel the pending request so the EA does not process it
+    @unlink($reqFile);
     http_response_code(504);
     debug_log("Client GET timeout waiting for EA for request_id=$request_id");
     echo json_encode(['vestor_data' => ['error'=>'Timeout waiting for Data Server']]);
