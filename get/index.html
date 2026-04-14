@@ -455,7 +455,13 @@ sudo chmod -R 775 /var/www/arrissa/market-data-api-v1/queue
 sudo chmod -R 775 /var/www/arrissa/orders-api-v1/queue
 sudo chmod -R 775 /var/www/arrissa/tma-cg-api-v1/queue
 sudo chmod -R 775 /var/www/arrissa/quarters-theory-api-v1/queue
-sudo chmod -R 775 /var/www/arrissa/symbol-info-api-v1/queue</pre>
+sudo chmod -R 775 /var/www/arrissa/symbol-info-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/database
+sudo chown -R www-data:www-data /var/www/arrissa/market-data-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/orders-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/tma-cg-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/quarters-theory-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/symbol-info-api-v1/queue</pre>
                     </div>
                 </div>
             </div>
