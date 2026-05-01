@@ -24,6 +24,20 @@ try {
     die("DB connection failed: " . $e->getMessage() . "\n");
 }
 
+// Add missing columns if they don't exist (older schema compatibility)
+$existingCols = array_column(
+    $db->query("PRAGMA table_info(tools)")->fetchAll(),
+    'name'
+);
+if (!in_array('auth_method', $existingCols)) {
+    $db->exec("ALTER TABLE tools ADD COLUMN auth_method TEXT DEFAULT 'api_key_query'");
+    echo "Added column: auth_method\n";
+}
+if (!in_array('response_type', $existingCols)) {
+    $db->exec("ALTER TABLE tools ADD COLUMN response_type TEXT DEFAULT 'json'");
+    echo "Added column: response_type\n";
+}
+
 // Resolve orders category id
 $catRow = $db->query("SELECT id FROM tool_categories WHERE name = 'orders'")->fetch();
 if (!$catRow) {
