@@ -748,7 +748,11 @@ try {
             $cleanName = preg_replace('/[^a-z0-9]+/', '_',
                           trim(strtolower(preg_replace('/\s*\([^)]*\)/','',$matches[0]['event_name'])),'_'));
 
-            $grouped[$cleanName] = ['count' => count($matches), 'events' => []];
+            // Use event ID as key to guarantee uniqueness across different event IDs
+            // that may share the same sanitized event name
+            $groupKey = strtolower($eid);
+
+            $grouped[$groupKey] = ['event_id' => $eid, 'event_name_key' => $cleanName, 'count' => count($matches), 'events' => []];
             foreach ($matches as $ev) {
                 if ($display === 'min') {
                     $item = [
@@ -766,9 +770,9 @@ try {
                     if (!is_null($ev["previous_value"]) && $ev["previous_value"] !== '') {
                         $item["previous_value"] = $ev["previous_value"];
                     }
-                    $grouped[$cleanName]['events'][] = $item;
+                    $grouped[$groupKey]['events'][] = $item;
                 } else {
-                    $grouped[$cleanName]['events'][] = $ev;
+                    $grouped[$groupKey]['events'][] = $ev;
                 }
             }
         }
