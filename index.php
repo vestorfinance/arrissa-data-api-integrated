@@ -238,6 +238,9 @@ switch ($uri) {
     case '/quarters-theory-api-guide':
         $page = 'quarters-theory-api-guide';
         break;
+    case '/time-machine-ml-api-guide':
+        $page = 'time-machine-ml-api-guide';
+        break;
     case '/tma-cg-api-guide':
         $page = 'tma-cg-api-guide';
         break;
