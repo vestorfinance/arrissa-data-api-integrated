@@ -26,7 +26,25 @@ if (PHP_OS_FAMILY === 'Windows') {
     // Linux/macOS: use sudo update.sh which fixes .git ownership then pulls
     // Requires sudoers entry: www-data ALL=(ALL) NOPASSWD: /path/to/update.sh
     $updateScript = $repoPath . '/update.sh';
-    exec("sudo " . escapeshellarg($updateScript) . " 2>&1", $output, $exitCode);
+
+    if (!file_exists($updateScript)) {
+        http_response_code(200);
+        echo json_encode([
+            'success' => false,
+            'error'   => 'update.sh not found',
+            'output'  => "Expected update script at: $updateScript",
+        ]);
+        exit;
+    }
+
+    if (!is_executable($updateScript)) {
+        $output[] = "Warning: update.sh is not executable; falling back to bash invocation.";
+        $cmd = 'sudo bash ' . escapeshellarg($updateScript) . ' 2>&1';
+    } else {
+        $cmd = 'sudo ' . escapeshellarg($updateScript) . ' 2>&1';
+    }
+
+    exec($cmd, $output, $exitCode);
 }
 
 $outputStr = implode("\n", $output);
