@@ -176,16 +176,14 @@ void ProcessApiRequest(string request_json)
 }
 
 //+------------------------------------------------------------------+
-// Scan confirmed bars for the nearest swing LOW below entry (BUY SL)
-// or nearest swing HIGH above entry (SELL SL).
-// "Nearest" means closest in PRICE to entry (most recent structural level).
-// Returns -1 if no qualifying swing found.
+// Returns the MOST RECENT confirmed swing low below entry (BUY SL)
+// or most recent confirmed swing high above entry (SELL SL).
+// Scans from bar 2 (newest confirmed) outward — first hit wins.
+// Returns -1 if no qualifying swing found within lookback.
 //+------------------------------------------------------------------+
 double FindInvalidationSwing(string symbol, ENUM_TIMEFRAMES tf,
                               int lookback, bool is_buy, double entry)
 {
-    double best = -1.0;
-
     for(int i = 2; i <= lookback; i++)
     {
         if(is_buy)
@@ -193,46 +191,30 @@ double FindInvalidationSwing(string symbol, ENUM_TIMEFRAMES tf,
             double lo      = iLow(symbol, tf, i);
             double lo_prev = iLow(symbol, tf, i + 1);
             double lo_next = iLow(symbol, tf, i - 1);
-
-            // Must be a confirmed swing low AND below entry (trade invalidated if broken)
             if(lo < lo_prev && lo < lo_next && lo < entry)
-            {
-                // Take the HIGHEST qualifying low (nearest to entry from below)
-                if(best < 0.0 || lo > best)
-                    best = lo;
-            }
+                return lo;   // most recent swing low below entry — stop here
         }
         else
         {
             double hi      = iHigh(symbol, tf, i);
             double hi_prev = iHigh(symbol, tf, i + 1);
             double hi_next = iHigh(symbol, tf, i - 1);
-
-            // Must be a confirmed swing high AND above entry
             if(hi > hi_prev && hi > hi_next && hi > entry)
-            {
-                // Take the LOWEST qualifying high (nearest to entry from above)
-                if(best < 0.0 || hi < best)
-                    best = hi;
-            }
+                return hi;   // most recent swing high above entry — stop here
         }
     }
-
-    return best;
+    return -1.0;
 }
 
 //+------------------------------------------------------------------+
-// Scan confirmed bars for the nearest swing HIGH above entry (BUY TP)
-// or nearest swing LOW below entry (SELL TP).
-// These are the structures the market is LIKELY TO TURN AND REJECT at.
-// TP is placed just BEFORE them, not at or beyond them.
-// Returns -1 if no qualifying structure found.
+// Returns the MOST RECENT confirmed swing high above entry (BUY TP)
+// or most recent confirmed swing low below entry (SELL TP).
+// Scans from bar 2 outward — first hit wins.
+// Returns -1 if no qualifying structure found within lookback.
 //+------------------------------------------------------------------+
 double FindTargetStructure(string symbol, ENUM_TIMEFRAMES tf,
                             int lookback, bool is_buy, double entry)
 {
-    double best = -1.0;
-
     for(int i = 2; i <= lookback; i++)
     {
         if(is_buy)
@@ -240,32 +222,19 @@ double FindTargetStructure(string symbol, ENUM_TIMEFRAMES tf,
             double hi      = iHigh(symbol, tf, i);
             double hi_prev = iHigh(symbol, tf, i + 1);
             double hi_next = iHigh(symbol, tf, i - 1);
-
-            // Must be a confirmed swing high AND above entry (resistance to trade into)
             if(hi > hi_prev && hi > hi_next && hi > entry)
-            {
-                // Take the LOWEST qualifying high (nearest resistance above entry)
-                if(best < 0.0 || hi < best)
-                    best = hi;
-            }
+                return hi;   // most recent resistance above entry — stop here
         }
         else
         {
             double lo      = iLow(symbol, tf, i);
             double lo_prev = iLow(symbol, tf, i + 1);
             double lo_next = iLow(symbol, tf, i - 1);
-
-            // Must be a confirmed swing low AND below entry (support to trade into)
             if(lo < lo_prev && lo < lo_next && lo < entry)
-            {
-                // Take the HIGHEST qualifying low (nearest support below entry)
-                if(best < 0.0 || lo > best)
-                    best = lo;
-            }
+                return lo;   // most recent support below entry — stop here
         }
     }
-
-    return best;
+    return -1.0;
 }
 
 //+------------------------------------------------------------------+
@@ -299,42 +268,43 @@ bool CalculateSLTP(string    symbol,
     double pip_size = (digits == 5 || digits == 3) ? point * 10.0 : point;
 
     // --- Trade-type config ---
-    // sl_lookback : bars scanned for the invalidation swing (SL side)
-    // tp_lookback : bars scanned for the target structure (TP side)
-    //               wider than SL lookback — resistance/support can be further away
-    // atr_sl_mult : ATR floor — SL is never tighter than this even if swing is close
-    // buffer_mult : fraction of ATR added as margin beyond each structure
-    // fallback_rr : used ONLY if no TP structure is found after the full scan
+    // sl_lookback : bars back to scan for the structural SL level
+    // tp_lookback : bars back to scan for the structural TP level
+    //               (wider than SL — TP target can be a few bars further)
+    // atr_sl_mult : ATR floor — SL is never tighter than this (protects against
+    //               a swing that's basically AT entry price)
+    // buffer_mult : fraction of ATR used as margin just beyond each structure
+    // fallback_rr : R:R multiple used ONLY when no TP structure is found at all
     ENUM_TIMEFRAMES tf;
     int    sl_lookback, tp_lookback;
     double atr_sl_mult, buffer_mult, fallback_rr;
 
     if(trade_type == "scalp")
     {
-        tf           = PERIOD_M5;
-        sl_lookback  = 15;
-        tp_lookback  = 30;
-        atr_sl_mult  = 1.0;
-        buffer_mult  = 0.2;
+        tf           = PERIOD_M1;
+        sl_lookback  = 10;    // last ~10 mins — very recent structure only
+        tp_lookback  = 20;    // last ~20 mins
+        atr_sl_mult  = 0.8;   // floor: just enough to clear the spread
+        buffer_mult  = 0.1;   // tight buffer — scalp precision
         fallback_rr  = 1.5;
     }
     else if(trade_type == "swing")
     {
-        tf           = PERIOD_H1;
-        sl_lookback  = 20;
-        tp_lookback  = 50;
-        atr_sl_mult  = 1.5;
-        buffer_mult  = 0.3;
+        tf           = PERIOD_M15;
+        sl_lookback  = 20;    // last ~5 h of M15 structure
+        tp_lookback  = 35;    // last ~9 h
+        atr_sl_mult  = 1.0;
+        buffer_mult  = 0.2;
         fallback_rr  = 2.0;
     }
     else // long-term
     {
-        tf           = PERIOD_H4;
-        sl_lookback  = 30;
-        tp_lookback  = 60;
-        atr_sl_mult  = 2.0;
-        buffer_mult  = 0.5;
-        fallback_rr  = 3.0;
+        tf           = PERIOD_M30;
+        sl_lookback  = 24;    // last ~12 h of M30 structure
+        tp_lookback  = 48;    // last ~24 h
+        atr_sl_mult  = 1.2;
+        buffer_mult  = 0.3;
+        fallback_rr  = 2.5;
     }
 
     // --- Entry price ---
@@ -370,38 +340,37 @@ bool CalculateSLTP(string    symbol,
     }
 
     double buffer      = buffer_mult * atr_value;
-    double min_sl_dist = atr_sl_mult  * atr_value;
+    double min_sl_dist = atr_sl_mult * atr_value;
 
     // ================================================================
-    // STOP LOSS — just beyond the structural level that invalidates
+    // STOP LOSS — just beyond the most recent structural level that
+    // invalidates the trade. No artificial cap — structure decides.
     // ================================================================
 
     double inv_swing = FindInvalidationSwing(symbol, tf, sl_lookback, is_buy, entry_price);
 
     if(inv_swing > 0.0)
     {
-        sl_method = is_buy ? "swing_low" : "swing_high";
-        if(is_buy)
-            sl_price = inv_swing - buffer;
-        else
-            sl_price = inv_swing + buffer;
+        double candidate_sl   = is_buy ? inv_swing - buffer : inv_swing + buffer;
+        double candidate_dist = MathAbs(entry_price - candidate_sl);
 
-        // Enforce ATR floor — never let stop be irrationally tight
-        double actual_sl_dist = MathAbs(entry_price - sl_price);
-        if(actual_sl_dist < min_sl_dist)
+        if(candidate_dist < min_sl_dist)
         {
-            sl_price  = is_buy
-                        ? entry_price - min_sl_dist
-                        : entry_price + min_sl_dist;
-            sl_method = "atr_floor";  // swing found but too close — ATR floor applied
+            // Swing found but basically at entry — widen to ATR floor so we
+            // clear the spread and avoid a guaranteed stop-out
+            sl_price  = is_buy ? entry_price - min_sl_dist : entry_price + min_sl_dist;
+            sl_method = "atr_floor";
+        }
+        else
+        {
+            sl_price  = candidate_sl;
+            sl_method = is_buy ? "swing_low" : "swing_high";
         }
     }
     else
     {
-        // No qualifying swing in lookback window — pure ATR fallback
-        sl_price  = is_buy
-                    ? entry_price - min_sl_dist
-                    : entry_price + min_sl_dist;
+        // No qualifying swing in lookback window — ATR fallback
+        sl_price  = is_buy ? entry_price - min_sl_dist : entry_price + min_sl_dist;
         sl_method = "atr_based";
     }
 
