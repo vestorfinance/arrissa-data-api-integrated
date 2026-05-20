@@ -130,7 +130,7 @@ ob_start();
                 <div class="text-sm font-medium" style="color: var(--text-primary);">Server Setup</div>
                 <div class="text-xs mt-0.5" style="color: var(--text-secondary);">Run once on your Linux server to create queue directories and set permissions. Also runs automatically on every update.</div>
             </div>
-            <button onclick="copyServerSetup()" class="text-xs px-3 py-2 rounded-lg font-medium flex items-center gap-1.5 flex-shrink-0 ml-4" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+            <button onclick="copyServerSetup(this)" class="text-xs px-3 py-2 rounded-lg font-medium flex items-center gap-1.5 flex-shrink-0 ml-4" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
                 <i data-feather="copy" style="width: 13px; height: 13px;"></i>
                 Copy
             </button>
@@ -145,7 +145,7 @@ ob_start();
             <div class="mb-1.5" style="color: var(--text-secondary);">Add this line to <code style="background:var(--bg-tertiary);padding:1px 4px;border-radius:3px;">/etc/sudoers</code> via <code style="background:var(--bg-tertiary);padding:1px 4px;border-radius:3px;">sudo visudo</code>:</div>
             <div class="flex items-center gap-2">
                 <code id="sudoersLine" class="flex-1 p-2 rounded font-mono" style="background:var(--input-bg);color:var(--text-primary);border:1px solid var(--input-border);word-break:break-all;">www-data ALL=(ALL) NOPASSWD: /bin/bash /var/www/arrissa/update.sh</code>
-                <button onclick="copySudoers()" class="flex-shrink-0 text-xs px-2 py-1.5 rounded-lg flex items-center gap-1" style="background:var(--input-bg);color:var(--text-primary);border:1px solid var(--input-border);">
+                <button onclick="copySudoers(this)" class="flex-shrink-0 text-xs px-2 py-1.5 rounded-lg flex items-center gap-1" style="background:var(--input-bg);color:var(--text-primary);border:1px solid var(--input-border);">
                     <i data-feather="copy" style="width:11px;height:11px;"></i> Copy
                 </button>
             </div>
@@ -376,22 +376,20 @@ function copyApiKey(btn) {
     } catch (e) { el.textContent = ''; }
 })();
 
-function copyServerSetup() {
+function copyServerSetup(btn) {
     const text = document.getElementById('serverSetupCmds').textContent;
+    const orig = btn.innerHTML;
     navigator.clipboard.writeText(text).then(() => {
-        const btn = event.currentTarget;
-        const orig = btn.innerHTML;
         btn.innerHTML = '<i data-feather="check" style="width:13px;height:13px;"></i> Copied';
         feather.replace();
         setTimeout(() => { btn.innerHTML = orig; feather.replace(); }, 2000);
     });
 }
 
-function copySudoers() {
+function copySudoers(btn) {
     const text = document.getElementById('sudoersLine').textContent;
+    const orig = btn.innerHTML;
     navigator.clipboard.writeText(text).then(() => {
-        const btn = event.currentTarget;
-        const orig = btn.innerHTML;
         btn.innerHTML = '<i data-feather="check" style="width:11px;height:11px;"></i> Copied';
         feather.replace();
         setTimeout(() => { btn.innerHTML = orig; feather.replace(); }, 2000);
