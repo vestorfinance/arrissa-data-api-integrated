@@ -123,6 +123,56 @@ ob_start();
         <div id="updateOutput" style="display:none;" class="mt-3 p-3 rounded-lg text-xs font-mono whitespace-pre-wrap break-all" style="background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-secondary); max-height: 160px; overflow-y: auto;"></div>
     </div>
 
+    <!-- Server Setup -->
+    <div class="p-4 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+        <div class="flex justify-between items-center mb-3">
+            <div>
+                <div class="text-sm font-medium" style="color: var(--text-primary);">Server Setup</div>
+                <div class="text-xs mt-0.5" style="color: var(--text-secondary);">Run once on your Linux server to create queue directories and set permissions. Also runs automatically on every update.</div>
+            </div>
+            <button onclick="copyServerSetup()" class="text-xs px-3 py-2 rounded-lg font-medium flex items-center gap-1.5 flex-shrink-0 ml-4" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                <i data-feather="copy" style="width: 13px; height: 13px;"></i>
+                Copy
+            </button>
+        </div>
+        <pre id="serverSetupCmds" class="p-3 rounded-lg text-xs font-mono whitespace-pre overflow-x-auto" style="background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-primary);">sudo chown -R www-data:www-data /var/www/arrissa
+sudo find /var/www/arrissa -type d -exec chmod 755 {} \;
+sudo find /var/www/arrissa -type f -exec chmod 644 {} \;
+sudo mkdir -p /var/www/arrissa/database
+sudo mkdir -p /var/www/arrissa/market-data-api-v1/queue
+sudo mkdir -p /var/www/arrissa/orders-api-v1/queue
+sudo mkdir -p /var/www/arrissa/symbol-info-api-v1/queue
+sudo mkdir -p /var/www/arrissa/tma-cg-api-v1/queue
+sudo mkdir -p /var/www/arrissa/quarters-theory-api-v1/queue
+sudo mkdir -p /var/www/arrissa/time-machine-ml-api-v1/queue
+sudo mkdir -p /var/www/arrissa/risk-management-api-v1/queue
+sudo mkdir -p /var/www/arrissa/chart-image-api-v1/queue
+sudo mkdir -p /var/www/arrissa/news-api-v1/queue
+sudo mkdir -p /var/www/arrissa/url-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/database
+sudo chmod -R 775 /var/www/arrissa/market-data-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/orders-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/symbol-info-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/tma-cg-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/quarters-theory-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/time-machine-ml-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/risk-management-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/chart-image-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/news-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/url-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/database
+sudo chown -R www-data:www-data /var/www/arrissa/market-data-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/orders-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/symbol-info-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/tma-cg-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/quarters-theory-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/time-machine-ml-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/risk-management-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/chart-image-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/news-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/url-api-v1/queue</pre>
+    </div>
+
     <!-- ── Arrissa AI Chat Settings ── -->
     <div id="chat-settings" class="p-4 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
         <div class="flex items-center justify-between mb-4">
@@ -309,6 +359,17 @@ function copyApiKey(btn) {
         }
     } catch (e) { el.textContent = ''; }
 })();
+
+function copyServerSetup() {
+    const text = document.getElementById('serverSetupCmds').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.currentTarget;
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-feather="check" style="width:13px;height:13px;"></i> Copied';
+        feather.replace();
+        setTimeout(() => { btn.innerHTML = orig; feather.replace(); }, 2000);
+    });
+}
 
 async function pullUpdates() {
     const btn = document.getElementById('updateBtn');

@@ -834,6 +834,10 @@ _Tz8wKpN4::_v();
                     <i data-feather="clock" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Time Machine ML API Guide</span>
                 </a>
+                <a href="/risk-management-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'risk-management-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'risk-management-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                    <i data-feather="shield" style="width: 20px; height: 20px;"></i>
+                    <span class="text-base font-medium">Risk Management API Guide</span>
+                </a>
                 <a href="/url-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'url-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'url-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="globe" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">URL API Guide</span>

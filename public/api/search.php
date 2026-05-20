@@ -119,6 +119,13 @@ try {
             'icon' => 'activity'
         ],
         [
+            'title' => 'Risk Management API',
+            'keywords' => 'risk management api stop loss take profit sl tp atr swing point scalp swing long-term trade direction buy sell rr ratio pip distance position size volatility m1 m15 m30 gbpusd eurusd xauusd usdjpy forex gold atr14 swing low swing high structure expert advisor ea mt5 metatrader',
+            'description' => 'On-demand optimal SL & TP via ATR + swing-point analysis — scalp, swing, and long-term profiles',
+            'url' => '/risk-management-api-guide',
+            'icon' => 'shield'
+        ],
+        [
             'title' => 'Chart Image API',
             'keywords' => 'chart image api screenshot capture png jpg jpeg svg canvas visualization graph',
             'description' => 'Chart image generation endpoint',

@@ -229,6 +229,21 @@ ob_start();
             </div>
         </a>
 
+        <!-- Risk Management API -->
+        <a href="/risk-management-api-guide" class="api-card block rounded-2xl overflow-hidden transition-all duration-200 group" data-keywords="risk management api stop loss take profit sl tp atr swing point scalp swing long-term trade direction buy sell rr ratio pip distance position size volatility m15 h4 d1 gbpusd eurusd xauusd usdjpy forex gold atr14 swing low swing high structure" style="background-color: var(--card-bg); border: 1px solid var(--border);" onmouseover="this.style.borderColor='var(--input-border)'; this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.borderColor='var(--border)'; this.style.backgroundColor='var(--card-bg)';">
+            <div class="p-6">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
+                    <i data-feather="shield" class="group-hover-icon" style="width: 24px; height: 24px; color: var(--text-secondary);"></i>
+                </div>
+                <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">Risk Management API</h3>
+                <p class="text-sm mb-6 leading-relaxed" style="color: var(--text-secondary);">On-demand optimal SL &amp; TP via ATR + swing-point analysis — scalp, swing, and long-term profiles.</p>
+                <span class="inline-flex items-center text-sm font-medium px-4 py-2 rounded-lg transition-all" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                    View Guide
+                    <i data-feather="arrow-right" class="ml-2" style="width: 16px; height: 16px;"></i>
+                </span>
+            </div>
+        </a>
+
         <!-- URL API -->
         <a href="/url-api-guide" class="api-card block rounded-2xl overflow-hidden transition-all duration-200 group" data-keywords="url api fetch scrape web page content html text extract title body http https bearer token basic auth session cookie custom headers proxy request external" style="background-color: var(--card-bg); border: 1px solid var(--border);" onmouseover="this.style.borderColor='var(--input-border)'; this.style.backgroundColor='var(--bg-secondary)';" onmouseout="this.style.borderColor='var(--border)'; this.style.backgroundColor='var(--card-bg)';">
             <div class="p-6">

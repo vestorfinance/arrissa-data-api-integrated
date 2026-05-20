@@ -227,9 +227,34 @@ string BuildPayload(string symbol)
         );
     }
 
-    // Current H1 developing range at effective time
-    double run_high   = iHigh (symbol, PERIOD_H1, h1_shift);
-    double run_low    = iLow  (symbol, PERIOD_H1, h1_shift);
+    // Current H1 developing range at effective time.
+    // In pretend mode we CANNOT use iHigh/iLow on the H1 bar directly — that
+    // returns the bar's *final* high/low (look-ahead).  Instead we walk the
+    // completed M1 bars that have elapsed inside the current H1 period.
+    // In live mode bar[0] is truly developing, so the direct read is fine.
+    double run_high, run_low;
+    if(g_use_pretend_time && bars_into_hour > 0)
+    {
+        run_high = iOpen(symbol, PERIOD_H1, h1_shift);
+        run_low  = iOpen(symbol, PERIOD_H1, h1_shift);
+        for(int _i = 1; _i <= bars_into_hour; _i++)
+        {
+            double _h = iHigh(symbol, PERIOD_M1, m1_shift + _i);
+            double _l = iLow (symbol, PERIOD_M1, m1_shift + _i);
+            if(_h > run_high) run_high = _h;
+            if(_l < run_low)  run_low  = _l;
+        }
+    }
+    else if(g_use_pretend_time) // bars_into_hour == 0: only the forming M1 bar, no completed data
+    {
+        run_high = iOpen(symbol, PERIOD_H1, h1_shift);
+        run_low  = iOpen(symbol, PERIOD_H1, h1_shift);
+    }
+    else
+    {
+        run_high = iHigh(symbol, PERIOD_H1, 0);
+        run_low  = iLow (symbol, PERIOD_H1, 0);
+    }
     double cur_close  = iClose(symbol, PERIOD_M1, m1_shift + 1);
     double close_3ago = iClose(symbol, PERIOD_M1, m1_shift + 4);
 

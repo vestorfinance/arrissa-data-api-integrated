@@ -241,6 +241,9 @@ switch ($uri) {
     case '/time-machine-ml-api-guide':
         $page = 'time-machine-ml-api-guide';
         break;
+    case '/risk-management-api-guide':
+        $page = 'risk-management-api-guide';
+        break;
     case '/tma-cg-api-guide':
         $page = 'tma-cg-api-guide';
         break;
