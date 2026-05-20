@@ -135,6 +135,22 @@ ob_start();
                 Copy
             </button>
         </div>
+
+        <!-- sudoers one-liner — required for the Pull Updates button -->
+        <div class="mb-3 p-3 rounded-lg text-xs" style="background-color: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3);">
+            <div class="font-semibold mb-1.5 flex items-center gap-1.5" style="color: var(--warning);">
+                <i data-feather="alert-triangle" style="width:13px;height:13px;"></i>
+                Required for the Pull Updates button to work
+            </div>
+            <div class="mb-1.5" style="color: var(--text-secondary);">Add this line to <code style="background:var(--bg-tertiary);padding:1px 4px;border-radius:3px;">/etc/sudoers</code> via <code style="background:var(--bg-tertiary);padding:1px 4px;border-radius:3px;">sudo visudo</code>:</div>
+            <div class="flex items-center gap-2">
+                <code id="sudoersLine" class="flex-1 p-2 rounded font-mono" style="background:var(--input-bg);color:var(--text-primary);border:1px solid var(--input-border);word-break:break-all;">www-data ALL=(ALL) NOPASSWD: /bin/bash /var/www/arrissa/update.sh</code>
+                <button onclick="copySudoers()" class="flex-shrink-0 text-xs px-2 py-1.5 rounded-lg flex items-center gap-1" style="background:var(--input-bg);color:var(--text-primary);border:1px solid var(--input-border);">
+                    <i data-feather="copy" style="width:11px;height:11px;"></i> Copy
+                </button>
+            </div>
+            <div class="mt-1.5 text-xs" style="color: var(--text-secondary);">First-time fix (before sudoers is set): run <code style="background:var(--bg-tertiary);padding:1px 4px;border-radius:3px;">sudo bash /var/www/arrissa/update.sh</code> directly in your terminal.</div>
+        </div>
         <pre id="serverSetupCmds" class="p-3 rounded-lg text-xs font-mono whitespace-pre overflow-x-auto" style="background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-primary);">sudo chown -R www-data:www-data /var/www/arrissa
 sudo find /var/www/arrissa -type d -exec chmod 755 {} \;
 sudo find /var/www/arrissa -type f -exec chmod 644 {} \;
@@ -366,6 +382,17 @@ function copyServerSetup() {
         const btn = event.currentTarget;
         const orig = btn.innerHTML;
         btn.innerHTML = '<i data-feather="check" style="width:13px;height:13px;"></i> Copied';
+        feather.replace();
+        setTimeout(() => { btn.innerHTML = orig; feather.replace(); }, 2000);
+    });
+}
+
+function copySudoers() {
+    const text = document.getElementById('sudoersLine').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.currentTarget;
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i data-feather="check" style="width:11px;height:11px;"></i> Copied';
         feather.replace();
         setTimeout(() => { btn.innerHTML = orig; feather.replace(); }, 2000);
     });

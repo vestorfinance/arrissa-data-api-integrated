@@ -50,6 +50,33 @@ if (PHP_OS_FAMILY === 'Windows') {
 $outputStr = implode("\n", $output);
 
 if ($exitCode !== 0) {
+    // Detect missing sudoers entry — give an actionable error instead of raw sudo output
+    $isSudoError = stripos($outputStr, 'a password is required') !== false
+                || stripos($outputStr, 'sudo: no tty present') !== false
+                || stripos($outputStr, 'askpass') !== false;
+
+    if ($isSudoError) {
+        $installDir = realpath($repoPath);
+        $scriptPath = $installDir . '/update.sh';
+        http_response_code(200);
+        echo json_encode([
+            'success' => false,
+            'error'   => 'sudo not configured',
+            'output'  => implode("\n", [
+                "ERROR: www-data does not have passwordless sudo access.",
+                "",
+                "Run this ONCE on your server to fix it:",
+                "  sudo bash $scriptPath",
+                "",
+                "Then add this line to /etc/sudoers (sudo visudo):",
+                "  www-data ALL=(ALL) NOPASSWD: /bin/bash $scriptPath",
+                "",
+                "After saving sudoers, the Update button will work permanently.",
+            ]),
+        ]);
+        exit;
+    }
+
     http_response_code(200);
     echo json_encode([
         'success' => false,

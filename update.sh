@@ -8,6 +8,9 @@
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# This script is invoked as: sudo bash update.sh (from update-app.php)
+# It therefore runs as root — no internal sudo calls needed.
+
 # Fix ownership so both www-data and the repo owner can write to .git
 chown -R www-data:www-data "$REPO_DIR/.git"
 chmod -R g+rwX "$REPO_DIR/.git"
@@ -21,7 +24,7 @@ git clean -fd 2>&1
 # Pull latest code
 git pull origin main 2>&1
 
-# Fix permissions on queue and database directories
+# Create queue directories and fix permissions
 echo "Fixing permissions..."
 bash "$REPO_DIR/fix-permissions.sh" 2>&1
 
@@ -30,7 +33,6 @@ echo "Running database migrations..."
 php "$REPO_DIR/database/run-migrations.php" 2>&1
 
 # Gracefully reload Apache so new code is picked up without dropping live connections
-# (SIGUSR1 — child processes finish their current requests before reloading)
 if command -v apache2ctl >/dev/null 2>&1; then
     apache2ctl graceful 2>&1
     echo "Apache graceful reload triggered."

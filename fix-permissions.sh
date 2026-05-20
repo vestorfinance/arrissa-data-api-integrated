@@ -1,8 +1,9 @@
 #!/bin/bash
 # fix-permissions.sh
-# Run this on your server to fix queue/database directory permissions.
-# Usage: sudo bash fix-permissions.sh
-# Also called automatically by update.sh on every git pull.
+# Creates queue directories and sets correct ownership/permissions.
+#
+# Called automatically by update.sh on every git pull (runs as root).
+# Can also be run manually: sudo bash fix-permissions.sh
 
 set -e
 
@@ -11,11 +12,11 @@ INSTALL_DIR="/var/www/arrissa"
 echo "=== Fixing permissions for $INSTALL_DIR ==="
 
 # Base ownership and permissions
-sudo chown -R www-data:www-data "$INSTALL_DIR"
-sudo find "$INSTALL_DIR" -type d -exec chmod 755 {} \;
-sudo find "$INSTALL_DIR" -type f -exec chmod 644 {} \;
+chown -R www-data:www-data "$INSTALL_DIR"
+find "$INSTALL_DIR" -type d -exec chmod 755 {} \;
+find "$INSTALL_DIR" -type f -exec chmod 644 {} \;
 
-# Ensure writable directories exist and have correct permissions
+# Writable directories — created if missing, then made group-writable
 WRITABLE_DIRS=(
     "$INSTALL_DIR/database"
     "$INSTALL_DIR/market-data-api-v1/queue"
@@ -31,9 +32,9 @@ WRITABLE_DIRS=(
 )
 
 for dir in "${WRITABLE_DIRS[@]}"; do
-    sudo mkdir -p "$dir"
-    sudo chmod -R 775 "$dir"
-    sudo chown -R www-data:www-data "$dir"
+    mkdir -p "$dir"
+    chmod -R 775 "$dir"
+    chown -R www-data:www-data "$dir"
     echo "  Fixed: $dir"
 done
 
