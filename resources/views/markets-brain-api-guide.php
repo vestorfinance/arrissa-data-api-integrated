@@ -142,7 +142,7 @@ ob_start();
                         </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: #10B981;"></i>
-                            <span><strong>Regime Detection:</strong> Classifies market as EMA_RANGING, EMA_BULL_STACK, EMA_BEAR_STACK, or ATR_ELEVATED based on multi-module convergence</span>
+                            <span><strong>Regime Detection:</strong> Classifies EMA structure as EMA_MIXED, EMA_SHORT_ABOVE_LONG, EMA_LONG_ABOVE_SHORT, or ATR_ELEVATED based on multi-module convergence</span>
                         </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: #10B981;"></i>
@@ -524,7 +524,7 @@ ob_start();
         "score":          0.312,     // -1 (bearish) to +1 (bullish) weighted synthesis
         "confidence":     0.68,      // |score| x (1 - conflict x 0.4)
         "conflict":       0.24,      // 0 = all modules agree, 1 = maximum disagreement
-        "regime":         "EMA_BULL_STACK", // EMA_RANGING | EMA_BULL_STACK | EMA_BEAR_STACK | ATR_ELEVATED
+        "regime":         "EMA_SHORT_ABOVE_LONG", // EMA_MIXED | EMA_SHORT_ABOVE_LONG | EMA_LONG_ABOVE_SHORT | ATR_ELEVATED
         "trap_active":    false,
         "trap_score":    -0.05,
         "atr":            0.00890,
@@ -591,7 +591,7 @@ ob_start();
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="px-5 py-3"><code style="color: #10B981;">brain.regime</code></td>
                             <td class="px-5 py-3" style="color: var(--text-secondary);">string</td>
-                            <td class="px-5 py-3" style="color: var(--text-secondary);"><code>EMA_RANGING</code> — EMAs are flat/mixed, no stack. <code>EMA_BULL_STACK</code> — fast &gt; slow &gt; long EMA alignment observed. <code>EMA_BEAR_STACK</code> — fast &lt; slow &lt; long EMA alignment observed. <code>ATR_ELEVATED</code> — high conflict with ATR above recent average.</td>
+                            <td class="px-5 py-3" style="color: var(--text-secondary);"><code>EMA_MIXED</code> — EMAs are interleaved with no clear ordering. <code>EMA_SHORT_ABOVE_LONG</code> — short-period EMA is positioned above long-period EMA. <code>EMA_LONG_ABOVE_SHORT</code> — long-period EMA is positioned above short-period EMA. <code>ATR_ELEVATED</code> — high conflict with ATR above recent average.</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="px-5 py-3"><code style="color: #10B981;">brain.trap_active</code></td>
@@ -677,21 +677,21 @@ ob_start();
                 <div class="space-y-3">
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #10B981;">
                         <div class="flex items-center mb-1">
-                            <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">EMA_BULL_STACK</span>
+                            <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">EMA_SHORT_ABOVE_LONG</span>
                         </div>
-                        <p class="text-xs" style="color: var(--text-secondary);">Fast EMA is above slow EMA, which is above long EMA. EMAs are in ascending order — the observed structure is bullish stacking.</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">Short-period EMA is currently positioned above long-period EMA. All three EMAs are in short-to-long order by price level.</p>
                     </div>
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #EF4444;">
                         <div class="flex items-center mb-1">
-                            <span class="method-badge mr-2" style="background: rgba(239,68,68,0.15); color: #EF4444;">EMA_BEAR_STACK</span>
+                            <span class="method-badge mr-2" style="background: rgba(239,68,68,0.15); color: #EF4444;">EMA_LONG_ABOVE_SHORT</span>
                         </div>
-                        <p class="text-xs" style="color: var(--text-secondary);">Fast EMA is below slow EMA, which is below long EMA. EMAs are in descending order — the observed structure is bearish stacking.</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">Long-period EMA is currently positioned above short-period EMA. All three EMAs are in long-to-short order by price level.</p>
                     </div>
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #F59E0B;">
                         <div class="flex items-center mb-1">
-                            <span class="method-badge mr-2" style="background: rgba(245,158,11,0.15); color: #F59E0B;">EMA_RANGING</span>
+                            <span class="method-badge mr-2" style="background: rgba(245,158,11,0.15); color: #F59E0B;">EMA_MIXED</span>
                         </div>
-                        <p class="text-xs" style="color: var(--text-secondary);">EMAs are flat or interleaved with no clear stack alignment. Module scores are mixed and conflict is elevated.</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">EMAs are interleaved with no consistent ordering by price level. Module scores are mixed and conflict is elevated.</p>
                     </div>
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #8B5CF6;">
                         <div class="flex items-center mb-1">

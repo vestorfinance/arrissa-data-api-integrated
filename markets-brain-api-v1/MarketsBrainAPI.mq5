@@ -1312,10 +1312,10 @@ string EscapeJson(string s)
 string RegimeStr()
 {
     switch(g_b.regime) {
-        case TREND_UP:   return "EMA_BULL_STACK";
-        case TREND_DOWN: return "EMA_BEAR_STACK";
+        case TREND_UP:   return "EMA_SHORT_ABOVE_LONG";
+        case TREND_DOWN: return "EMA_LONG_ABOVE_SHORT";
         case VOLATILE:   return "ATR_ELEVATED";
-        default:         return "EMA_RANGING";
+        default:         return "EMA_MIXED";
     }
 }
 
