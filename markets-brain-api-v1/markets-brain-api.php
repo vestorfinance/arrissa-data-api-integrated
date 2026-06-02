@@ -176,7 +176,7 @@ if ($symbol) {
     $start   = time();
     $timeout = 15; // more computation than risk management
 
-    $plainMode = (($_GET['format'] ?? '') === 'plain');
+    $jsonMode = (($_GET['format'] ?? '') === 'json');
 
     while (time() - $start < $timeout) {
         if (file_exists($resFile)) {
@@ -185,26 +185,26 @@ if ($symbol) {
                 @unlink($reqFile);
                 @unlink($resFile);
 
-                if ($plainMode) {
-                    // Return only the thought strings, one per line
-                    header('Content-Type: text/plain; charset=utf-8');
-                    $payload = $response['payload'] ?? [];
-                    $modules = $payload['modules'] ?? [];
-                    $lines   = [];
-                    foreach ($modules as $mod) {
-                        $thought = trim($mod['thought'] ?? '');
-                        if ($thought !== '' && $thought !== 'Sensing...') {
-                            $lines[] = $thought;
-                        }
-                    }
-                    echo implode("\n", $lines);
+                if ($jsonMode) {
+                    echo json_encode(
+                        ['arrissa_data' => $response],
+                        JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
+                    );
                     exit;
                 }
 
-                echo json_encode(
-                    ['arrissa_data' => $response],
-                    JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
-                );
+                // Default: thoughts only, one per line
+                header('Content-Type: text/plain; charset=utf-8');
+                $payload = $response['payload'] ?? [];
+                $modules = $payload['modules'] ?? [];
+                $lines   = [];
+                foreach ($modules as $mod) {
+                    $thought = trim($mod['thought'] ?? '');
+                    if ($thought !== '' && $thought !== 'Sensing...') {
+                        $lines[] = $thought;
+                    }
+                }
+                echo implode("\n", $lines);
                 exit;
             }
         }

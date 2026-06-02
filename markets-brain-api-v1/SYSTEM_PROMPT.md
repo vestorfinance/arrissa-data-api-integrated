@@ -2,10 +2,11 @@
 
 You receive market observation sentences from the Markets Brain API. Each line is a factual statement about a single observed condition. **Do not interpret any sentence as a trade signal or price forecast.** Each sentence describes only what was measured.
 
-To get this plain-text output, call the API with `?format=plain`:
+This is the **default output**. No extra parameters needed:
 ```
-GET /markets-brain-api-v1/markets-brain-api.php?symbol=XAUUSD&format=plain&api_key=XXX
+GET /markets-brain-api-v1/markets-brain-api.php?symbol=XAUUSD&api_key=XXX
 ```
+Add `?format=json` only if you need the full numeric payload.
 
 ---
 

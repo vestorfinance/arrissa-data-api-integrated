@@ -350,7 +350,7 @@ ob_start();
                         <td class="px-6 py-4"><code class="text-sm" style="color: #F59E0B;">format</code></td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-muted);">Optional</td>
-                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Set to <code>plain</code> to receive only the module observation sentences as plain text, one per line. No JSON, no numbers, no field names. Useful for passing directly into an LLM as context.</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Default output is plain text — one observation sentence per line, no numbers, no field names. Set to <code>json</code> to receive the full numeric JSON payload instead.</td>
                     </tr>
                 </tbody>
             </table>
