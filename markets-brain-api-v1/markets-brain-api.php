@@ -176,12 +176,31 @@ if ($symbol) {
     $start   = time();
     $timeout = 15; // more computation than risk management
 
+    $plainMode = (($_GET['format'] ?? '') === 'plain');
+
     while (time() - $start < $timeout) {
         if (file_exists($resFile)) {
             $response = json_decode(file_get_contents($resFile), true);
             if (!empty($response['request_id']) && $response['request_id'] === $request_id) {
                 @unlink($reqFile);
                 @unlink($resFile);
+
+                if ($plainMode) {
+                    // Return only the thought strings, one per line
+                    header('Content-Type: text/plain; charset=utf-8');
+                    $payload = $response['payload'] ?? [];
+                    $modules = $payload['modules'] ?? [];
+                    $lines   = [];
+                    foreach ($modules as $mod) {
+                        $thought = trim($mod['thought'] ?? '');
+                        if ($thought !== '' && $thought !== 'Sensing...') {
+                            $lines[] = $thought;
+                        }
+                    }
+                    echo implode("\n", $lines);
+                    exit;
+                }
+
                 echo json_encode(
                     ['arrissa_data' => $response],
                     JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT

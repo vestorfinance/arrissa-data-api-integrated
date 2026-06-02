@@ -340,11 +340,17 @@ ob_start();
                         <td class="px-6 py-4 text-sm" style="color: var(--text-muted);">Optional</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Backtesting date in <code>YYYY-MM-DD</code> format (e.g. <code>2025-01-15</code>). Must be paired with <code>pretend_time</code>. The EA reads all 22 modules as if the market is at this point in history.</td>
                     </tr>
-                    <tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
                         <td class="px-6 py-4"><code class="text-sm" style="color: #F59E0B;">pretend_time</code></td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-muted);">Optional</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Backtesting time in <code>HH:MM</code> format (e.g. <code>14:30</code>, broker server time). Must be paired with <code>pretend_date</code>. Response includes <code>"pretend_mode": true</code> and uses the historical close price instead of live bid/ask.</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4"><code class="text-sm" style="color: #F59E0B;">format</code></td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-muted);">Optional</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Set to <code>plain</code> to receive only the module observation sentences as plain text, one per line. No JSON, no numbers, no field names. Useful for passing directly into an LLM as context.</td>
                     </tr>
                 </tbody>
             </table>
