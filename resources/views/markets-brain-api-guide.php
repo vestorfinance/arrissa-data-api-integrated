@@ -142,7 +142,7 @@ ob_start();
                         </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: #10B981;"></i>
-                            <span><strong>Regime Detection:</strong> Classifies EMA structure as EMA_MIXED, EMA_SHORT_ABOVE_LONG, EMA_LONG_ABOVE_SHORT, or ATR_ELEVATED based on multi-module convergence</span>
+                            <span><strong>Regime Detection:</strong> Classifies EMA structure as EMA_MIXED, EMA8_GT_EMA50, EMA50_GT_EMA8, or ATR_ELEVATED based on multi-module convergence</span>
                         </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: #10B981;"></i>
@@ -524,7 +524,7 @@ ob_start();
         "score":          0.312,     // -1 (bearish) to +1 (bullish) weighted synthesis
         "confidence":     0.68,      // |score| x (1 - conflict x 0.4)
         "conflict":       0.24,      // 0 = all modules agree, 1 = maximum disagreement
-        "regime":         "EMA_SHORT_ABOVE_LONG", // EMA_MIXED | EMA_SHORT_ABOVE_LONG | EMA_LONG_ABOVE_SHORT | ATR_ELEVATED
+        "regime":         "EMA8_GT_EMA50", // EMA_MIXED | EMA8_GT_EMA50 | EMA50_GT_EMA8 | ATR_ELEVATED
         "trap_active":    false,
         "trap_score":    -0.05,
         "atr":            0.00890,
@@ -591,7 +591,7 @@ ob_start();
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="px-5 py-3"><code style="color: #10B981;">brain.regime</code></td>
                             <td class="px-5 py-3" style="color: var(--text-secondary);">string</td>
-                            <td class="px-5 py-3" style="color: var(--text-secondary);"><code>EMA_MIXED</code> — EMAs are interleaved with no clear ordering. <code>EMA_SHORT_ABOVE_LONG</code> — short-period EMA is positioned above long-period EMA. <code>EMA_LONG_ABOVE_SHORT</code> — long-period EMA is positioned above short-period EMA. <code>ATR_ELEVATED</code> — high conflict with ATR above recent average.</td>
+                            <td class="px-5 py-3" style="color: var(--text-secondary);"><code>EMA_MIXED</code> — EMAs are interleaved with no consistent ordering. <code>EMA8_GT_EMA50</code> — the 8-period EMA value is numerically greater than the 50-period EMA value. <code>EMA50_GT_EMA8</code> — the 50-period EMA value is numerically greater than the 8-period EMA value. <code>ATR_ELEVATED</code> — high module conflict with ATR exceeding recent average.</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="px-5 py-3"><code style="color: #10B981;">brain.trap_active</code></td>
@@ -677,21 +677,21 @@ ob_start();
                 <div class="space-y-3">
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #10B981;">
                         <div class="flex items-center mb-1">
-                            <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">EMA_SHORT_ABOVE_LONG</span>
+                            <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">EMA8_GT_EMA50</span>
                         </div>
-                        <p class="text-xs" style="color: var(--text-secondary);">Short-period EMA is currently positioned above long-period EMA. All three EMAs are in short-to-long order by price level.</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">The 8-period EMA value is numerically greater than the 50-period EMA value. All three EMAs are in stacked numeric order: 8 &gt; 21 &gt; 50.</p>
                     </div>
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #EF4444;">
                         <div class="flex items-center mb-1">
-                            <span class="method-badge mr-2" style="background: rgba(239,68,68,0.15); color: #EF4444;">EMA_LONG_ABOVE_SHORT</span>
+                            <span class="method-badge mr-2" style="background: rgba(239,68,68,0.15); color: #EF4444;">EMA50_GT_EMA8</span>
                         </div>
-                        <p class="text-xs" style="color: var(--text-secondary);">Long-period EMA is currently positioned above short-period EMA. All three EMAs are in long-to-short order by price level.</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">The 50-period EMA value is numerically greater than the 8-period EMA value. All three EMAs are in stacked numeric order: 50 &gt; 21 &gt; 8.</p>
                     </div>
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #F59E0B;">
                         <div class="flex items-center mb-1">
                             <span class="method-badge mr-2" style="background: rgba(245,158,11,0.15); color: #F59E0B;">EMA_MIXED</span>
                         </div>
-                        <p class="text-xs" style="color: var(--text-secondary);">EMAs are interleaved with no consistent ordering by price level. Module scores are mixed and conflict is elevated.</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">EMAs are interleaved with no consistent numeric ordering. Module scores are mixed and conflict is elevated.</p>
                     </div>
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #8B5CF6;">
                         <div class="flex items-center mb-1">
