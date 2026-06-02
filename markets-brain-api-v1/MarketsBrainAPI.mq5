@@ -525,11 +525,11 @@ void RunBrain()
     double ab[]; ArraySetAsSeries(ab, true);
     if(CopyBuffer(g_h_atr, 0, 0, 5, ab) >= 3) g_atr = ab[1];
 
-    // First pass
+    // First pass — Volume first so g_avgVol is set before any other module
+    Mod_Volume();
     Mod_TickSense();
     Mod_Memory();
     Mod_Anticipation();
-    Mod_Volume();
     Mod_Session();
     Mod_SR();
     Mod_Pattern();
@@ -544,9 +544,13 @@ void RunBrain()
     Mod_PatternFail();
     Mod_SupplyDemand();
 
-    // Pre-synthesis score for context-sensitive modules
+    // Pre-synthesis score for context-sensitive modules (active modules only)
     double ts = 0, tw = 0;
-    for(int i = 0; i < 17; i++) { ts += g_m[i].score * g_m[i].weight; tw += g_m[i].weight; }
+    for(int i = 0; i < 17; i++) {
+        if(MathAbs(g_m[i].score) < 0.05) continue;
+        ts += g_m[i].score * g_m[i].weight;
+        tw += g_m[i].weight;
+    }
     g_b.score = (tw > 0) ? ts / tw : 0;
 
     // Second pass
@@ -559,14 +563,39 @@ void RunBrain()
 //+------------------------------------------------------------------+
 void Synthesize()
 {
-    double ts = 0, tw = 0, var = 0;
-    for(int i = 0; i < 21; i++) { ts += g_m[i].score * g_m[i].weight; tw += g_m[i].weight; }
-    g_b.score    = (tw > 0) ? ts / tw : 0;
-    g_b.conf     = MathAbs(g_b.score);
+    // Only count modules that actually fired — zeros dilute the signal
+    double ts = 0, tw = 0;
+    int active = 0;
+    for(int i = 0; i < 21; i++) {
+        if(MathAbs(g_m[i].score) < 0.05) continue;
+        ts += g_m[i].score * g_m[i].weight;
+        tw += g_m[i].weight;
+        active++;
+    }
+    g_b.score = (tw > 0) ? ts / tw : 0;
 
-    for(int i = 0; i < 21; i++) var += MathPow(g_m[i].score - g_b.score, 2);
-    g_b.conflict  = MathSqrt(var / 21.0);
-    g_b.conf     *= (1.0 - g_b.conflict * 0.4);
+    // Conflict measured across active modules only
+    double var = 0;
+    for(int i = 0; i < 21; i++) {
+        if(MathAbs(g_m[i].score) < 0.05) continue;
+        var += MathPow(g_m[i].score - g_b.score, 2);
+    }
+    g_b.conflict = (active > 1) ? MathSqrt(var / active) : 0;
+
+    // Confidence: strength of signal × agreement factor × active-module factor
+    double activeFactor = MathMin(1.0, active / 7.0);
+    g_b.conf = MathAbs(g_b.score) * (1.0 - g_b.conflict * 0.4) * activeFactor;
+
+    // VOLATILE: high conflict + elevated ATR
+    if(g_b.conflict > 0.45 && g_b.regime != RANGING) {
+        double atrBuf[]; ArraySetAsSeries(atrBuf, true);
+        if(CopyBuffer(g_h_atr, 0, 0, 20, atrBuf) >= 20) {
+            double atrOld = 0;
+            for(int i = 10; i < 20; i++) atrOld += atrBuf[i];
+            atrOld /= 10.0;
+            if(atrBuf[1] > atrOld * 1.3) g_b.regime = VOLATILE;
+        }
+    }
 
     double mx = 0; int dom = 21;
     for(int i = 0; i < 21; i++) {
@@ -1182,17 +1211,23 @@ void Mod_Reversals()
 
 void Mod_PatternFail()
 {
-    double prevPat = g_m[8].prev;
-    double curPat  = g_m[8].score;
-    double delta   = curPat - prevPat;
+    // Compare pattern direction against dominant trend — patterns against trend fail more often
+    double patScore   = g_m[8].score;
+    double trendScore = g_m[11].score;
+    double mtfScore   = g_m[12].score;
+    bool contra = (patScore * trendScore < 0) && (patScore * mtfScore < 0);  // pattern vs both trend layers
 
     g_m[19].prev = g_m[19].score;
     double s = 0;
 
-    if(prevPat>0.5 && curPat<0)       { s=-0.6; g_m[19].thought=TH_PATFAIL[2]; g_m[19].ttype=BEAR; }
-    else if(prevPat<-0.5 && curPat>0) { s=0.6;  g_m[19].thought=TH_PATFAIL[4]; g_m[19].ttype=BULL; }
-    else if(MathAbs(delta)>0.6)       { s=-delta*0.5; g_m[19].thought=TH_PATFAIL[1]; g_m[19].ttype=WARNING; }
-    else                              { s=0;    g_m[19].thought=TH_PATFAIL[5]; g_m[19].ttype=NEUTRAL; }
+    if(contra && MathAbs(patScore) >= 0.6)
+        { s=-patScore*0.7; g_m[19].thought=TH_PATFAIL[2]; g_m[19].ttype=WARNING; }
+    else if(contra && MathAbs(patScore) >= 0.3)
+        { s=-patScore*0.4; g_m[19].thought=TH_PATFAIL[0]; g_m[19].ttype=WARNING; }
+    else if(patScore*trendScore < 0 && MathAbs(patScore) >= 0.4)
+        { s=-patScore*0.3; g_m[19].thought=TH_PATFAIL[7]; g_m[19].ttype=WARNING; }
+    else
+        { s=0;             g_m[19].thought=TH_PATFAIL[9]; g_m[19].ttype=NEUTRAL; }
 
     g_m[19].score = MathMax(-1.0, MathMin(1.0, s));
 }
