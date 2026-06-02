@@ -26,6 +26,7 @@ WRITABLE_DIRS=(
     "$INSTALL_DIR/quarters-theory-api-v1/queue"
     "$INSTALL_DIR/time-machine-ml-api-v1/queue"
     "$INSTALL_DIR/risk-management-api-v1/queue"
+    "$INSTALL_DIR/markets-brain-api-v1/queue"
     "$INSTALL_DIR/chart-image-api-v1/queue"
     "$INSTALL_DIR/news-api-v1/queue"
     "$INSTALL_DIR/url-api-v1/queue"

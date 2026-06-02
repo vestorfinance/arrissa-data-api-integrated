@@ -162,6 +162,7 @@ sudo mkdir -p /var/www/arrissa/tma-cg-api-v1/queue
 sudo mkdir -p /var/www/arrissa/quarters-theory-api-v1/queue
 sudo mkdir -p /var/www/arrissa/time-machine-ml-api-v1/queue
 sudo mkdir -p /var/www/arrissa/risk-management-api-v1/queue
+sudo mkdir -p /var/www/arrissa/markets-brain-api-v1/queue
 sudo mkdir -p /var/www/arrissa/chart-image-api-v1/queue
 sudo mkdir -p /var/www/arrissa/news-api-v1/queue
 sudo mkdir -p /var/www/arrissa/url-api-v1/queue
@@ -173,6 +174,7 @@ sudo chmod -R 775 /var/www/arrissa/tma-cg-api-v1/queue
 sudo chmod -R 775 /var/www/arrissa/quarters-theory-api-v1/queue
 sudo chmod -R 775 /var/www/arrissa/time-machine-ml-api-v1/queue
 sudo chmod -R 775 /var/www/arrissa/risk-management-api-v1/queue
+sudo chmod -R 775 /var/www/arrissa/markets-brain-api-v1/queue
 sudo chmod -R 775 /var/www/arrissa/chart-image-api-v1/queue
 sudo chmod -R 775 /var/www/arrissa/news-api-v1/queue
 sudo chmod -R 775 /var/www/arrissa/url-api-v1/queue
@@ -184,6 +186,7 @@ sudo chown -R www-data:www-data /var/www/arrissa/tma-cg-api-v1/queue
 sudo chown -R www-data:www-data /var/www/arrissa/quarters-theory-api-v1/queue
 sudo chown -R www-data:www-data /var/www/arrissa/time-machine-ml-api-v1/queue
 sudo chown -R www-data:www-data /var/www/arrissa/risk-management-api-v1/queue
+sudo chown -R www-data:www-data /var/www/arrissa/markets-brain-api-v1/queue
 sudo chown -R www-data:www-data /var/www/arrissa/chart-image-api-v1/queue
 sudo chown -R www-data:www-data /var/www/arrissa/news-api-v1/queue
 sudo chown -R www-data:www-data /var/www/arrissa/url-api-v1/queue</pre>

@@ -126,6 +126,13 @@ try {
             'icon' => 'shield'
         ],
         [
+            'title' => 'Markets Brain API',
+            'keywords' => 'markets brain api neural network 22 modules tick sense memory anticipation uncertainty momentum volume session support resistance pattern order flow trap trend multi timeframe liquidity accumulation distribution breakout devils eye reversals pattern failure supply demand synthesis score confidence conflict regime ranging volatile bullish bearish warning mt5 metatrader expert advisor ea living organism neural brain',
+            'description' => '22-module neural brain — raw market state scores and thoughts for any symbol',
+            'url' => '/markets-brain-api-guide',
+            'icon' => 'cpu'
+        ],
+        [
             'title' => 'Chart Image API',
             'keywords' => 'chart image api screenshot capture png jpg jpeg svg canvas visualization graph',
             'description' => 'Chart image generation endpoint',
