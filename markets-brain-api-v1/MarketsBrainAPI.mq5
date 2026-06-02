@@ -104,7 +104,7 @@ string TH_VOLUME[10] = {
    "Successive bullish bars: volume increasing per bar. Participation expanding.",
    "Successive bearish bars: volume decreasing per bar. Sell-side participation contracting.",
    "Volume above 2.5x average with extended range. Climactic bar recorded.",
-   "Current volume above time-adjusted session average. Participation above baseline.",
+   "Volume between 40-100% of 20-bar average. Moderate participation. Directional lean follows price.",
    "Current volume below 40% of average. Low-participation session detected.",
    "Volume and price direction: aligned. Directional volume confirmation recorded."
 };
@@ -793,7 +793,9 @@ void Mod_Volume()
     else if(ratio<0.4&&!bull){ s=-0.1; g_m[5].thought=TH_VOLUME[8]; g_m[5].ttype=NEUTRAL; }
     else if(ratio>1.0&&bull) { s=0.3;  g_m[5].thought=TH_VOLUME[9]; g_m[5].ttype=BULL; }
     else if(ratio>1.0&&!bull){ s=-0.3; g_m[5].thought=TH_VOLUME[9]; g_m[5].ttype=BEAR; }
-    else                     { g_m[5].thought=TH_VOLUME[7]; g_m[5].ttype=NEUTRAL; }
+    else if(bull)            { s=0.1;  g_m[5].thought=TH_VOLUME[7]; g_m[5].ttype=NEUTRAL; }
+    else if(!bull)           { s=-0.1; g_m[5].thought=TH_VOLUME[7]; g_m[5].ttype=NEUTRAL; }
+    else                     { s=0;    g_m[5].thought=TH_VOLUME[7]; g_m[5].ttype=NEUTRAL; }
 
     if(ratio > 3.0) { g_m[5].thought=TH_VOLUME[6]; g_m[5].ttype=WARNING; }
     g_m[5].score = MathMax(-1.0, MathMin(1.0, s));
