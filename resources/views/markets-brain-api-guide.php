@@ -142,7 +142,7 @@ ob_start();
                         </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: #10B981;"></i>
-                            <span><strong>Regime Detection:</strong> Classifies market as RANGING, TREND_UP, TREND_DOWN, or VOLATILE based on multi-module convergence</span>
+                            <span><strong>Regime Detection:</strong> Classifies market as EMA_RANGING, EMA_BULL_STACK, EMA_BEAR_STACK, or ATR_ELEVATED based on multi-module convergence</span>
                         </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: #10B981;"></i>
@@ -524,7 +524,7 @@ ob_start();
         "score":          0.312,     // -1 (bearish) to +1 (bullish) weighted synthesis
         "confidence":     0.68,      // |score| x (1 - conflict x 0.4)
         "conflict":       0.24,      // 0 = all modules agree, 1 = maximum disagreement
-        "regime":         "TREND_UP", // RANGING | TREND_UP | TREND_DOWN | VOLATILE
+        "regime":         "EMA_BULL_STACK", // EMA_RANGING | EMA_BULL_STACK | EMA_BEAR_STACK | ATR_ELEVATED
         "trap_active":    false,
         "trap_score":    -0.05,
         "atr":            0.00890,
@@ -591,7 +591,7 @@ ob_start();
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="px-5 py-3"><code style="color: #10B981;">brain.regime</code></td>
                             <td class="px-5 py-3" style="color: var(--text-secondary);">string</td>
-                            <td class="px-5 py-3" style="color: var(--text-secondary);"><code>RANGING</code> — price bounded. <code>TREND_UP</code> — directional bullish. <code>TREND_DOWN</code> — directional bearish. <code>VOLATILE</code> — high noise, no clear bias.</td>
+                            <td class="px-5 py-3" style="color: var(--text-secondary);"><code>EMA_RANGING</code> — EMAs are flat/mixed, no stack. <code>EMA_BULL_STACK</code> — fast &gt; slow &gt; long EMA alignment observed. <code>EMA_BEAR_STACK</code> — fast &lt; slow &lt; long EMA alignment observed. <code>ATR_ELEVATED</code> — high conflict with ATR above recent average.</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="px-5 py-3"><code style="color: #10B981;">brain.trap_active</code></td>
@@ -677,27 +677,27 @@ ob_start();
                 <div class="space-y-3">
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #10B981;">
                         <div class="flex items-center mb-1">
-                            <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">TREND_UP</span>
+                            <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">EMA_BULL_STACK</span>
                         </div>
-                        <p class="text-xs" style="color: var(--text-secondary);">Directional bullish structure. Multi-timeframe modules confirm upward momentum. Pullbacks are buying opportunities in trend-following frameworks.</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">Fast EMA is above slow EMA, which is above long EMA. EMAs are in ascending order — the observed structure is bullish stacking.</p>
                     </div>
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #EF4444;">
                         <div class="flex items-center mb-1">
-                            <span class="method-badge mr-2" style="background: rgba(239,68,68,0.15); color: #EF4444;">TREND_DOWN</span>
+                            <span class="method-badge mr-2" style="background: rgba(239,68,68,0.15); color: #EF4444;">EMA_BEAR_STACK</span>
                         </div>
-                        <p class="text-xs" style="color: var(--text-secondary);">Directional bearish structure. Multi-timeframe modules confirm downward momentum. Rallies are selling opportunities.</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">Fast EMA is below slow EMA, which is below long EMA. EMAs are in descending order — the observed structure is bearish stacking.</p>
                     </div>
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #F59E0B;">
                         <div class="flex items-center mb-1">
-                            <span class="method-badge mr-2" style="background: rgba(245,158,11,0.15); color: #F59E0B;">RANGING</span>
+                            <span class="method-badge mr-2" style="background: rgba(245,158,11,0.15); color: #F59E0B;">EMA_RANGING</span>
                         </div>
-                        <p class="text-xs" style="color: var(--text-secondary);">Price is bounded. Module scores are mixed and conflict is elevated. Mean-reversion strategies may apply; breakout setups are premature.</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">EMAs are flat or interleaved with no clear stack alignment. Module scores are mixed and conflict is elevated.</p>
                     </div>
                     <div class="p-3 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #8B5CF6;">
                         <div class="flex items-center mb-1">
-                            <span class="method-badge mr-2" style="background: rgba(139,92,246,0.15); color: #8B5CF6;">VOLATILE</span>
+                            <span class="method-badge mr-2" style="background: rgba(139,92,246,0.15); color: #8B5CF6;">ATR_ELEVATED</span>
                         </div>
-                        <p class="text-xs" style="color: var(--text-secondary);">High ATR with conflicting signals. News spike or erratic price action. High risk — most setups are unreliable until volatility normalizes.</p>
+                        <p class="text-xs" style="color: var(--text-secondary);">High module conflict combined with ATR above its recent average. Observed during news spikes or erratic price action.</p>
                     </div>
                 </div>
             </div>
