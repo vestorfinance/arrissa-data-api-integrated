@@ -166,6 +166,10 @@ if ($symbol) {
         'symbol'     => $symbol,
     ];
 
+    // Optional backtesting params — passed through to the EA unchanged
+    if (!empty($_GET['pretend_date'])) $requestData['pretend_date'] = $_GET['pretend_date'];
+    if (!empty($_GET['pretend_time'])) $requestData['pretend_time'] = $_GET['pretend_time'];
+
     file_put_contents($reqFile, json_encode($requestData, JSON_UNESCAPED_SLASHES));
     debug_log("Client GET enqueued request_id=$request_id symbol=$symbol");
 

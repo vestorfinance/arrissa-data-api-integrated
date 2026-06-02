@@ -328,11 +328,23 @@ ob_start();
                         <td class="px-6 py-4 text-sm" style="color: var(--success);">&#10003; Yes</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Trading symbol to analyze (e.g. <code>GBPUSD</code>, <code>XAUUSD</code>, <code>EURUSD</code>). Case-insensitive.</td>
                     </tr>
-                    <tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
                         <td class="px-6 py-4"><code class="text-sm" style="color: #10B981;">api_key</code></td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--success);">&#10003; Yes</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Your API authentication key (also accepted as <code>X-Api-Key</code> header).</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td class="px-6 py-4"><code class="text-sm" style="color: #F59E0B;">pretend_date</code></td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-muted);">Optional</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Backtesting date in <code>YYYY-MM-DD</code> format (e.g. <code>2025-01-15</code>). Must be paired with <code>pretend_time</code>. The EA reads all 22 modules as if the market is at this point in history.</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4"><code class="text-sm" style="color: #F59E0B;">pretend_time</code></td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-muted);">Optional</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Backtesting time in <code>HH:MM</code> format (e.g. <code>14:30</code>, broker server time). Must be paired with <code>pretend_date</code>. Response includes <code>"pretend_mode": true</code> and uses the historical close price instead of live bid/ask.</td>
                     </tr>
                 </tbody>
             </table>
@@ -401,6 +413,39 @@ ob_start();
                     ];
                     foreach ($commodityExamples as $ex):
                         $url = "{$baseUrl}/markets-brain-api-v1/markets-brain-api.php?symbol={$ex[1]}&api_key={$apiKey}";
+                    ?>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);"><?php echo $ex[0]; ?></label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($url) ?>&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($url) ?>"</code>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Pretend / Backtesting Mode -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">
+                    <span class="method-badge mr-2" style="background: rgba(245,158,11,0.15); color: #F59E0B;">Backtesting</span>
+                    Pretend Date &amp; Time
+                </h3>
+                <p class="text-sm mb-4" style="color: var(--text-secondary);">Add <code>pretend_date</code> and <code>pretend_time</code> to run the full 22-module brain on any historical point. The EA uses <code>iBarShift()</code> to locate the correct bar offset on every timeframe, so all modules see exactly the data that existed at that moment.</p>
+                <div class="space-y-4">
+                    <?php
+                    $pretendExamples = [
+                        ['XAUUSD — Brain at 2025-01-15 14:30', 'XAUUSD', '2025-01-15', '14:30'],
+                        ['GBPUSD — Brain at 2025-03-01 09:00', 'GBPUSD', '2025-03-01', '09:00'],
+                        ['EURUSD — Brain at 2024-11-05 14:00 (US Election)', 'EURUSD', '2024-11-05', '14:00'],
+                    ];
+                    foreach ($pretendExamples as $ex):
+                        $url = "{$baseUrl}/markets-brain-api-v1/markets-brain-api.php?symbol={$ex[1]}&pretend_date={$ex[2]}&pretend_time={$ex[3]}&api_key={$apiKey}";
                     ?>
                     <div>
                         <div class="flex items-center justify-between mb-2">

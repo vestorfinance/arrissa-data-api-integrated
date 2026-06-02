@@ -339,6 +339,10 @@ string          g_symbol = "";
 ENUM_TIMEFRAMES g_tf, g_htf, g_mtf;
 double          g_atr    = 0;
 double          g_avgVol = 0;
+int             g_shift     = 0;   // primary TF bar offset (0 = live)
+int             g_shift_htf = 0;   // HTF bar offset
+int             g_shift_mtf = 0;   // MTF bar offset
+datetime        g_pretendDT = 0;   // pretend datetime (0 = live)
 
 // API state
 string   InpApiUrl           = "";
@@ -434,6 +438,27 @@ void ProcessApiRequest(string request_json)
 
     g_symbol = symbol;
 
+    // Pretend date/time: shift all data reads into history
+    g_shift = 0; g_shift_htf = 0; g_shift_mtf = 0; g_pretendDT = 0;
+    string pretend_date = ExtractJsonValue(request_json, "pretend_date");
+    string pretend_time = ExtractJsonValue(request_json, "pretend_time");
+    if(StringLen(pretend_date) >= 8 && StringLen(pretend_time) >= 3) {
+        string y   = StringSubstr(pretend_date, 0, 4);
+        string mon = StringSubstr(pretend_date, 5, 2);
+        string d   = StringSubstr(pretend_date, 8, 2);
+        string isoDT = y + "." + mon + "." + d + " " + pretend_time;
+        g_pretendDT = StringToTime(isoDT);
+        if(g_pretendDT > 0) {
+            g_shift     = (int)iBarShift(symbol, g_tf,  g_pretendDT, true);
+            g_shift_htf = (int)iBarShift(symbol, g_htf, g_pretendDT, true);
+            g_shift_mtf = (int)iBarShift(symbol, g_mtf, g_pretendDT, true);
+            if(g_shift     < 0) g_shift     = 0;
+            if(g_shift_htf < 0) g_shift_htf = 0;
+            if(g_shift_mtf < 0) g_shift_mtf = 0;
+            DebugPrint("Pretend mode: " + isoDT + " shift=" + IntegerToString(g_shift));
+        }
+    }
+
     if(!CreateHandles(symbol))
     {
         DebugPrint("CreateHandles failed for " + symbol);
@@ -523,7 +548,7 @@ void RunBrain()
 {
     // ATR first — other modules depend on g_atr
     double ab[]; ArraySetAsSeries(ab, true);
-    if(CopyBuffer(g_h_atr, 0, 0, 5, ab) >= 3) g_atr = ab[1];
+    if(CopyBuffer(g_h_atr, 0, g_shift, 5, ab) >= 3) g_atr = ab[1];
 
     // First pass — Volume first so g_avgVol is set before any other module
     Mod_Volume();
@@ -625,9 +650,9 @@ void Mod_TickSense()
     double hi[], lo[], cl[], op[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true);
     ArraySetAsSeries(cl,true); ArraySetAsSeries(op,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,6,hi)<6 || CopyLow(g_symbol,g_tf,0,6,lo)<6 ||
-       CopyClose(g_symbol,g_tf,0,6,cl)<6 || CopyOpen(g_symbol,g_tf,0,6,op)<6 ||
-       CopyTickVolume(g_symbol,g_tf,0,6,vl)<6) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,6,hi)<6 || CopyLow(g_symbol,g_tf,g_shift,6,lo)<6 ||
+       CopyClose(g_symbol,g_tf,g_shift,6,cl)<6 || CopyOpen(g_symbol,g_tf,g_shift,6,op)<6 ||
+       CopyTickVolume(g_symbol,g_tf,g_shift,6,vl)<6) return;
 
     int bulls = 0;
     for(int i = 1; i <= 5; i++) if(cl[i] > op[i]) bulls++;
@@ -656,8 +681,8 @@ void Mod_Memory()
     double hi[], lo[], cl[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true);
     ArraySetAsSeries(cl,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,60,hi)<60 || CopyLow(g_symbol,g_tf,0,60,lo)<60 ||
-       CopyClose(g_symbol,g_tf,0,60,cl)<60 || CopyTickVolume(g_symbol,g_tf,0,60,vl)<60) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,60,hi)<60 || CopyLow(g_symbol,g_tf,g_shift,60,lo)<60 ||
+       CopyClose(g_symbol,g_tf,g_shift,60,cl)<60 || CopyTickVolume(g_symbol,g_tf,g_shift,60,vl)<60) return;
 
     double cur = cl[1];
     double atr = g_atr > 0 ? g_atr : 0.001;
@@ -685,8 +710,8 @@ void Mod_Anticipation()
 {
     double hi[], lo[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,20,hi)<20 || CopyLow(g_symbol,g_tf,0,20,lo)<20 ||
-       CopyTickVolume(g_symbol,g_tf,0,20,vl)<20) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,20,hi)<20 || CopyLow(g_symbol,g_tf,g_shift,20,lo)<20 ||
+       CopyTickVolume(g_symbol,g_tf,g_shift,20,vl)<20) return;
 
     double rng5=0, rng10=0;
     for(int i=1;i<=5;i++)  rng5 +=(hi[i]-lo[i]);
@@ -736,15 +761,15 @@ void Mod_Momentum()
 {
     double rsi[], mc[], ms[];
     ArraySetAsSeries(rsi,true); ArraySetAsSeries(mc,true); ArraySetAsSeries(ms,true);
-    if(CopyBuffer(g_h_rsi,0,0,6,rsi)<6 || CopyBuffer(g_h_macd,0,0,6,mc)<6 ||
-       CopyBuffer(g_h_macd,1,0,6,ms)<6) return;
+    if(CopyBuffer(g_h_rsi,0,g_shift,6,rsi)<6 || CopyBuffer(g_h_macd,0,g_shift,6,mc)<6 ||
+       CopyBuffer(g_h_macd,1,g_shift,6,ms)<6) return;
 
     double s = (rsi[1]-50.0)/50.0*0.5;
     s += (mc[1]>ms[1]) ? 0.2 : -0.2;
     s += (mc[1]>0) ? 0.1 : -0.1;
 
-    double c1 = iClose(g_symbol,g_tf,1);
-    double c4 = iClose(g_symbol,g_tf,4);
+    double c1 = iClose(g_symbol,g_tf,g_shift+1);
+    double c4 = iClose(g_symbol,g_tf,g_shift+4);
     bool bearDiv  = (c1>c4 && rsi[1]<rsi[4]);
     bool bullDiv  = (c1<c4 && rsi[1]>rsi[4]);
     bool macdCross= (mc[1]>ms[1] && mc[2]<=ms[2]);
@@ -767,7 +792,7 @@ void Mod_Momentum()
 void Mod_Volume()
 {
     long vl[]; ArraySetAsSeries(vl,true);
-    if(CopyTickVolume(g_symbol,g_tf,0,50,vl)<25) return;
+    if(CopyTickVolume(g_symbol,g_tf,g_shift,50,vl)<25) return;
 
     double avg = 0;
     for(int i = 1; i <= 20; i++) avg += (double)vl[i];
@@ -775,7 +800,7 @@ void Mod_Volume()
 
     double cur   = (double)vl[1];
     double ratio = cur / (avg > 0 ? avg : 1.0);
-    bool bull = (iClose(g_symbol,g_tf,1) > iOpen(g_symbol,g_tf,1));
+    bool bull = (iClose(g_symbol,g_tf,g_shift+1) > iOpen(g_symbol,g_tf,g_shift+1));
 
     double vol3 = ((double)vl[1]+(double)vl[2]+(double)vl[3])/3.0;
     double vol6 = ((double)vl[4]+(double)vl[5]+(double)vl[6])/3.0;
@@ -803,7 +828,8 @@ void Mod_Volume()
 
 void Mod_Session()
 {
-    MqlDateTime dt; TimeCurrent(dt);
+    MqlDateTime dt;
+    TimeToStruct((g_pretendDT > 0) ? g_pretendDT : TimeCurrent(), dt);
     int h = dt.hour; double s = 0;
 
     if(h>=0&&h<7)        { s=-0.2; g_m[6].thought=TH_SESSION[0]; g_m[6].ttype=WARNING; }
@@ -826,8 +852,8 @@ void Mod_SR()
 {
     double hi[], lo[], cl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true); ArraySetAsSeries(cl,true);
-    if(CopyHigh(g_symbol,g_tf,0,50,hi)<50 || CopyLow(g_symbol,g_tf,0,50,lo)<50 ||
-       CopyClose(g_symbol,g_tf,0,50,cl)<50) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,50,hi)<50 || CopyLow(g_symbol,g_tf,g_shift,50,lo)<50 ||
+       CopyClose(g_symbol,g_tf,g_shift,50,cl)<50) return;
 
     double atr = g_atr > 0 ? g_atr : 0.001;
     double cur = cl[1];
@@ -864,8 +890,8 @@ void Mod_Pattern()
     double op[], hi[], lo[], cl[];
     ArraySetAsSeries(op,true); ArraySetAsSeries(hi,true);
     ArraySetAsSeries(lo,true); ArraySetAsSeries(cl,true);
-    if(CopyOpen(g_symbol,g_tf,0,8,op)<8 || CopyHigh(g_symbol,g_tf,0,8,hi)<8 ||
-       CopyLow(g_symbol,g_tf,0,8,lo)<8  || CopyClose(g_symbol,g_tf,0,8,cl)<8) return;
+    if(CopyOpen(g_symbol,g_tf,g_shift,8,op)<8 || CopyHigh(g_symbol,g_tf,g_shift,8,hi)<8 ||
+       CopyLow(g_symbol,g_tf,g_shift,8,lo)<8  || CopyClose(g_symbol,g_tf,g_shift,8,cl)<8) return;
 
     double atr = g_atr > 0 ? g_atr : MathAbs(cl[1]-op[1]);
     double b1  = MathAbs(cl[1]-op[1]);
@@ -914,9 +940,9 @@ void Mod_OrderFlow()
     double hi[], lo[], cl[], op[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true);
     ArraySetAsSeries(cl,true); ArraySetAsSeries(op,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,5,hi)<5 || CopyLow(g_symbol,g_tf,0,5,lo)<5 ||
-       CopyClose(g_symbol,g_tf,0,5,cl)<5 || CopyOpen(g_symbol,g_tf,0,5,op)<5 ||
-       CopyTickVolume(g_symbol,g_tf,0,5,vl)<5) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,5,hi)<5 || CopyLow(g_symbol,g_tf,g_shift,5,lo)<5 ||
+       CopyClose(g_symbol,g_tf,g_shift,5,cl)<5 || CopyOpen(g_symbol,g_tf,g_shift,5,op)<5 ||
+       CopyTickVolume(g_symbol,g_tf,g_shift,5,vl)<5) return;
 
     double cf = 0;
     for(int i=1;i<=4;i++) {
@@ -949,9 +975,9 @@ void Mod_TrapSense()
     double hi[], lo[], cl[], op[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true);
     ArraySetAsSeries(cl,true); ArraySetAsSeries(op,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,12,hi)<12 || CopyLow(g_symbol,g_tf,0,12,lo)<12 ||
-       CopyClose(g_symbol,g_tf,0,12,cl)<12 || CopyOpen(g_symbol,g_tf,0,12,op)<12 ||
-       CopyTickVolume(g_symbol,g_tf,0,12,vl)<12) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,12,hi)<12 || CopyLow(g_symbol,g_tf,g_shift,12,lo)<12 ||
+       CopyClose(g_symbol,g_tf,g_shift,12,cl)<12 || CopyOpen(g_symbol,g_tf,g_shift,12,op)<12 ||
+       CopyTickVolume(g_symbol,g_tf,g_shift,12,vl)<12) return;
 
     double ts=0; bool bTrap=false, beTrap=false;
     double rHi=0, rLo=9e9;
@@ -987,10 +1013,10 @@ void Mod_Trend()
 {
     double ef[], es[], et[];
     ArraySetAsSeries(ef,true); ArraySetAsSeries(es,true); ArraySetAsSeries(et,true);
-    if(CopyBuffer(g_h_ef,0,0,5,ef)<5 || CopyBuffer(g_h_es,0,0,5,es)<5 ||
-       CopyBuffer(g_h_et,0,0,5,et)<5) return;
+    if(CopyBuffer(g_h_ef,0,g_shift,5,ef)<5 || CopyBuffer(g_h_es,0,g_shift,5,es)<5 ||
+       CopyBuffer(g_h_et,0,g_shift,5,et)<5) return;
 
-    double close = iClose(g_symbol,g_tf,1);
+    double close = iClose(g_symbol,g_tf,g_shift+1);
     double slope = (es[1]-es[4])/(es[4]>0?es[4]:1.0)*10000.0;
     double s = 0;
 
@@ -1004,7 +1030,7 @@ void Mod_Trend()
     s += MathMax(-0.1, MathMin(0.1, slope*0.05));
 
     double atr2[]; ArraySetAsSeries(atr2,true);
-    if(CopyBuffer(g_h_atr,0,0,20,atr2)>=20) {
+    if(CopyBuffer(g_h_atr,0,g_shift,20,atr2)>=20) {
         double atrNow=atr2[1];
         double atrOld=0; for(int i=10;i<20;i++) atrOld+=atr2[i]; atrOld/=10.0;
         if(atrNow<atrOld*0.5 && MathAbs(s)>0.4) { g_m[11].thought=TH_TREND[5]; g_m[11].ttype=WARNING; }
@@ -1018,11 +1044,11 @@ void Mod_MultiTF()
 {
     double hf[], hs[], mf[];
     ArraySetAsSeries(hf,true); ArraySetAsSeries(hs,true); ArraySetAsSeries(mf,true);
-    if(CopyBuffer(g_h_hf,0,0,3,hf)<3 || CopyBuffer(g_h_hs,0,0,3,hs)<3 ||
-       CopyBuffer(g_h_mf,0,0,3,mf)<3) return;
+    if(CopyBuffer(g_h_hf,0,g_shift_htf,3,hf)<3 || CopyBuffer(g_h_hs,0,g_shift_htf,3,hs)<3 ||
+       CopyBuffer(g_h_mf,0,g_shift_mtf,3,mf)<3) return;
 
-    double hc = iClose(g_symbol,g_htf,1);
-    double mc = iClose(g_symbol,g_mtf,1);
+    double hc = iClose(g_symbol,g_htf,g_shift_htf+1);
+    double mc = iClose(g_symbol,g_mtf,g_shift_mtf+1);
     bool hB  = (hf[1]>hs[1] && hc>hs[1]);
     bool hBr = (hf[1]<hs[1] && hc<hs[1]);
     bool mB  = (mc>mf[1]);
@@ -1048,11 +1074,11 @@ void Mod_Liquidity()
 {
     double hi[], lo[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,30,hi)<30 || CopyLow(g_symbol,g_tf,0,30,lo)<30 ||
-       CopyTickVolume(g_symbol,g_tf,0,30,vl)<30) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,30,hi)<30 || CopyLow(g_symbol,g_tf,g_shift,30,lo)<30 ||
+       CopyTickVolume(g_symbol,g_tf,g_shift,30,vl)<30) return;
 
     double atr = g_atr > 0 ? g_atr : 0.001;
-    double cur = iClose(g_symbol,g_tf,1);
+    double cur = iClose(g_symbol,g_tf,g_shift+1);
 
     double sHi=hi[2]; int hiTests=0;
     for(int i=3;i<28;i++) if(MathAbs(hi[i]-sHi)<atr*0.5) hiTests++;
@@ -1082,8 +1108,8 @@ void Mod_Accumulation()
     double hi[], lo[], cl[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true);
     ArraySetAsSeries(cl,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,30,hi)<30 || CopyLow(g_symbol,g_tf,0,30,lo)<30 ||
-       CopyClose(g_symbol,g_tf,0,30,cl)<30 || CopyTickVolume(g_symbol,g_tf,0,30,vl)<30) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,30,hi)<30 || CopyLow(g_symbol,g_tf,g_shift,30,lo)<30 ||
+       CopyClose(g_symbol,g_tf,g_shift,30,cl)<30 || CopyTickVolume(g_symbol,g_tf,g_shift,30,vl)<30) return;
 
     bool loRising  = (lo[1]>lo[5]&&lo[5]>lo[10]&&lo[10]>lo[20]);
     bool hiFlat    = (MathAbs(hi[1]-hi[5])<g_atr&&MathAbs(hi[5]-hi[10])<g_atr);
@@ -1112,8 +1138,8 @@ void Mod_Distribution()
     double hi[], lo[], cl[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true);
     ArraySetAsSeries(cl,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,30,hi)<30 || CopyLow(g_symbol,g_tf,0,30,lo)<30 ||
-       CopyClose(g_symbol,g_tf,0,30,cl)<30 || CopyTickVolume(g_symbol,g_tf,0,30,vl)<30) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,30,hi)<30 || CopyLow(g_symbol,g_tf,g_shift,30,lo)<30 ||
+       CopyClose(g_symbol,g_tf,g_shift,30,cl)<30 || CopyTickVolume(g_symbol,g_tf,g_shift,30,vl)<30) return;
 
     bool hiFalling = (hi[1]<hi[5]&&hi[5]<hi[10]);
     bool loFlat    = (MathAbs(lo[1]-lo[5])<g_atr&&MathAbs(lo[5]-lo[10])<g_atr);
@@ -1142,8 +1168,8 @@ void Mod_Breakout()
     double hi[], lo[], cl[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true);
     ArraySetAsSeries(cl,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,20,hi)<20 || CopyLow(g_symbol,g_tf,0,20,lo)<20 ||
-       CopyClose(g_symbol,g_tf,0,20,cl)<20 || CopyTickVolume(g_symbol,g_tf,0,20,vl)<20) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,20,hi)<20 || CopyLow(g_symbol,g_tf,g_shift,20,lo)<20 ||
+       CopyClose(g_symbol,g_tf,g_shift,20,cl)<20 || CopyTickVolume(g_symbol,g_tf,g_shift,20,vl)<20) return;
 
     double rngHi=hi[2], rngLo=lo[2];
     for(int i=3;i<18;i++) { if(hi[i]>rngHi) rngHi=hi[i]; if(lo[i]<rngLo) rngLo=lo[i]; }
@@ -1182,9 +1208,9 @@ void Mod_Reversals()
     double hi[], lo[], cl[], op[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true);
     ArraySetAsSeries(cl,true); ArraySetAsSeries(op,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,10,hi)<10 || CopyLow(g_symbol,g_tf,0,10,lo)<10 ||
-       CopyClose(g_symbol,g_tf,0,10,cl)<10 || CopyOpen(g_symbol,g_tf,0,10,op)<10 ||
-       CopyTickVolume(g_symbol,g_tf,0,10,vl)<10) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,10,hi)<10 || CopyLow(g_symbol,g_tf,g_shift,10,lo)<10 ||
+       CopyClose(g_symbol,g_tf,g_shift,10,cl)<10 || CopyOpen(g_symbol,g_tf,g_shift,10,op)<10 ||
+       CopyTickVolume(g_symbol,g_tf,g_shift,10,vl)<10) return;
 
     double atr = g_atr > 0 ? g_atr : 0.001;
     bool shrinkingHi = (hi[1]-hi[2]<atr*0.15 && hi[2]-hi[3]>atr*0.3 && cl[1]>cl[3]);
@@ -1239,9 +1265,9 @@ void Mod_SupplyDemand()
     double hi[], lo[], cl[], op[]; long vl[];
     ArraySetAsSeries(hi,true); ArraySetAsSeries(lo,true);
     ArraySetAsSeries(cl,true); ArraySetAsSeries(op,true); ArraySetAsSeries(vl,true);
-    if(CopyHigh(g_symbol,g_tf,0,25,hi)<25 || CopyLow(g_symbol,g_tf,0,25,lo)<25 ||
-       CopyClose(g_symbol,g_tf,0,25,cl)<25 || CopyOpen(g_symbol,g_tf,0,25,op)<25 ||
-       CopyTickVolume(g_symbol,g_tf,0,25,vl)<25) return;
+    if(CopyHigh(g_symbol,g_tf,g_shift,25,hi)<25 || CopyLow(g_symbol,g_tf,g_shift,25,lo)<25 ||
+       CopyClose(g_symbol,g_tf,g_shift,25,cl)<25 || CopyOpen(g_symbol,g_tf,g_shift,25,op)<25 ||
+       CopyTickVolume(g_symbol,g_tf,g_shift,25,vl)<25) return;
 
     double demandVol=0, supplyVol=0;
     for(int i=1;i<20;i++) {
@@ -1306,13 +1332,26 @@ string EtypeStr(ETYPE t)
 string BuildBrainPayload(string symbol)
 {
     int    digits = (int)SymbolInfoInteger(symbol, SYMBOL_DIGITS);
-    double bid    = SymbolInfoDouble(symbol, SYMBOL_BID);
-    double ask    = SymbolInfoDouble(symbol, SYMBOL_ASK);
-    double spread = ask - bid;
+    double bid, ask, spread;
+    bool   isPretend = (g_pretendDT > 0 && g_shift >= 0);
+    if(isPretend) {
+        bid    = iClose(symbol, g_tf, g_shift + 1);
+        ask    = bid;
+        spread = 0;
+    } else {
+        bid    = SymbolInfoDouble(symbol, SYMBOL_BID);
+        ask    = SymbolInfoDouble(symbol, SYMBOL_ASK);
+        spread = ask - bid;
+    }
+    string timeStr = isPretend
+        ? TimeToString(g_pretendDT, TIME_DATE|TIME_SECONDS)
+        : TimeToString(TimeCurrent(), TIME_DATE|TIME_SECONDS);
 
     string j = "{\n";
     j += "  \"symbol\": \""      + symbol + "\",\n";
-    j += "  \"server_time\": \"" + TimeToString(TimeCurrent(), TIME_DATE|TIME_SECONDS) + "\",\n";
+    j += "  \"server_time\": \"" + timeStr + "\",\n";
+    if(isPretend)
+        j += "  \"pretend_mode\": true,\n";
     j += "  \"price\": {\n";
     j += "    \"bid\":    " + DoubleToString(bid,    digits) + ",\n";
     j += "    \"ask\":    " + DoubleToString(ask,    digits) + ",\n";
