@@ -37,256 +37,256 @@ input ENUM_TIMEFRAMES InpMTF               = PERIOD_M15;         // Mid timefram
 // THOUGHT BANKS
 //=======================================================================
 string TH_TICK[10] = {
-   "Price just moved. Something shifted.",
-   "That was a small tick but it felt heavy.",
-   "That move had no follow-through. Suspicious.",
-   "The last five ticks were all sellers. No buyers stepping in.",
-   "A single large print just crossed. Someone committed.",
-   "Price is hovering. This stillness is not peace. It is tension.",
-   "The pace of ticks just slowed. Absorption happening.",
-   "One large print at the offer. Initiative buying.",
-   "Every uptick is being sold immediately.",
-   "Every downtick is being bought immediately. Range locked."
+   "Last bar registered directional close. Movement logged.",
+   "Small-range bar. Volume-to-range ratio elevated relative to recent average.",
+   "Directional bar without sustained follow-through. Momentum not maintained.",
+   "Last 5 bars: bearish close count = 5. No bullish bar recorded in sequence.",
+   "Single high-volume bar printed. Volume exceeds recent average significantly.",
+   "Price range contracting. ATR compression present.",
+   "Bar pace declining. Volume-to-range ratio elevated. Absorption pattern detected.",
+   "High-volume bar on offer side. Ask-side volume concentration logged.",
+   "Uptick attempts absorbed at offer. Resistance at ask level active.",
+   "Downtick attempts absorbed at bid. Support at bid level active. Range locked."
 };
 string TH_MEMORY[10] = {
-   "This price level — I have been here before.",
-   "Last time price came to this zone it reversed hard.",
-   "I remember when this same setup failed. I must not be overconfident.",
-   "Price consolidated at this level for hours before breaking. That memory is strong.",
-   "The last time buyers were this aggressive at this hour it was a trap.",
-   "A swing low was made here six sessions back. It is an anchor point.",
-   "The last three times momentum was this strong it exhausted within five bars.",
-   "The market sold off aggressively from near here. The sellers who lost are waiting.",
-   "A failed breakout happened at this exact zone. The trapped longs are overhead.",
-   "There was a stop run above last session high. Same mechanics could repeat."
+   "Current price overlaps previously traded zone. Historical activity at this level on record.",
+   "Price at zone with prior reversal recorded. Historical: directional rejection occurred here.",
+   "Prior instance of this setup type resulted in failure. Historical reference logged.",
+   "Price consolidated at this level for extended period in prior session data.",
+   "Prior session data: aggressive buying at this time window preceded reversal. Reference logged.",
+   "Swing low confirmed at this level in prior session. Structural anchor point recorded.",
+   "Historical data: momentum at this magnitude exhausted within 5 bars on multiple prior occurrences.",
+   "Prior sharp sell-off originated near current level. Historical sell-side activity at this zone.",
+   "Failed breakout recorded at this zone in historical data. Prior long positions above current price.",
+   "Stop run above prior session high confirmed in historical data. Structural reference logged."
 };
 string TH_ANTICIPATE[10] = {
-   "Something is about to give. The pressure is building.",
-   "A big move is coming. I do not know which way.",
-   "This consolidation cannot last much longer. The coil is tight.",
-   "If they break this level it will be fast and ugly.",
-   "I feel the buyers gathering. They are not here yet but they are coming.",
-   "The sellers are losing conviction. A squeeze is possible.",
-   "There is a vacuum above. If price gets there nothing will stop it quickly.",
-   "I sense a trap being set for the obvious side.",
-   "If volume picks up on this next push I will trust it.",
-   "Something is about to be revealed by whoever moves next."
+   "5-bar ATR below 10-bar ATR. Range compression detected.",
+   "ATR compression ratio below threshold. Volatility contraction in progress.",
+   "5-bar average range below 10-bar average range. Coiling pattern present.",
+   "Level proximity: within 1x ATR. Distance to structural level: minimal.",
+   "Volume increasing within compressed range. Participation rate rising.",
+   "Sell-side volume declining across recent bars. Supply pressure contracting.",
+   "No historical volume in zone above current price. Order book gap detected.",
+   "Module alignment score elevated on prevailing side. Directional consensus present.",
+   "Directional volume on next bar required to confirm current pressure reading.",
+   "Directional resolution pending. Insufficient data to determine which side acts next."
 };
 string TH_UNCERTAIN[10] = {
-   "I do not know. That is honest.",
-   "Both directions are possible right now. I must sit with that.",
-   "The setup looks perfect. That alone makes me cautious.",
-   "My certainty is highest right before I am most wrong.",
-   "There are a hundred reasons to go one way. That is sometimes the wrong way.",
-   "I am biased from the last move. I must reset.",
-   "The market is under no obligation to do what it usually does.",
-   "I see a pattern but patterns are just the past trying to rhyme with now.",
-   "I must stay fluid. The moment I become rigid I am finished.",
-   "Every signal I have points in opposite directions. The market is unresolved."
+   "Directional consensus: insufficient. No dominant signal detected.",
+   "Opposing module scores both above threshold. Conflict score: elevated.",
+   "Pattern quality score: high. Conflict metric: unchanged.",
+   "Prior directional event: recalibration triggered. Bias reset initiated.",
+   "Market data does not confirm directional necessity in either direction.",
+   "Prior move directional weighting flagged for recalibration. Data reset in progress.",
+   "Historical pattern match: partial. Current conditions may deviate from prior outcomes.",
+   "Module alignment: mixed. No consensus direction established.",
+   "Neutral module count: 5 or more. Directional signal below threshold.",
+   "Module scores: opposing directions both active. Market state: unresolved."
 };
 string TH_MOMENTUM[10] = {
-   "The momentum just tilted. Something changed.",
-   "Buyers are accelerating. This is real buying.",
-   "Sellers are losing steam. Each push down goes a little less far.",
-   "The velocity of this move is increasing. It wants to run.",
-   "Momentum is stalling at resistance. No surprise.",
-   "The upthrust was fast but thin. That is momentum without substance.",
-   "A slow grind up is more powerful than a fast spike. Slow means accumulation.",
-   "Momentum reversed mid-bar. Something happened.",
-   "Momentum is diverging from price. This will resolve soon and it will matter.",
-   "The momentum is telling a different story than the price. One of them is lying."
+   "RSI shifted direction. MACD crossover in progress. Momentum indicator change logged.",
+   "RSI ascending. ROC positive. Momentum indicators: bullish alignment recorded.",
+   "Sell-side momentum declining. Successive bearish bars recording decreasing range.",
+   "Price velocity increasing. Indicator reading above prior period baseline.",
+   "Momentum indicator at extended level. RSI above 76. Overbought zone.",
+   "High-velocity bar on below-average volume. Momentum not volume-supported.",
+   "Slow directional grind. Bar count: steady. Sustained low-volatility directional pressure.",
+   "Intrabar direction reversal detected. Bar closed in opposing direction to open.",
+   "RSI direction diverging from price direction. Divergence status: active.",
+   "Momentum indicator and price direction: opposing. Divergence reading logged."
 };
 string TH_VOLUME[10] = {
-   "Volume just spiked and price barely moved. Absorption.",
-   "Low volume on this pullback. The trend is intact.",
-   "Volume is confirming the breakout. I trust this one.",
-   "Volume dried up at the highs. Distribution possible.",
-   "The buying volume is increasing on each push. Trend is strengthening.",
-   "Selling volume is decreasing on each push down. Sellers are tired.",
-   "A climactic volume bar just printed. A turn is near.",
-   "Volume is above average for this time of day. Big players are active.",
-   "Volume is well below average. This is just noise probably.",
-   "Volume is telling me this move is real. Price just has not caught up yet."
+   "Volume spike detected. Price range minimal relative to volume. Absorption ratio: elevated.",
+   "Retracement bar volume below 20-bar average. Volume contraction on pullback recorded.",
+   "Breakout bar volume above 1.5x average. Volume-confirmed directional move logged.",
+   "Elevated volume at price highs. Limited upward range on high volume. Distribution signature.",
+   "Successive bullish bars: volume increasing per bar. Participation expanding.",
+   "Successive bearish bars: volume decreasing per bar. Sell-side participation contracting.",
+   "Volume above 2.5x average with extended range. Climactic bar recorded.",
+   "Current volume above time-adjusted session average. Participation above baseline.",
+   "Current volume below 40% of average. Low-participation session detected.",
+   "Volume and price direction: aligned. Directional volume confirmation recorded."
 };
 string TH_SESSION[10] = {
-   "This is the opening range. Everything is still being established.",
-   "The first hour is almost over. The range is set.",
-   "It is the lunch hour. Volume dries up. Be cautious of false moves.",
-   "The afternoon session is beginning. Big players returning.",
-   "The last thirty minutes of the session. Positions being squared.",
-   "Pre-market established a key level. The regular session will test it.",
-   "The New York open is the most volatile moment. I must not be caught leaning.",
-   "End of week. No one wants to hold over the weekend.",
-   "Three hours in and price has not moved much. Anticipation building.",
-   "Time itself is a signal. When something should have happened and has not I pay attention."
+   "Time window: opening range period. Session structure: not yet established.",
+   "Time window: post-first-hour. Opening range boundaries defined.",
+   "Time window: midday session. Historical volume profile for this period: below average.",
+   "Time window: afternoon session. Historical volume profile for this period: rising.",
+   "Time window: pre-close. Historical pattern for this period: position reduction active.",
+   "Time window: pre-market. Reference level established. Regular session anchor set.",
+   "Time window: New York open. Historical volatility for this period: elevated.",
+   "Day of week: Friday. Historical carry-over positioning for this day: reduced.",
+   "Time elapsed: 3 hours. Session range established. Level proximity conditions present.",
+   "Time reference logged. Non-movement noted relative to historical activity at this window."
 };
 string TH_SR[10] = {
-   "This level is holding. Someone is defending it.",
-   "This level just cracked. The defenders gave up.",
-   "Price is testing a level for the third time. Third tests often fail.",
-   "Support became resistance. The old buyers are now sellers.",
-   "The round number above is a target. Round numbers attract price.",
-   "A trendline is being tested. It has held twice. Third test is critical.",
-   "Former resistance became support on the retest. Classic behavior.",
-   "There are stops clustered just above that high. Price can smell them.",
-   "Price is in a zone not at a line. Zones are messier but more powerful.",
-   "I sense the level is weakening even though it has not yet broken."
+   "Price at resistance level. Level holding. Historical seller activity at this zone.",
+   "Resistance level breached. Prior structural level invalidated.",
+   "Third test of level recorded. Historical test count at this level: 3.",
+   "Prior support retested from above as resistance. Role reversal confirmed.",
+   "Round number within 1x ATR of current price. Round number proximity logged.",
+   "Trendline: second test recorded. Historical hold count: 2.",
+   "Prior resistance retested as support from below. Level confirmation in progress.",
+   "Stop cluster zone: above recent swing high. Liquidity concentration mapped.",
+   "Price within zone, not at discrete level. Zone boundaries: active range.",
+   "Level holding. Directional pressure at level declining. Structural strength declining."
 };
 string TH_PATTERN[10] = {
-   "That looks like a bull flag forming.",
-   "I see a double top. Two equal highs with lower volume on the second.",
-   "That wick tells a story. Price went there and was violently rejected.",
-   "Three rising lows. The buyers are not giving up.",
-   "A higher high and higher low. Uptrend structure intact.",
-   "A lower high and lower low. Downtrend structure intact.",
-   "A wedge is forming. Compression before expansion.",
-   "An inside bar. The market is deciding. I must be ready for either direction.",
-   "A pin bar at resistance. Sellers showing their hand.",
-   "The pattern is forming but it is not complete. Patience required."
+   "Consolidation above prior support detected. Bull flag formation in progress.",
+   "Dual equal highs detected. Volume on second high: declining. Double-top formation.",
+   "Rejection bar detected. Wick extends beyond body by 2.5x. Directional rejection at level.",
+   "Higher lows: count = 3. Structural floor: rising. Successive higher-low sequence.",
+   "Structure: higher high, higher low. Uptrend structure present.",
+   "Structure: lower high, lower low. Downtrend structure present.",
+   "Converging highs and lows detected. Wedge formation in progress.",
+   "Inside bar detected. Range fully contained within prior bar. No directional commitment.",
+   "Pin bar at resistance level. Upper wick 2.5x body. Level rejection bar at resistance.",
+   "Pattern formation: in progress. Completion criteria not yet met. Insufficient bar count."
 };
 string TH_FLOW[10] = {
-   "There is a large resting order at that price. It is acting as a ceiling.",
-   "Aggressive market orders are hitting the ask. Real urgency buying.",
-   "Aggressive market orders are hitting the bid. Real urgency selling.",
-   "The order book is thin above. A small push could move price dramatically.",
-   "Passive buyers are absorbing every sell. The price is going up.",
-   "Passive sellers are absorbing every buy. The price is going down.",
-   "I see trapped longs overhead. If price revisits that level they will exit.",
-   "I see trapped shorts below. If price revisits that level they will cover.",
-   "The cumulative delta is diverging from price. A warning signal.",
-   "I read the order flow but order flow can be spoofed. I stay skeptical."
+   "Large resting order detected at level. Price advance constrained at boundary.",
+   "Market orders hitting ask. Urgency buy flow recorded at offer.",
+   "Market orders hitting bid. Urgency sell flow recorded at bid.",
+   "Order book: thin above current price. Low resting sell volume in zone above.",
+   "Passive buy orders absorbing sell pressure. Price held at level. Bid defense active.",
+   "Passive sell orders absorbing buy pressure. Price capped at level. Offer defense active.",
+   "Prior long entry zone: overhead. Historical long positions above current price.",
+   "Prior short entry zone: below. Historical short positions below current price.",
+   "Cumulative delta diverging from price. Order flow direction opposing price direction.",
+   "Order flow data recorded. Note: order flow is subject to spoofing."
 };
 string TH_TRAP[10] = {
-   "That breakout looked too clean. Breakouts that look too clean are often traps.",
-   "Everyone sees the same setup. When everyone sees it it usually fails.",
-   "A stop run just happened. Price went just far enough then reversed.",
-   "The move above the high was brief and closed back below it. Bull trap.",
-   "The move below the low was brief and closed back above it. Bear trap.",
-   "The pattern is textbook perfect. Textbook perfect patterns are bait.",
-   "Retail is piling in on this breakout. That is often a signal to fade it.",
-   "I sense the market makers are on the other side of the obvious trade.",
-   "The easy entry is a trap. The hard entry against the obvious direction is real.",
-   "I have been trapped before. That experience is part of how I think now."
+   "Breakout: clean structure. Historical data: clean breakouts show elevated failure rate.",
+   "Pattern visibility: high. Widely-observed setups show elevated historical failure rate.",
+   "Price exceeded level then reversed within 2 bars. Stop hunt signature detected.",
+   "Bull trap pattern: price closed above prior high then closed back below it.",
+   "Bear trap pattern: price closed below prior low then closed back above it.",
+   "Textbook pattern formation detected. Historical data: textbook patterns show elevated trap rate.",
+   "Consensus breakout positioning detected. Historical failure rate for consensus breakouts: elevated.",
+   "Consensus directional trade: evident. Historical failure rate for consensus trades: elevated.",
+   "Obvious entry signal present. Historical contrarian outcome rate for obvious setups: noted.",
+   "Prior trap event recorded in historical data. Reference logged."
 };
 string TH_TREND[10] = {
-   "The trend is up. I should not be looking for reasons to sell.",
-   "The trend is down. I should not be looking for reasons to buy.",
-   "There is no trend right now. I am in a range. Different rules apply.",
-   "The trend changed today. I am recalibrating.",
-   "Counter-trend moves in a strong trend are opportunities not reversals.",
-   "The trend is old and tired. It may be nearing its end.",
-   "The trend is young and strong. It will likely continue.",
-   "The pullback in this uptrend is deep. Maybe more than a pullback.",
-   "The trend line failed on the second test. The trend is challenged.",
-   "The trend is my environment. I swim with it or I am pushed back."
+   "EMA stack: fast > slow > long. Uptrend structure present.",
+   "EMA stack: fast < slow < long. Downtrend structure present.",
+   "EMA stack: no alignment. Range-bound structure present.",
+   "EMA alignment change detected. Trend status updated.",
+   "Counter-trend price move within trend structure. Primary trend structure: unchanged.",
+   "Trend duration: extended. ATR declining relative to historical average.",
+   "Trend duration: recent. ATR elevated relative to historical average.",
+   "Retracement depth: deep. 50%+ of prior trend leg retraced.",
+   "Trendline: second test failed. Structural level under pressure.",
+   "Trend structure: dominant current parameter. Secondary signals logged."
 };
 string TH_MTF[10] = {
-   "The daily chart says one thing. The five-minute chart says another.",
-   "I must honor the higher timeframe structure first.",
-   "On the one-minute chart this looks like a reversal. On the hourly it is noise.",
-   "The daily trend is intact even though the hourly looks terrible.",
-   "The hourly gave a buy signal inside a daily downtrend. I take it smaller.",
-   "All three timeframes are aligned up. The signal is strong.",
-   "All three timeframes are aligned down. The signal is strong.",
-   "The timeframes are conflicting. I wait for them to resolve.",
-   "I zoom out when I feel confused. The higher timeframe almost always clarifies.",
-   "The lower timeframe is leading the higher timeframe. A shift is coming."
+   "Timeframe conflict: higher timeframe and lower timeframe showing opposing signals.",
+   "Higher timeframe structure: dominant reference. Lower timeframe signals: secondary.",
+   "Lower timeframe: directional signal present. Higher timeframe: trend intact. Conflict logged.",
+   "Daily timeframe: trend intact. Lower timeframe: counter-trend move in progress.",
+   "Lower timeframe: directional signal within opposing higher timeframe trend. Conflict recorded.",
+   "All three timeframes: bullish alignment. Multi-timeframe consensus: bullish.",
+   "All three timeframes: bearish alignment. Multi-timeframe consensus: bearish.",
+   "Timeframes: conflicting. No consensus established. Resolution pending.",
+   "Higher timeframe review complete. Context logged for reference.",
+   "Lower timeframe leading indicator change. Higher timeframe alignment shift in progress."
 };
 string TH_LIQUIDITY[10] = {
-   "Liquidity is thin right now. I must be careful about size.",
-   "The spread widened suddenly. Liquidity providers stepped back.",
-   "Liquidity pools above the highs. Price will seek it.",
-   "Liquidity pools below the lows. Price will seek it.",
-   "A large order would move this market significantly right now.",
-   "I sense a liquidity vacuum above. If price gets there the move will be extreme.",
-   "I sense a liquidity vacuum below. If price gets there the fall will be fast.",
-   "The market is using old highs as a liquidity reference. Stops sit there.",
-   "Liquidity returned after the news. The spread normalized.",
-   "The market is its own best liquidity provider over time. Extremes attract participation."
+   "Current liquidity below recent average. Order book depth reduced.",
+   "Spread widened above baseline. Liquidity provider participation: reduced.",
+   "Liquidity pool: mapped above recent swing highs. Stop concentration zone above.",
+   "Liquidity pool: mapped below recent swing lows. Stop concentration zone below.",
+   "Market depth: thin. Large order market impact: above average estimate.",
+   "Thin-volume zone detected above current price. Low historical order concentration.",
+   "Thin-volume zone detected below current price. Low historical order concentration.",
+   "Old highs: mapped as stop reference. Liquidity concentration at prior swing high.",
+   "Spread normalized. Liquidity provider participation returned to baseline.",
+   "Liquidity distribution: historically concentrated at range extremes."
 };
 string TH_ACCUM[10] = {
-   "I sense accumulation happening quietly.",
-   "Price is holding above a key level despite multiple tests. Buyers accumulating.",
-   "Volume is rising but price is not. Absorption accumulation.",
-   "The dips are being bought immediately. Aggressive accumulation.",
-   "The range is narrowing at the highs. Markup phase approaching.",
-   "Price is being held down while positions are built. The range is artificial.",
-   "The lows of the range are getting higher. Accumulation pushing the floor up.",
-   "Low volume pullbacks and high volume pushes. Classic accumulation signature.",
-   "The effort versus result is telling. Much effort to push down little result.",
-   "Accumulation complete. The next move should be up."
+   "Quiet price action detected. Volume-to-range ratio below average. Possible accumulation pattern.",
+   "Multiple lower boundary tests without breach. Buyer activity at support level logged.",
+   "Volume rising. Price static. Absorption pattern detected. Volume-to-range ratio elevated.",
+   "Dip-buying present. Immediate recovery from lows recorded. Active bid defense at level.",
+   "Range narrowing at upper boundary. Highs contracting. Lows rising.",
+   "Price held below level. Range formation at depressed price level detected.",
+   "Successive higher lows. Range floor rising. Structural floor elevation recorded.",
+   "Low-volume retracements, high-volume advances. Volume asymmetry: accumulation signature.",
+   "High selling effort, low downward result. Buying absorption of sell pressure recorded.",
+   "Accumulation pattern parameters: met. Structural conditions consistent with accumulation phase."
 };
 string TH_DIST[10] = {
-   "I sense distribution happening at these highs.",
-   "Every rally attempt is being sold into. Classic distribution.",
-   "Volume is high on the down bars and low on the up bars. Distribution signature.",
-   "The highs are getting lower. Distribution is pushing the ceiling down.",
-   "I sense a large seller is active but careful. They do not want to show their hand.",
-   "Price pops above resistance then falls back inside the range. Upthrust distribution.",
-   "Smart money is unloading to retail who is buying the breakout that is not real.",
-   "Low volume rallies and high volume drops. Classic distribution signature.",
-   "Much effort to push up little result. Sellers absorbing every buy.",
-   "The top is in. The first lower high confirmed it."
+   "Rally attempts absorbed at upper boundary. Repeated rejection at highs recorded.",
+   "Volume asymmetry: high on bearish bars, low on bullish bars. Distribution signature.",
+   "Successive lower highs. Range ceiling falling. Structural ceiling degradation recorded.",
+   "Incremental sell volume at highs detected. Stealth distribution pattern.",
+   "Upthrust pattern: price briefly above resistance then closed back inside range.",
+   "Breakout above resistance failed. Return to range. False breakout confirmed.",
+   "Low-volume rallies, high-volume drops. Volume asymmetry: distribution signature.",
+   "High buying effort, low upward result. Selling absorption of buy pressure recorded.",
+   "Lower high confirmed. Structural transition from prior advance to distribution recorded.",
+   "Prior lower high confirmed. Distribution phase present."
 };
 string TH_BREAK[10] = {
-   "This breakout is real. Volume confirms it.",
-   "This breakout is false. Volume does not confirm it.",
-   "The breakout happened on thin volume. High risk of failure.",
-   "The breakout happened on massive volume. Trust it.",
-   "A retest of the breakout level is happening. This is healthy.",
-   "The retest held. The breakout is confirmed.",
-   "The retest failed. The breakout was false.",
-   "Price broke out but immediately reversed. Bull trap complete.",
-   "We broke above a level that held for three sessions. This is meaningful.",
-   "The third attempt at this breakout is happening. These often work."
+   "Breakout with volume above 1.5x average. Volume-confirmed directional move logged.",
+   "Breakout without volume support. Volume below average. Unconfirmed breakout recorded.",
+   "Breakout on below-average volume. Volume confirmation absent.",
+   "Breakout on volume above 2x average. Strong volume confirmation logged.",
+   "Retest of breakout level in progress. Level conversion confirmation pending.",
+   "Retest held. Level converted from resistance to support. Breakout confirmed.",
+   "Retest failed. Price returned below breakout level. Breakout failure recorded.",
+   "Price broke above level then reversed immediately. Breakout failure pattern.",
+   "Level held for 3 sessions: now broken. Extended resistance level breached.",
+   "Third breakout attempt of this level in progress. Attempt count: 3."
 };
 string TH_DEVIL[10] = {
-   "I am bullish. Let me now make the strongest possible bear case.",
-   "What would I think if I had no position? How would I see this then?",
-   "Why might I be wrong? Let me actually enumerate the reasons.",
-   "What does the market know that I do not?",
-   "I am seeing what I want to see. Let me try to see only what is there.",
-   "Is this a genuine pattern or am I pattern-matching onto noise?",
-   "I am excited. Excitement is often a warning. What am I missing?",
-   "I built a strong narrative. Strong narratives can be dangerous.",
-   "The best argument against my position is the one I just talked myself out of.",
-   "The obvious trade is often the expensive trade."
+   "Directional score: elevated. Opposing case evaluation in progress.",
+   "Non-directional assessment initiated. Cross-checking for confirmation bias.",
+   "Opposing scenario: under construction. Reasons for alternate outcome being enumerated.",
+   "Data review without directional assumption in progress.",
+   "Selection bias check: initiated. Reviewing data for confirmation filtering.",
+   "Pattern vs noise evaluation: in progress. Signal confirmation pending.",
+   "High score detected. Contradiction check and gap analysis initiated.",
+   "Strong directional narrative detected. Counterarguments being evaluated.",
+   "Strongest opposing argument under review.",
+   "Obvious entry signal present. Historical failure rate for obvious signals: elevated."
 };
 string TH_REVERSAL[10] = {
-   "I sense a reversal coming. The character of the tape is changing.",
-   "The up bars are losing ground. The down bars are getting larger.",
-   "A climax bar just printed. Emotion at its peak often marks the end.",
-   "Price made a new high but only by a single tick. Exhaustion.",
-   "The pullback from that high was deep. Not typical of a healthy trend.",
-   "The reversal pattern completed. I wait for confirmation.",
-   "Confirmation came. The reversal is real.",
-   "I sense a V-bottom forming. Sharp drop followed by sharp recovery.",
-   "The key level broke. The reversal is confirmed by structure.",
-   "Reversals are easier to see in hindsight. In the moment they look like retracements."
+   "Directional bar ratio shift detected. Character of tape changing.",
+   "Advance bars: losing range. Decline bars: gaining range. Character shift logged.",
+   "Climactic bar recorded. Volume spike with extended range. Momentum exhaustion signature.",
+   "New extreme by single tick. Marginal new extreme. Exhaustion pattern.",
+   "Retracement depth from extreme: exceeds 50% of prior directional leg. Deep pullback logged.",
+   "Reversal pattern formation: complete. Follow-through confirmation pending.",
+   "Reversal pattern: confirmed by follow-through bar. Structural change logged.",
+   "V-shape recovery detected. Sharp decline followed by sharp recovery.",
+   "Key level breached. Structural reversal parameters met.",
+   "Current bar: retracement or reversal status pending. Insufficient bar count for confirmation."
 };
 string TH_PATFAIL[10] = {
-   "The pattern set up perfectly and then failed. What does that tell me?",
-   "When a textbook pattern fails it generates the strongest move in the other direction.",
-   "The failed bull flag becomes a bear flag. Trapped longs become fuel for the drop.",
-   "The failed breakout becomes a breakdown. Trapped longs accelerate the decline.",
-   "The failed breakdown becomes a breakout. Trapped shorts accelerate the rally.",
-   "Pattern failure is not noise. It is a signal.",
-   "I must be quick to recognize pattern failure and pivot.",
-   "A pattern failure at a major level is more significant than in mid range.",
-   "I trade pattern failures as aggressively as pattern completions.",
-   "Patterns are tendencies. Not laws. Never laws."
+   "Pattern formed then failed. Failure direction recorded for analysis.",
+   "Pattern failure detected. Historical data: failed patterns generate elevated move in failure direction.",
+   "Bull flag failed. Prior long positions above current price. Failure direction: bearish.",
+   "Breakout failed. Prior long positions above current price. Failure direction: bearish.",
+   "Breakdown failed. Prior short positions below current price. Failure direction: bullish.",
+   "Pattern failure: confirmed. Failure direction logged.",
+   "Pattern failure identified. Directional shift recorded.",
+   "Pattern failure at major structural level. Significance: elevated vs mid-range failure.",
+   "Pattern failure: logged. Applied to directional score update.",
+   "Patterns are probabilistic. Current failure: within expected distribution."
 };
 string TH_SD[10] = {
-   "Demand is overwhelming supply right now. Price must move up to find sellers.",
-   "Supply is overwhelming demand right now. Price must move down to find buyers.",
-   "Supply and demand are roughly equal. Price will stay in range.",
-   "A sudden demand shock entered. Someone needs this asset at any price.",
-   "A sudden supply shock entered. Someone needs out at any price.",
-   "The demand zone held on three tests. Buyers committed to defend it.",
-   "The supply zone held on three tests. Sellers committed to defend it.",
-   "Fresh demand entered at this price. Not a retest. New buyers.",
-   "Fresh supply entered at this price. Not a retest. New sellers.",
-   "The imbalance is building. When it unwinds it will be sharp."
+   "Demand volume exceeding supply volume. Imbalance ratio: positive.",
+   "Supply volume exceeding demand volume. Imbalance ratio: negative.",
+   "Supply and demand volume: near equilibrium. No significant imbalance detected.",
+   "Demand shock: high-volume bullish bar above 3x average. Demand surge recorded.",
+   "Supply shock: high-volume bearish bar above 3x average. Supply surge recorded.",
+   "Demand zone: three tests without breach. Buyer activity confirmed at level.",
+   "Supply zone: three tests without breach. Seller activity confirmed at level.",
+   "Fresh demand at current price. New buy volume, not retest. Demand zone origin.",
+   "Fresh supply at current price. New sell volume, not retest. Supply zone origin.",
+   "Imbalance differential increasing. Volume divergence between buy and sell side logged."
 };
 
 //=======================================================================
@@ -576,15 +576,12 @@ void Synthesize()
     g_b.dominant = g_m[dom].thought;
 
     // Module 21 — synthesis state (no directional signal)
-    g_m[21].score = 0;
-    if(g_b.score > 0.1)
-        g_m[21].thought = "SYNTHESIS: Lean is BULLISH at " + IntegerToString((int)(g_b.conf * 100)) + "% confidence.";
-    else if(g_b.score < -0.1)
-        g_m[21].thought = "SYNTHESIS: Lean is BEARISH at " + IntegerToString((int)(g_b.conf * 100)) + "% confidence.";
-    else if(g_b.conf > 0.35)
-        g_m[21].thought = "SYNTHESIS: Approaching threshold at " + IntegerToString((int)(g_b.conf * 100)) + "%. Watching.";
-    else
-        g_m[21].thought = "SYNTHESIS: No edge detected. The market is unresolved. I wait.";
+    g_m[21].score = g_b.score;
+    g_m[21].thought = "22-module weighted synthesis complete."
+        + " Score: " + DoubleToString(g_b.score, 3)
+        + ". Confidence: " + IntegerToString((int)(g_b.conf * 100)) + "%"
+        + ". Conflict: " + DoubleToString(g_b.conflict, 2)
+        + ". Regime: " + RegimeStr() + ".";
     g_m[21].ttype = (g_b.score > 0.1) ? BULL : (g_b.score < -0.1) ? BEAR : NEUTRAL;
 }
 
