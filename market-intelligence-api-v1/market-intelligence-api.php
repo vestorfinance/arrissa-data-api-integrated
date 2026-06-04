@@ -165,9 +165,13 @@ if ($symbol) {
     $reqFile    = "$queueDir/{$request_id}.req.json";
     $resFile    = "$queueDir/{$request_id}.res.json";
 
+    $timeframe = strtoupper(trim($_GET['timeframe'] ?? 'MN1'));
+    if ($timeframe === '') $timeframe = 'MN1';
+
     $requestData = [
         'request_id' => $request_id,
         'symbol'     => $symbol,
+        'timeframe'  => $timeframe,
     ];
 
     // Optional backtesting params — passed through to the EA unchanged
@@ -178,7 +182,7 @@ if ($symbol) {
     debug_log("Client GET enqueued request_id=$request_id symbol=$symbol");
 
     $start   = time();
-    $timeout = 20; // monthly analysis takes more computation than tick-based
+    $timeout = ($timeframe === 'ALL') ? 45 : 20;
 
     $jsonMode = (($_GET['format'] ?? '') === 'json');
 
@@ -200,97 +204,104 @@ if ($symbol) {
                 // Default: formatted markdown report
                 header('Content-Type: text/plain; charset=utf-8');
 
-                $payload = $response['payload'] ?? [];
-                $report  = $payload['report']   ?? [];
-                $sym     = $payload['symbol']    ?? $symbol;
-                $time    = $payload['server_time'] ?? date('Y-m-d');
-                $date    = substr($time, 0, 10);
+                $payload    = $response['payload'] ?? [];
+                $sym        = $payload['symbol']      ?? $symbol;
+                $serverTime = $payload['server_time'] ?? date('Y-m-d H:i:s');
+                $date       = substr($serverTime, 0, 10);
 
                 $lines = [];
-                $lines[] = "# Market Intelligence Report — {$sym} — {$date}";
-                $lines[] = '';
 
-                if (!empty($report['price_history'])) {
-                    $lines[] = '## Price History';
+                // --- helper: emit one TF report block ---
+                $emitReport = function(string $tfLabel, array $report) use (&$lines, $sym, $date) {
+                    $lines[] = "# Market Intelligence Report — {$sym} [{$tfLabel}] — {$date}";
                     $lines[] = '';
-                    $lines[] = $report['price_history'];
-                    $lines[] = '';
-                }
 
-                if (!empty($report['market_structure'])) {
-                    $lines[] = '## Market Structure';
-                    $lines[] = '';
-                    $lines[] = $report['market_structure'];
-                    $lines[] = '';
-                }
-
-                if (!empty($report['range_position'])) {
-                    $lines[] = '## Range Position';
-                    $lines[] = '';
-                    $lines[] = $report['range_position'];
-                    $lines[] = '';
-                }
-
-                if (!empty($report['percentile_ranking'])) {
-                    $lines[] = '## Percentile Ranking';
-                    $lines[] = '';
-                    $lines[] = $report['percentile_ranking'];
-                    $lines[] = '';
-                }
-
-                if (!empty($report['drawdown'])) {
-                    $lines[] = '## Drawdown';
-                    $lines[] = '';
-                    $lines[] = $report['drawdown'];
-                    if (!empty($report['drawdown_context'])) {
-                        $lines[] = $report['drawdown_context'];
-                    }
-                    $lines[] = '';
-                }
-
-                if (!empty($report['volatility'])) {
-                    $lines[] = '## Volatility';
-                    $lines[] = '';
-                    $lines[] = $report['volatility'];
-                    $lines[] = '';
-                }
-
-                if (!empty($report['moving_averages'])) {
-                    $lines[] = '## Moving Averages';
-                    $lines[] = '';
-                    $lines[] = $report['moving_averages'];
-                    $lines[] = '';
-                }
-
-                if (!empty($report['candle_behaviour'])) {
-                    $lines[] = '## Candle Behaviour';
-                    $lines[] = '';
-                    $lines[] = $report['candle_behaviour'];
-                    $lines[] = '';
-                    if (!empty($report['last_candle'])) {
-                        $lines[] = '**Last completed candle:**';
-                        $lines[] = $report['last_candle'];
+                    if (!empty($report['price_history'])) {
+                        $lines[] = '## Price History';
+                        $lines[] = '';
+                        $lines[] = $report['price_history'];
                         $lines[] = '';
                     }
-                    if (!empty($report['current_candle'])) {
-                        $lines[] = '**Current candle (still forming):**';
-                        $lines[] = $report['current_candle'];
+                    if (!empty($report['market_structure'])) {
+                        $lines[] = '## Market Structure';
+                        $lines[] = '';
+                        $lines[] = $report['market_structure'];
                         $lines[] = '';
                     }
-                }
-
-                if (!empty($report['seasonal_month']) || !empty($report['seasonal_quarter'])) {
-                    $lines[] = '## Seasonal Statistics';
+                    if (!empty($report['range_position'])) {
+                        $lines[] = '## Range Position';
+                        $lines[] = '';
+                        $lines[] = $report['range_position'];
+                        $lines[] = '';
+                    }
+                    if (!empty($report['percentile_ranking'])) {
+                        $lines[] = '## Percentile Ranking';
+                        $lines[] = '';
+                        $lines[] = $report['percentile_ranking'];
+                        $lines[] = '';
+                    }
+                    if (!empty($report['drawdown'])) {
+                        $lines[] = '## Drawdown';
+                        $lines[] = '';
+                        $lines[] = $report['drawdown'];
+                        if (!empty($report['drawdown_context'])) {
+                            $lines[] = $report['drawdown_context'];
+                        }
+                        $lines[] = '';
+                    }
+                    if (!empty($report['volatility'])) {
+                        $lines[] = '## Volatility';
+                        $lines[] = '';
+                        $lines[] = $report['volatility'];
+                        $lines[] = '';
+                    }
+                    if (!empty($report['moving_averages'])) {
+                        $lines[] = '## Moving Averages';
+                        $lines[] = '';
+                        $lines[] = $report['moving_averages'];
+                        $lines[] = '';
+                    }
+                    if (!empty($report['candle_behaviour'])) {
+                        $lines[] = '## Candle Behaviour';
+                        $lines[] = '';
+                        $lines[] = $report['candle_behaviour'];
+                        $lines[] = '';
+                        if (!empty($report['last_candle'])) {
+                            $lines[] = '**Last completed candle:**';
+                            $lines[] = $report['last_candle'];
+                            $lines[] = '';
+                        }
+                        if (!empty($report['current_candle'])) {
+                            $lines[] = '**Current candle (still forming):**';
+                            $lines[] = $report['current_candle'];
+                            $lines[] = '';
+                        }
+                    }
+                    if (!empty($report['seasonal_month']) || !empty($report['seasonal_quarter'])) {
+                        $lines[] = '## Seasonal Statistics';
+                        $lines[] = '';
+                        if (!empty($report['seasonal_month']))   { $lines[] = $report['seasonal_month'];   $lines[] = ''; }
+                        if (!empty($report['seasonal_quarter'])) { $lines[] = $report['seasonal_quarter']; $lines[] = ''; }
+                    }
+                    if (!empty($report['dataset_note'])) {
+                        $lines[] = $report['dataset_note'];
+                        $lines[] = '';
+                    }
+                    $lines[] = '---';
                     $lines[] = '';
-                    if (!empty($report['seasonal_month']))   { $lines[] = $report['seasonal_month'];   $lines[] = ''; }
-                    if (!empty($report['seasonal_quarter'])) { $lines[] = $report['seasonal_quarter']; $lines[] = ''; }
-                }
+                };
 
-                $lines[] = '---';
-                $lines[] = '';
-                if (!empty($report['dataset_note'])) {
-                    $lines[] = $report['dataset_note'];
-                    $lines[] = '';
+                // --- "all" mode: payload has 'timeframes' => ['MN1'=>{report,data}, ...] ---
+                if (!empty($payload['timeframes']) && is_array($payload['timeframes'])) {
+                    foreach ($payload['timeframes'] as $tfLabel => $tfBlock) {
+                        $report = $tfBlock['report'] ?? [];
+                        $emitReport((string)$tfLabel, $report);
+                    }
+                } else {
+                    // Single TF mode
+                    $tfLabel = $payload['timeframe'] ?? 'MN1';
+                    $report  = $payload['report']    ?? [];
+                    $emitReport($tfLabel, $report);
                 }
 
                 echo implode("\n", $lines);

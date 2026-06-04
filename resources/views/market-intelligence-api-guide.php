@@ -116,7 +116,7 @@ ob_start();
                     Market Intelligence API
                     <span class="section-badge ml-3" style="background: linear-gradient(135deg, #10B981, #0EA5E9); color: white;">v1.0</span>
                 </h1>
-                <p class="text-lg" style="color: var(--text-secondary);">Full monthly-timeframe analysis — price history, structure, volatility, seasonality and drawdown for any symbol, on demand</p>
+                <p class="text-lg" style="color: var(--text-secondary);">Multi-timeframe analysis (MN1 → M1) — price history, structure, volatility, seasonality and drawdown for any symbol and timeframe, on demand</p>
             </div>
         </div>
 
@@ -130,11 +130,11 @@ ob_start();
                 </div>
                 <div class="flex-1">
                     <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">What is the Market Intelligence API?</h3>
-                    <p class="text-sm mb-4" style="color: var(--text-secondary);">Send a symbol — the EA reads up to 24 months of monthly bars from MT5 and returns a full structured report. It covers where price sits in its all-time range, trailing drawdown history, volatility regime, moving average alignment, candle behaviour patterns, and seasonal statistics for the current month and quarter. <strong style="color: var(--text-primary);">No BUY/SELL signals</strong> — only factual monthly data observations for you to reason from.</p>
+                    <p class="text-sm mb-4" style="color: var(--text-secondary);">Send a symbol and a timeframe — the EA reads bars from MT5 and returns a full structured report for that timeframe. Pass <code>timeframe=all</code> to get all 9 timeframes in one call. It covers where price sits in its dataset range, trailing drawdown history, volatility regime, moving average alignment, candle behaviour patterns, and (for MN1) seasonal statistics. <strong style="color: var(--text-primary);">No BUY/SELL signals</strong> — only factual data observations for you to reason from.</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm" style="color: var(--text-secondary);">
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: #10B981;"></i>
-                            <span><strong>Monthly Timeframe:</strong> All analysis runs on MN1 bars — the highest timeframe context for positioning and macro structure awareness</span>
+                            <span><strong>9 Timeframes:</strong> MN1, W1, D1, H4, H1, M30, M15, M5, M1 — single call or all at once with <code>timeframe=all</code></span>
                         </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: #10B981;"></i>
@@ -142,11 +142,11 @@ ob_start();
                         </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: #10B981;"></i>
-                            <span><strong>Seasonal Statistics:</strong> Historical win rate, average move, and direction bias for the current calendar month and quarter</span>
+                            <span><strong>Seasonal Statistics:</strong> Historical win rate, average move, and direction bias for the current calendar month and quarter (MN1 only)</span>
                         </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: #10B981;"></i>
-                            <span><strong>Backtesting Mode:</strong> Pass <code>pretend_date</code> + <code>pretend_time</code> to re-run the entire analysis as it would have read at any historical moment</span>
+                            <span><strong>Backtesting Mode:</strong> Pass <code>pretend_date</code> + <code>pretend_time</code> to re-run the analysis as it would have read at any historical moment — all timeframes supported</span>
                         </div>
                     </div>
                 </div>
@@ -163,8 +163,10 @@ ob_start();
                 <h4 class="text-sm font-semibold mb-2" style="color: var(--text-primary);">Metadata</h4>
                 <ul class="text-xs space-y-1" style="color: var(--text-secondary);">
                     <li><code>payload.symbol</code></li>
+                    <li><code>payload.timeframe</code></li>
                     <li><code>payload.server_time</code></li>
                     <li><code>payload.pretend_mode</code></li>
+                    <li class="opacity-60 italic">or <code>payload.timeframes</code> (all mode)</li>
                 </ul>
             </div>
             <div class="p-4 rounded-xl" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
@@ -188,9 +190,9 @@ ob_start();
                 <h4 class="text-sm font-semibold mb-2" style="color: var(--text-primary);">Numeric Data Fields</h4>
                 <ul class="text-xs space-y-1" style="color: var(--text-secondary);">
                     <li><code>data.current_close</code></li>
-                    <li><code>data.all_time_high</code></li>
-                    <li><code>data.all_time_low</code></li>
-                    <li><code>data.pct_from_ath</code></li>
+                    <li><code>data.dataset_high</code></li>
+                    <li><code>data.dataset_low</code></li>
+                    <li><code>data.pct_from_dataset_high</code></li>
                     <li><code>data.percentile</code></li>
                     <li><code>data.current_volatility</code></li>
                     <li><code>data.volatility_percentile</code></li>
@@ -262,14 +264,14 @@ ob_start();
                         <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">Price</span>
                         <span class="text-xs" style="color: var(--text-secondary);">ATH / ATL / Percentile</span>
                     </div>
-                    <p class="text-xs" style="color: var(--text-secondary);"><code>current_close</code>, <code>all_time_high</code>, <code>all_time_low</code>, <code>pct_from_ath</code>, <code>pct_from_atl</code>, <code>percentile</code>, <code>candles_copied</code></p>
+                    <p class="text-xs" style="color: var(--text-secondary);"><code>current_close</code>, <code>dataset_high</code>, <code>dataset_low</code>, <code>pct_from_dataset_high</code>, <code>pct_from_dataset_low</code>, <code>percentile</code>, <code>candles_copied</code></p>
                 </div>
                 <div class="p-4 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #0EA5E9;">
                     <div class="flex items-center mb-2">
                         <span class="method-badge mr-2" style="background: rgba(14,165,233,0.15); color: #0EA5E9;">Volatility &amp; MA</span>
                         <span class="text-xs" style="color: var(--text-secondary);">Regime numbers</span>
                     </div>
-                    <p class="text-xs" style="color: var(--text-secondary);"><code>current_volatility</code>, <code>historical_volatility</code>, <code>volatility_percentile</code>, <code>short_ma</code>, <code>long_ma</code>, <code>range_high_24m</code>, <code>range_low_24m</code>, <code>pct_in_24m_range</code></p>
+                    <p class="text-xs" style="color: var(--text-secondary);"><code>current_volatility</code>, <code>historical_volatility</code>, <code>volatility_percentile</code>, <code>short_ma</code>, <code>long_ma</code>, <code>range_high_lb</code>, <code>range_low_lb</code>, <code>pct_in_lb_range</code></p>
                 </div>
                 <div class="p-4 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #8B5CF6;">
                     <div class="flex items-center mb-2">
@@ -330,6 +332,12 @@ ob_start();
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Your API authentication key (also accepted as <code>X-Api-Key</code> header).</td>
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
+                        <td class="px-6 py-4"><code class="text-sm" style="color: #F59E0B;">timeframe</code></td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-muted);">Optional</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Timeframe to analyse. Accepted values: <code>MN1</code> (default), <code>W1</code>, <code>D1</code>, <code>H4</code>, <code>H1</code>, <code>M30</code>, <code>M15</code>, <code>M5</code>, <code>M1</code>, or <code>all</code> (returns all 9 timeframes in a single response). Case-insensitive.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
                         <td class="px-6 py-4"><code class="text-sm" style="color: #F59E0B;">pretend_date</code></td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-muted);">Optional</td>
@@ -367,102 +375,93 @@ ob_start();
         </div>
 
         <div class="grid grid-cols-1 gap-6">
-            <!-- Forex Majors -->
+
+            <?php
+            // Helper to emit a curl example block
+            function curlBlock($label, $url) {
+                $escaped = htmlspecialchars($url);
+                echo '<div>';
+                echo '<div class="flex items-center justify-between mb-2">';
+                echo '<label class="text-xs font-semibold" style="color: var(--text-secondary);">' . htmlspecialchars($label) . '</label>';
+                echo '<button onclick="copyToClipboard(\'' . str_replace("'", "\\'", 'curl "' . $url . '"') . '\')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">';
+                echo '<i data-feather="copy" style="width: 12px; height: 12px;"></i> Copy</button>';
+                echo '</div>';
+                echo '<div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: \'Fira Code\', monospace; font-size: 0.75rem; overflow-x: auto;">';
+                echo '<code style="color: var(--text-primary);">curl "' . $escaped . '"</code>';
+                echo '</div>';
+                echo '</div>';
+            }
+            $base = "{$baseUrl}/market-intelligence-api-v1/market-intelligence-api.php";
+            $k    = $apiKey;
+            ?>
+
+            <!-- Single Timeframe — Monthly (default) -->
             <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
                 <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">
-                    <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">Forex</span>
-                    Major Pairs
+                    <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">Default</span>
+                    Single Timeframe — MN1 (monthly, default)
                 </h3>
                 <div class="space-y-4">
                     <?php
-                    $forexExamples = [
-                        ['EUR/USD — Monthly Analysis (plain text)', 'EURUSD',  ''],
-                        ['GBP/USD — Monthly Analysis (plain text)', 'GBPUSD',  ''],
-                        ['USD/JPY — Monthly Analysis (JSON)',        'USDJPY',  '&format=json'],
-                    ];
-                    foreach ($forexExamples as $ex):
-                        $url = "{$baseUrl}/market-intelligence-api-v1/market-intelligence-api.php?symbol={$ex[1]}&api_key={$apiKey}{$ex[2]}";
+                    curlBlock('EUR/USD — Monthly analysis (plain text, default)',  "{$base}?symbol=EURUSD&api_key={$k}");
+                    curlBlock('GBP/USD — Monthly analysis (JSON)',                  "{$base}?symbol=GBPUSD&api_key={$k}&format=json");
+                    curlBlock('XAU/USD — Monthly analysis — explicit timeframe',    "{$base}?symbol=XAUUSD&timeframe=MN1&api_key={$k}");
                     ?>
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="text-xs font-semibold" style="color: var(--text-secondary);"><?php echo $ex[0]; ?></label>
-                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($url) ?>&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
-                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
-                                Copy
-                            </button>
-                        </div>
-                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
-                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($url) ?>"</code>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
                 </div>
             </div>
 
-            <!-- Gold & Cross Pairs -->
+            <!-- Single Timeframe — Lower TFs -->
             <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
                 <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">
-                    <span class="method-badge mr-2" style="background: rgba(14,165,233,0.15); color: #0EA5E9;">Commodities</span>
-                    Gold &amp; Cross Pairs
+                    <span class="method-badge mr-2" style="background: rgba(14,165,233,0.15); color: #0EA5E9;">Timeframes</span>
+                    Single Timeframe — W1 to M1
                 </h3>
                 <div class="space-y-4">
                     <?php
-                    $commodityExamples = [
-                        ['XAU/USD — Monthly Analysis (plain text)', 'XAUUSD', ''],
-                        ['GBP/JPY — Monthly Analysis (plain text)', 'GBPJPY', ''],
-                        ['AUD/USD — Monthly Analysis (JSON)',        'AUDUSD', '&format=json'],
-                    ];
-                    foreach ($commodityExamples as $ex):
-                        $url = "{$baseUrl}/market-intelligence-api-v1/market-intelligence-api.php?symbol={$ex[1]}&api_key={$apiKey}{$ex[2]}";
+                    curlBlock('GBP/USD — Weekly analysis (W1)',           "{$base}?symbol=GBPUSD&timeframe=W1&api_key={$k}");
+                    curlBlock('EUR/USD — Daily analysis (D1)',             "{$base}?symbol=EURUSD&timeframe=D1&api_key={$k}");
+                    curlBlock('XAU/USD — H4 analysis (JSON)',              "{$base}?symbol=XAUUSD&timeframe=H4&api_key={$k}&format=json");
+                    curlBlock('GBP/JPY — H1 analysis',                    "{$base}?symbol=GBPJPY&timeframe=H1&api_key={$k}");
+                    curlBlock('EUR/USD — M30 analysis',                    "{$base}?symbol=EURUSD&timeframe=M30&api_key={$k}");
+                    curlBlock('USD/JPY — M15 analysis',                    "{$base}?symbol=USDJPY&timeframe=M15&api_key={$k}");
+                    curlBlock('GBP/USD — M5 analysis (JSON)',              "{$base}?symbol=GBPUSD&timeframe=M5&api_key={$k}&format=json");
+                    curlBlock('EUR/USD — M1 analysis',                     "{$base}?symbol=EURUSD&timeframe=M1&api_key={$k}");
                     ?>
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="text-xs font-semibold" style="color: var(--text-secondary);"><?php echo $ex[0]; ?></label>
-                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($url) ?>&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
-                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
-                                Copy
-                            </button>
-                        </div>
-                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
-                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($url) ?>"</code>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
                 </div>
             </div>
 
-            <!-- Pretend / Backtesting Mode -->
+            <!-- All Timeframes in One Call -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">
+                    <span class="method-badge mr-2" style="background: rgba(139,92,246,0.15); color: #8B5CF6;">all</span>
+                    All 9 Timeframes in One Call
+                </h3>
+                <p class="text-sm mb-4" style="color: var(--text-secondary);">Pass <code>timeframe=all</code> to get MN1, W1, D1, H4, H1, M30, M15, M5, and M1 in a single response. In plain-text mode each timeframe is emitted as its own report block separated by <code>---</code>. In JSON mode the payload contains a <code>timeframes</code> object keyed by timeframe name. Allow up to 45 seconds for the EA to compute all 9 analyses.</p>
+                <div class="space-y-4">
+                    <?php
+                    curlBlock('GBP/USD — All timeframes (plain text)',  "{$base}?symbol=GBPUSD&timeframe=all&api_key={$k}");
+                    curlBlock('XAU/USD — All timeframes (JSON)',         "{$base}?symbol=XAUUSD&timeframe=all&api_key={$k}&format=json");
+                    curlBlock('EUR/USD — All timeframes at historical date', "{$base}?symbol=EURUSD&timeframe=all&pretend_date=2025-01-15&pretend_time=14:30&api_key={$k}");
+                    ?>
+                </div>
+            </div>
+
+            <!-- Backtesting / Pretend Mode -->
             <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
                 <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">
                     <span class="method-badge mr-2" style="background: rgba(245,158,11,0.15); color: #F59E0B;">Backtesting</span>
                     Pretend Date &amp; Time
                 </h3>
-                <p class="text-sm mb-4" style="color: var(--text-secondary);">Add <code>pretend_date</code> and <code>pretend_time</code> to run the full monthly analysis on any historical point. The EA uses <code>iBarShift()</code> on the monthly timeframe to locate the correct bar offset, so the entire report — including seasonality — reflects exactly what existed at that moment in history.</p>
+                <p class="text-sm mb-4" style="color: var(--text-secondary);">Add <code>pretend_date</code> and <code>pretend_time</code> to run the analysis at any historical moment. The EA calls <code>iBarShift()</code> per timeframe to locate the correct bar offset — all report sections including seasonality reflect what existed at that point in history.</p>
                 <div class="space-y-4">
                     <?php
-                    $pretendExamples = [
-                        ['XAUUSD — Monthly Intelligence at 2025-01-15', 'XAUUSD', '2025-01-15', '14:30'],
-                        ['GBPUSD — Monthly Intelligence at 2025-03-01', 'GBPUSD', '2025-03-01', '09:00'],
-                        ['EURUSD — Monthly Intelligence at 2024-11-05 (US Election)', 'EURUSD', '2024-11-05', '14:00'],
-                    ];
-                    foreach ($pretendExamples as $ex):
-                        $url = "{$baseUrl}/market-intelligence-api-v1/market-intelligence-api.php?symbol={$ex[1]}&pretend_date={$ex[2]}&pretend_time={$ex[3]}&api_key={$apiKey}";
+                    curlBlock('XAUUSD — Monthly at 2025-01-15 14:30',              "{$base}?symbol=XAUUSD&timeframe=MN1&pretend_date=2025-01-15&pretend_time=14:30&api_key={$k}");
+                    curlBlock('GBPUSD — H4 at 2025-03-01 09:00',                   "{$base}?symbol=GBPUSD&timeframe=H4&pretend_date=2025-03-01&pretend_time=09:00&api_key={$k}");
+                    curlBlock('EURUSD — All TFs at 2024-11-05 (US Election)',       "{$base}?symbol=EURUSD&timeframe=all&pretend_date=2024-11-05&pretend_time=14:00&api_key={$k}");
                     ?>
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="text-xs font-semibold" style="color: var(--text-secondary);"><?php echo $ex[0]; ?></label>
-                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($url) ?>&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
-                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
-                                Copy
-                            </button>
-                        </div>
-                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
-                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($url) ?>"</code>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -472,13 +471,13 @@ ob_start();
         <div class="grid grid-cols-1 gap-6">
             <?php
             $testExamples = [
-                ['GBP/USD — Monthly Market Intelligence', 'GBPUSD'],
-                ['EUR/USD — Monthly Market Intelligence', 'EURUSD'],
-                ['XAU/USD — Monthly Market Intelligence', 'XAUUSD'],
-                ['USD/JPY — Monthly Market Intelligence', 'USDJPY'],
+                ['GBP/USD — Monthly (MN1)',  'GBPUSD', 'MN1'],
+                ['EUR/USD — H4 Intelligence','EURUSD',  'H4'],
+                ['XAU/USD — Daily (D1)',     'XAUUSD',  'D1'],
+                ['USD/JPY — H1 Intelligence','USDJPY',  'H1'],
             ];
             foreach ($testExamples as $idx => $ex):
-                $url = "{$baseUrl}/market-intelligence-api-v1/market-intelligence-api.php?symbol={$ex[1]}&api_key={$apiKey}&format=json";
+                $url = "{$baseUrl}/market-intelligence-api-v1/market-intelligence-api.php?symbol={$ex[1]}&timeframe={$ex[2]}&api_key={$apiKey}&format=json";
             ?>
             <div class="p-6 rounded-2xl example-card cursor-pointer" style="background-color: var(--card-bg); border: 1px solid var(--border);" onclick="testAPI(event.currentTarget, '<?php echo htmlspecialchars($url); ?>')">
                 <div class="flex items-center justify-between mb-4">
@@ -486,7 +485,7 @@ ob_start();
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background: linear-gradient(135deg, #10B981, #0EA5E9);">
                             <span class="text-sm font-bold text-white"><?php echo $idx + 1; ?></span>
                         </div>
-                        <h3 class="text-lg font-semibold" style="color: var(--text-primary);"><?php echo $ex[0]; ?></h3>
+                        <h3 class="text-lg font-semibold" style="color: var(--text-primary);"><?php echo htmlspecialchars($ex[0]); ?></h3>
                     </div>
                     <button class="px-3 py-1 rounded-lg text-xs font-medium" style="background: linear-gradient(135deg, #10B981, #0EA5E9); color: white;" onclick="event.stopPropagation(); testAPI(event.currentTarget.closest('.example-card'), '<?php echo htmlspecialchars($url); ?>')">
                         Test Request
@@ -515,12 +514,12 @@ ob_start();
             </div>
             <p class="text-sm mb-4" style="color: var(--text-secondary);">Without <code>?format=json</code> the API returns <code>text/plain</code> — a structured markdown report you can display directly in an AI prompt, a terminal, or a markdown renderer.</p>
             <div class="response-preview" style="color: var(--text-primary);">
-<pre># Market Intelligence Report — GBPUSD — 2026-06-04
+<pre># Market Intelligence Report — GBPUSD [MN1] — 2026-06-05
 
 ## Price History
 
-All-time high: 2.11600 | All-time low: 1.03500
-Current close: 1.27340 — 39.9% below ATH, 22.6% above ATL
+Dataset high (24 months): 1.31800 | Dataset low (24 months): 1.18500
+Current close: 1.27340 — 3.4% below dataset high, 7.5% above dataset low
 
 ## Market Structure
 
@@ -535,12 +534,12 @@ Current price at 67.2% of 24-month range (near upper half)
 
 ## Percentile Ranking
 
-Price percentile across all monthly closes on record: 41.3%
-Sits in the lower-mid range of historical distribution
+Price percentile across 24 monthly closes: 41.3%
+Sits in the lower-mid range of dataset distribution
 
 ## Drawdown
 
-Drawdowns from monthly peak in dataset: 5
+Monthly drawdowns from peak in dataset: 5
 Largest: 18.5% | Average: 11.2%
 Current drawdown from recent high: 2.3%
 
@@ -552,25 +551,25 @@ Volatility regime: ELEVATED (volatility percentile: 74.2%)
 
 ## Moving Averages
 
-6-month SMA: 1.26120 | 12-month SMA: 1.24880
-Short MA is ABOVE long MA — bullish alignment
+Short MA (10): 1.26120 | Long MA (20): 1.24880
+Short MA is ABOVE long MA — bullish Monthly alignment
 
 ## Candle Behaviour
 
-Bullish candles: 14 | Bearish candles: 10 (lookback: 24 months)
-Recent: 4 up, 2 down in last 6 months
+Bullish candles: 14 | Bearish candles: 10 (lookback: 24 bars)
+Recent 6 bars: 4 up, 2 down
 
 ## Seasonal Statistics
 
-June historical (last 12 years): Bullish 7/12 (58.3%)
+June (last 12 years): Bullish 7/12 (58.3%)
 Average June move: +180 pips | Bias: mildly bullish
 
-Q2 historical (last 12 years): Bullish 8/12 (66.7%)
+Q2 (last 12 years): Bullish 8/12 (66.7%)
 Average Q2 move: +290 pips | Bias: bullish
 
 ---
 
-Dataset: 24 monthly bars used (2024-06 → 2026-06)</pre>
+Dataset: 24 monthly bars used</pre>
             </div>
         </div>
 
@@ -587,30 +586,31 @@ Dataset: 24 monthly bars used (2024-06 → 2026-06)</pre>
     "symbol": "GBPUSD",
     "payload": {
       "symbol":      "GBPUSD",
-      "server_time": "2026-06-04 14:32:11",
+      "timeframe":   "MN1",
+      "server_time": "2026-06-05 14:32:11",
       "pretend_mode": false,
       "report": {
-        "price_history":      "All-time high: 2.11600 | All-time low: 1.03500\nCurrent close: 1.27340 — 39.9% below ATH, 22.6% above ATL",
+        "price_history":      "Dataset high (24 months): 1.31800 | Dataset low: 1.18500\nCurrent close: 1.27340 — 3.4% below dataset high",
         "market_structure":   "Consecutive higher highs: 3 | Consecutive higher lows: 2\nStructure: Uptrend building on monthly timeframe",
         "range_position":     "24-month range: 1.18500 – 1.31800\nCurrent price at 67.2% of 24-month range (near upper half)",
-        "percentile_ranking": "Price percentile across all monthly closes on record: 41.3%",
-        "drawdown":           "Drawdowns from monthly peak: 5 | Largest: 18.5% | Average: 11.2%",
+        "percentile_ranking": "Price percentile across 24 monthly closes: 41.3%",
+        "drawdown":           "Monthly drawdowns from peak: 5 | Largest: 18.5% | Average: 11.2%",
         "drawdown_context":   "Current drawdown from recent high: 2.3%",
         "volatility":         "Current monthly range: 390 pips | Historical avg: 320 pips\nVolatility regime: ELEVATED (percentile: 74.2%)",
-        "moving_averages":    "6-month SMA: 1.26120 | 12-month SMA: 1.24880\nShort MA is ABOVE long MA — bullish alignment",
-        "candle_behaviour":   "Bullish: 14 | Bearish: 10 over 24 months",
+        "moving_averages":    "Short MA (10): 1.26120 | Long MA (20): 1.24880\nShort MA is ABOVE long MA — bullish Monthly alignment",
+        "candle_behaviour":   "Bullish: 14 | Bearish: 10 over 24 bars\nRecent 6 bars: 4 up, 2 down",
         "last_candle":        "May 2026 — O: 1.25180 H: 1.29640 L: 1.24500 C: 1.27340 (Range: 514 pips, Bullish)",
         "current_candle":     "Jun 2026 (forming) — O: 1.27340 H: 1.28100 L: 1.26400 C: 1.27820",
         "seasonal_month":     "June (last 12 years): Bullish 7/12 (58.3%) | Avg move: +180 pips",
         "seasonal_quarter":   "Q2 (last 12 years): Bullish 8/12 (66.7%) | Avg move: +290 pips",
-        "dataset_note":       "Dataset: 24 monthly bars used (2024-06 → 2026-06)"
+        "dataset_note":       "Dataset: 24 monthly bars used"
       },
       "data": {
         "current_close":          1.27340,
-        "all_time_high":          2.11600,
-        "all_time_low":           1.03500,
-        "pct_from_ath":           39.9,
-        "pct_from_atl":           22.6,
+        "dataset_high":           1.31800,
+        "dataset_low":            1.18500,
+        "pct_from_dataset_high":  3.4,
+        "pct_from_dataset_low":   7.5,
         "candles_copied":         24,
         "percentile":             41.3,
         "current_volatility":     390.0,
@@ -618,9 +618,9 @@ Dataset: 24 monthly bars used (2024-06 → 2026-06)</pre>
         "volatility_percentile":  74.2,
         "short_ma":               1.26120,
         "long_ma":                1.24880,
-        "range_high_24m":         1.31800,
-        "range_low_24m":          1.18500,
-        "pct_in_24m_range":       67.2,
+        "range_high_lb":          1.31800,
+        "range_low_lb":           1.18500,
+        "pct_in_lb_range":        67.2,
         "cons_hh":                3,
         "cons_hl":                2,
         "cons_lh":                0,
@@ -632,7 +632,44 @@ Dataset: 24 monthly bars used (2024-06 → 2026-06)</pre>
         "recent_down":            2
       }
     },
-    "timestamp": "2026-06-04 14:32:11"
+    "timestamp": "2026-06-05 14:32:11"
+  }
+}</pre>
+            </div>
+        </div>
+
+        <!-- timeframe=all JSON structure -->
+        <div class="mt-4 p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <div class="flex items-center mb-4">
+                <span class="method-badge mr-3" style="background: rgba(139,92,246,0.15); color: #8B5CF6;">?timeframe=all</span>
+                <h3 class="text-base font-semibold" style="color: var(--text-primary);">All-Timeframes JSON Structure</h3>
+            </div>
+            <p class="text-sm mb-4" style="color: var(--text-secondary);">When <code>timeframe=all&format=json</code> is used, the payload contains a <code>timeframes</code> object keyed by timeframe label. Each value is the same <code>{report, data}</code> structure as a single-TF response.</p>
+            <div class="response-preview" style="color: var(--text-primary);">
+<pre>{
+  "arrissa_data": {
+    "payload": {
+      "symbol":      "GBPUSD",
+      "server_time": "2026-06-05 14:32:11",
+      "pretend_mode": false,
+      "timeframes": {
+        "MN1": {
+          "report": { "price_history": "...", "seasonal_month": "...", ... },
+          "data":   { "current_close": 1.27340, "dataset_high": 1.31800, ... }
+        },
+        "W1": {
+          "report": { "price_history": "...", ... },
+          "data":   { "current_close": 1.27340, "dataset_high": 1.28500, ... }
+        },
+        "D1":  { "report": { ... }, "data": { ... } },
+        "H4":  { "report": { ... }, "data": { ... } },
+        "H1":  { "report": { ... }, "data": { ... } },
+        "M30": { "report": { ... }, "data": { ... } },
+        "M15": { "report": { ... }, "data": { ... } },
+        "M5":  { "report": { ... }, "data": { ... } },
+        "M1":  { "report": { ... }, "data": { ... } }
+      }
+    }
   }
 }</pre>
             </div>
@@ -643,7 +680,7 @@ Dataset: 24 monthly bars used (2024-06 → 2026-06)</pre>
             <div class="space-y-3">
                 <div class="p-4 rounded-xl" style="background-color: rgba(244,67,54,0.08); border: 1px solid rgba(244,67,54,0.3);">
                     <div class="font-mono text-xs mb-2" style="color: #F44336;">HTTP 503 — MT5 Data Server not connected</div>
-                    <p class="text-xs" style="color: var(--text-secondary);">EA is not running or did not respond within 20 seconds. Monthly analysis is heavier than tick-based APIs — allow the full timeout. Attach <code>MarketIntelligenceAPI.mq5</code> to any MT5 chart.</p>
+                    <p class="text-xs" style="color: var(--text-secondary);">EA is not running or did not respond within the timeout (20 s for single TF, 45 s for <code>timeframe=all</code>). Attach <code>MarketIntelligenceAPI.mq5</code> to any MT5 chart.</p>
                 </div>
                 <div class="p-4 rounded-xl" style="background-color: rgba(244,67,54,0.08); border: 1px solid rgba(244,67,54,0.3);">
                     <div class="font-mono text-xs mb-2" style="color: #F44336;">HTTP 400 — Missing symbol</div>
@@ -651,7 +688,7 @@ Dataset: 24 monthly bars used (2024-06 → 2026-06)</pre>
                 </div>
                 <div class="p-4 rounded-xl" style="background-color: rgba(244,67,54,0.08); border: 1px solid rgba(244,67,54,0.3);">
                     <div class="font-mono text-xs mb-2" style="color: #F44336;">HTTP 400 — EA returned error</div>
-                    <p class="text-xs" style="color: var(--text-secondary);">Symbol not available in the broker's feed, or insufficient monthly history (<code>CopyRates()</code> returned 0 bars). Verify the symbol name matches exactly what is in MT5 and that monthly bars are loaded.</p>
+                    <p class="text-xs" style="color: var(--text-secondary);">Symbol not available in the broker's feed, or insufficient history for the requested timeframe (<code>CopyRates()</code> returned 0 bars). Verify the symbol name matches exactly what is in MT5 and scroll back on the relevant chart to cache the history.</p>
                 </div>
                 <div class="p-4 rounded-xl" style="background-color: rgba(244,67,54,0.08); border: 1px solid rgba(244,67,54,0.3);">
                     <div class="font-mono text-xs mb-2" style="color: #F44336;">HTTP 404 — Not found</div>
@@ -689,8 +726,8 @@ Dataset: 24 monthly bars used (2024-06 → 2026-06)</pre>
                 <div class="flex items-start">
                     <i data-feather="info" class="mr-3 flex-shrink-0" style="width: 18px; height: 18px; color: #0EA5E9; margin-top: 2px;"></i>
                     <div>
-                        <h4 class="text-sm font-semibold mb-2" style="color: var(--text-primary);">Monthly bars need to be loaded in MT5</h4>
-                        <p class="text-xs" style="color: var(--text-secondary);">If the EA returns fewer than expected bars, open the symbol on a monthly chart in MT5 and scroll back to load the history. MT5 downloads bars on demand — once cached they remain available to the EA.</p>
+                        <h4 class="text-sm font-semibold mb-2" style="color: var(--text-primary);">Bars need to be loaded in MT5 per timeframe</h4>
+                        <p class="text-xs" style="color: var(--text-secondary);">If the EA returns fewer bars than expected for a timeframe, open the symbol on that timeframe chart in MT5 and scroll back to cache the history. MT5 downloads bars on demand — once cached they stay available to the EA across all timeframes.</p>
                     </div>
                 </div>
             </div>
@@ -745,7 +782,7 @@ function testAPI(element, url) {
     if (!responseDiv) return;
 
     responseDiv.style.display = 'block';
-    responseDiv.innerHTML = '<div style="padding: 12px; background-color: var(--bg-secondary); border-radius: 8px; color: var(--text-secondary);"><i data-feather="loader" style="width: 14px; height: 14px; display: inline; animation: spin 1s linear infinite;"></i> Loading… (up to 20 s while EA runs monthly analysis)</div>';
+    responseDiv.innerHTML = '<div style="padding: 12px; background-color: var(--bg-secondary); border-radius: 8px; color: var(--text-secondary);"><i data-feather="loader" style="width: 14px; height: 14px; display: inline; animation: spin 1s linear infinite;"></i> Loading… (up to 20 s — 45 s for timeframe=all)</div>';
     feather.replace();
 
     fetch(url)
