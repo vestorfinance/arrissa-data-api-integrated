@@ -247,6 +247,9 @@ switch ($uri) {
     case '/markets-brain-api-guide':
         $page = 'markets-brain-api-guide';
         break;
+    case '/market-intelligence-api-guide':
+        $page = 'market-intelligence-api-guide';
+        break;
     case '/tma-cg-api-guide':
         $page = 'tma-cg-api-guide';
         break;

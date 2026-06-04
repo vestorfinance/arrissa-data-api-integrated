@@ -555,6 +555,76 @@ ob_start();
 
     <div class="divider"></div>
 
+    <!-- Market Intelligence API EA -->
+    <div class="mb-12">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, #10B981, #0EA5E9);">
+                <i data-feather="bar-chart-2" style="width: 24px; height: 24px; color: white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">Market Intelligence API Expert Advisor</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Full monthly-timeframe analysis — price history, structure, volatility, seasonality and drawdown for any symbol</p>
+            </div>
+        </div>
+
+        <div class="ea-card p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">What This EA Does</h3>
+                    <ul class="space-y-2 text-sm" style="color: var(--text-secondary);">
+                        <li class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0 mt-0.5" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span>Analyses up to 24 months of MN1 bars for any requested symbol</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0 mt-0.5" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span>Returns a structured markdown report covering price history, market structure, range position, percentile ranking, drawdown, volatility, moving averages, candle behaviour, and seasonal statistics</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0 mt-0.5" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span>Full numeric data block available via <code style="background-color: var(--bg-tertiary); padding: 1px 5px; border-radius: 4px;">?format=json</code> for programmatic use</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0 mt-0.5" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span>Backtesting mode via <code style="background-color: var(--bg-tertiary); padding: 1px 5px; border-radius: 4px;">pretend_date</code> + <code style="background-color: var(--bg-tertiary); padding: 1px 5px; border-radius: 4px;">pretend_time</code></span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Download Files</h3>
+                    <div class="space-y-3">
+                        <a href="/expert-advisors/MarketIntelligenceAPI.mq5" download class="block p-4 rounded-xl" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i data-feather="file-text" class="mr-3" style="width: 20px; height: 20px; color: var(--accent);"></i>
+                                    <div>
+                                        <div class="font-semibold text-sm" style="color: var(--text-primary);">Source Code (.mq5) - Optional</div>
+                                        <div class="text-xs" style="color: var(--text-secondary);">Only needed if you want to edit and recompile</div>
+                                    </div>
+                                </div>
+                                <i data-feather="download" style="width: 18px; height: 18px; color: var(--text-secondary);"></i>
+                            </div>
+                        </a>
+                        <a href="/expert-advisors/MarketIntelligenceAPI.ex5" download class="block p-4 rounded-xl" style="background-color: var(--bg-secondary); border: 1px solid var(--border);">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i data-feather="cpu" class="mr-3" style="width: 20px; height: 20px; color: var(--success);"></i>
+                                    <div>
+                                        <div class="font-semibold text-sm" style="color: var(--text-primary);">Compiled (.ex5) - Required</div>
+                                        <div class="text-xs" style="color: var(--text-secondary);">Ready to use, no editing needed</div>
+                                    </div>
+                                </div>
+                                <i data-feather="download" style="width: 18px; height: 18px; color: var(--text-secondary);"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
     <!-- JAson.mqh Include File -->
     <div class="mb-12">
         <div class="flex items-center mb-6">
