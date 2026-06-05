@@ -227,7 +227,7 @@ ob_start();
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">rangeType</code></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
-                            <td class="py-4 px-6" style="color: var(--text-secondary);">Time-based ranges: "last-hour", "today", "last-X-minutes", "future"</td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Time-based ranges: "last-hour", "today", "last-X-minutes", "future", "all" (full available history)</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">dataField</code></td>
@@ -359,6 +359,7 @@ ob_start();
                     ['title' => 'USDJPY D1 - Close Prices', 'url' => "{$baseUrl}/market-data-api-v1/market-data-api.php?api_key={$apiKey}&symbol=USDJPY&timeframe=D1&count=30&dataField=close", 'desc' => 'Close prices only'],
                     ['title' => 'Last Hour - EURUSD M5', 'url' => "{$baseUrl}/market-data-api-v1/market-data-api.php?api_key={$apiKey}&symbol=EURUSD&rangeType=last-hour&timeframe=M5", 'desc' => 'Time-based range'],
                     ['title' => 'Today - USDJPY H1', 'url' => "{$baseUrl}/market-data-api-v1/market-data-api.php?api_key={$apiKey}&symbol=USDJPY&rangeType=today&timeframe=H1", 'desc' => 'Today\'s candles'],
+                    ['title' => 'All History - EURUSD D1', 'url' => "{$baseUrl}/market-data-api-v1/market-data-api.php?api_key={$apiKey}&symbol=EURUSD&rangeType=all&timeframe=D1", 'desc' => 'Full available history'],
                 ];
                 foreach ($basicExamples as $example):
                 ?>

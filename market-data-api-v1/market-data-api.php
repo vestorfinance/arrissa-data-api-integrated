@@ -211,7 +211,10 @@ function validate_range_type($rangeType) {
         'this-year', 'last-12-months',
         
         // Special ranges
-        'future'
+        'future',
+
+        // Full history
+        'all'
     ];
 
     if (in_array($rangeType, $validRangeTypes)) {
