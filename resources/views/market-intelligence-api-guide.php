@@ -335,7 +335,7 @@ ob_start();
                         <td class="px-6 py-4"><code class="text-sm" style="color: #F59E0B;">timeframe</code></td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">string</td>
                         <td class="px-6 py-4 text-sm" style="color: var(--text-muted);">Optional</td>
-                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Timeframe to analyse. Accepted values: <code>MN1</code> (default), <code>W1</code>, <code>D1</code>, <code>H4</code>, <code>H1</code>, <code>M30</code>, <code>M15</code>, <code>M5</code>, <code>M1</code>, or <code>all</code> (returns all 9 timeframes in a single response). Case-insensitive.</td>
+                        <td class="px-6 py-4 text-sm" style="color: var(--text-secondary);">Timeframe to analyse. Single value: <code>MN1</code> (default), <code>W1</code>, <code>D1</code>, <code>H4</code>, <code>H1</code>, <code>M30</code>, <code>M15</code>, <code>M5</code>, <code>M1</code>. Pass <code>all</code> for all 9 timeframes. Pass a <strong>comma-separated list</strong> (e.g. <code>H1,M30,M15,M1</code>) to get only those timeframes in a single call. Case-insensitive.</td>
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td class="px-6 py-4"><code class="text-sm" style="color: #F59E0B;">pretend_date</code></td>
@@ -446,6 +446,23 @@ ob_start();
                 </div>
             </div>
 
+            <!-- Comma-separated subset -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">
+                    <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">Multi-TF</span>
+                    Comma-Separated Timeframe Subset
+                </h3>
+                <p class="text-sm mb-4" style="color: var(--text-secondary);">Pass a comma-separated list to get only the timeframes you need in a single call — no need to fetch all 9. The response uses the same <code>timeframes</code> object structure as <code>timeframe=all</code>, but only contains the requested keys.</p>
+                <div class="space-y-4">
+                    <?php
+                    curlBlock('GBP/USD — Intraday TFs only (H1, M30, M15, M1)',    "{$base}?symbol=GBPUSD&timeframe=H1,M30,M15,M1&api_key={$k}");
+                    curlBlock('EUR/USD — HTF context (MN1, W1, D1)',                "{$base}?symbol=EURUSD&timeframe=MN1,W1,D1&api_key={$k}");
+                    curlBlock('XAU/USD — Scalping TFs (M5, M1) in JSON',           "{$base}?symbol=XAUUSD&timeframe=M5,M1&api_key={$k}&format=json");
+                    curlBlock('GBP/JPY — Mixed session pack (H4, H1, M30)',         "{$base}?symbol=GBPJPY&timeframe=H4,H1,M30&api_key={$k}");
+                    ?>
+                </div>
+            </div>
+
             <!-- Backtesting / Pretend Mode -->
             <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
                 <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">
@@ -458,6 +475,7 @@ ob_start();
                     curlBlock('XAUUSD — Monthly at 2025-01-15 14:30',              "{$base}?symbol=XAUUSD&timeframe=MN1&pretend_date=2025-01-15&pretend_time=14:30&api_key={$k}");
                     curlBlock('GBPUSD — H4 at 2025-03-01 09:00',                   "{$base}?symbol=GBPUSD&timeframe=H4&pretend_date=2025-03-01&pretend_time=09:00&api_key={$k}");
                     curlBlock('EURUSD — All TFs at 2024-11-05 (US Election)',       "{$base}?symbol=EURUSD&timeframe=all&pretend_date=2024-11-05&pretend_time=14:00&api_key={$k}");
+                    curlBlock('GBPUSD — Intraday subset at 2025-06-01 08:00',       "{$base}?symbol=GBPUSD&timeframe=H1,M30,M15&pretend_date=2025-06-01&pretend_time=08:00&api_key={$k}");
                     ?>
                 </div>
             </div>

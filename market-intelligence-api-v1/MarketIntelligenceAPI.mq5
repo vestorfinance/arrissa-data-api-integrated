@@ -340,6 +340,36 @@ void ProcessApiRequest(string request_json)
         j += "  }\n}";
         payload = j;
 
+    } else if(StringFind(tf_str, ",") >= 0) {
+        // Comma-separated subset: e.g. timeframe=H1,M30,M15,M1
+        string tfNames[];
+        int count = StringSplit(tf_str, StringGetCharacter(",", 0), tfNames);
+
+        string j = "{\n";
+        j += "  \"symbol\": \""      + g_symbol + "\",\n";
+        j += "  \"server_time\": \"" + timeStr  + "\",\n";
+        if(isPretend) j += "  \"pretend_mode\": true,\n";
+        j += "  \"timeframes\": {\n";
+
+        for(int t = 0; t < count; t++) {
+            string tfName = tfNames[t];
+            StringTrimLeft(tfName);
+            StringTrimRight(tfName);
+            ENUM_TIMEFRAMES tf = TFStringToEnum(tfName);
+            int lb = TFLookback(tf);
+            int sh = 0;
+            if(isPretend) {
+                sh = (int)iBarShift(g_symbol, tf, g_pretendDT, true);
+                if(sh < 0) sh = 0;
+            }
+            string inner = AnalyseTF(tf, sh, lb);
+            j += "    \"" + TFName(tf) + "\": " + inner;
+            if(t < count - 1) j += ",";
+            j += "\n";
+        }
+        j += "  }\n}";
+        payload = j;
+
     } else {
         ENUM_TIMEFRAMES tf = TFStringToEnum(tf_str);
         int lb = TFLookback(tf);
@@ -350,10 +380,8 @@ void ProcessApiRequest(string request_json)
         }
         string inner = AnalyseTF(tf, sh, lb);
 
-        // Embed inner {"report":{...},"data":{...}} into outer wrapper
-        // inner format: {\n  "report":...\n  "data":...\n}
-        // Strip outer braces and first/last newline
-        string content = StringSubstr(inner, 1, StringLen(inner) - 2);
+        // Strip outer {} from inner block and embed into outer wrapper
+        string content        = StringSubstr(inner, 1, StringLen(inner) - 2);
         string contentTrimmed = StringSubstr(content, 1, StringLen(content) - 2);
 
         string j = "{\n";

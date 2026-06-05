@@ -165,8 +165,13 @@ if ($symbol) {
     $reqFile    = "$queueDir/{$request_id}.req.json";
     $resFile    = "$queueDir/{$request_id}.res.json";
 
+    // Normalise timeframe: upper-case, strip spaces around commas
     $timeframe = strtoupper(trim($_GET['timeframe'] ?? 'MN1'));
     if ($timeframe === '') $timeframe = 'MN1';
+    // Tidy comma-separated list: "H1, M30 , M15" → "H1,M30,M15"
+    if (strpos($timeframe, ',') !== false) {
+        $timeframe = implode(',', array_map('trim', explode(',', $timeframe)));
+    }
 
     $requestData = [
         'request_id' => $request_id,
@@ -182,7 +187,9 @@ if ($symbol) {
     debug_log("Client GET enqueued request_id=$request_id symbol=$symbol");
 
     $start   = time();
-    $timeout = ($timeframe === 'ALL') ? 45 : 20;
+    $isMultiTF = ($timeframe === 'ALL' || strpos($timeframe, ',') !== false);
+    $tfCount   = $isMultiTF ? ($timeframe === 'ALL' ? 9 : substr_count($timeframe, ',') + 1) : 1;
+    $timeout   = $tfCount > 1 ? max(25, min(45, 10 + $tfCount * 4)) : 20;
 
     $jsonMode = (($_GET['format'] ?? '') === 'json');
 
