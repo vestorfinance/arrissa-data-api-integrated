@@ -191,7 +191,7 @@ if ($symbol) {
     $tfCount   = $isMultiTF ? ($timeframe === 'ALL' ? 9 : substr_count($timeframe, ',') + 1) : 1;
     $timeout   = $tfCount > 1 ? max(25, min(45, 10 + $tfCount * 4)) : 20;
 
-    $jsonMode = (($_GET['format'] ?? '') === 'json');
+    $jsonMode = (strtolower($_GET['format'] ?? '') === 'json');
 
     while (time() - $start < $timeout) {
         if (file_exists($resFile)) {
