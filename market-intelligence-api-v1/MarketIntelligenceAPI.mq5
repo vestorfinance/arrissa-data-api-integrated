@@ -107,7 +107,7 @@ string TFBarLabel(ENUM_TIMEFRAMES tf)
     if(tf == PERIOD_M30) return "M30 bars";
     if(tf == PERIOD_M15) return "M15 bars";
     if(tf == PERIOD_M5)  return "M5 bars";
-    if(tf == PERIOD_M1)  return "minutes";
+    if(tf == PERIOD_M1)  return "M1 bars";
     return "months";
 }
 

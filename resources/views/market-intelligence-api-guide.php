@@ -99,7 +99,7 @@ ob_start();
             </div>
             <div class="flex-1">
                 <h3 class="text-base font-semibold mb-2" style="color: var(--text-primary);">MT5 Expert Advisor Required</h3>
-                <p class="text-sm mb-3" style="color: var(--text-secondary);">This API requires the <strong style="color: var(--text-primary);">Market Intelligence API EA</strong> to be running on an MT5 chart. The EA polls every second and runs a full monthly bar analysis on any requested symbol — returning a structured markdown report and all underlying numeric data. No trade signals are generated.</p>
+                <p class="text-sm mb-3" style="color: var(--text-secondary);">This API requires the <strong style="color: var(--text-primary);">Market Intelligence API EA</strong> to be running on an MT5 chart. The EA polls every second and runs the full market intelligence analysis on any requested symbol and timeframe — returning a structured markdown report and all underlying numeric data. No trade signals are generated.</p>
                 <a href="/download-eas" class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors" style="background: linear-gradient(135deg, #10B981, #0EA5E9); color: white;">
                     <i data-feather="download" class="mr-2" style="width: 16px; height: 16px;"></i>
                     Download Market Intelligence EA
@@ -225,18 +225,18 @@ ob_start();
 
             <?php
             $sections = [
-                ['price_history',    'trending-up',    '#10B981', '#0EA5E9', 'All-time high, all-time low, and percentage distance from each — the broadest possible price context for the symbol'],
-                ['market_structure', 'activity',       '#0EA5E9', '#6366F1', 'Consecutive higher-highs, higher-lows, lower-highs, and lower-lows over recent monthly bars — trend structure at macro scale'],
-                ['range_position',   'maximize',       '#6366F1', '#8B5CF6', 'Where current price sits within the trailing 24-month high-to-low range, expressed as a percentage from the bottom of the range'],
-                ['percentile_ranking','bar-chart-2',   '#8B5CF6', '#EC4899', 'Price percentile across the full dataset — how current price compares to every monthly close on record'],
-                ['drawdown',         'trending-down',  '#EF4444', '#F97316', 'Count, largest, and average monthly drawdowns from peak — measures the severity of past sell-offs in this symbol'],
-                ['volatility',       'wind',           '#F59E0B', '#10B981', 'Current monthly range vs. historical average — labels volatility as ELEVATED, SUPPRESSED, or NORMAL with a percentile rank'],
-                ['moving_averages',  'sliders',        '#10B981', '#0EA5E9', 'Short (6-month) and long (12-month) SMA values and their crossover state — macro momentum direction signal'],
-                ['candle_behaviour', 'grid',           '#0EA5E9', '#6366F1', 'Bullish vs bearish monthly candle ratio and recent directional streaks over the lookback period'],
-                ['last_candle',      'check-square',   '#10B981', '#34D399', 'Open, high, low, close, and range of the most recently completed monthly bar'],
-                ['current_candle',   'loader',         '#F59E0B', '#F97316', 'Open, current high, current low, and live close of the still-forming monthly bar'],
-                ['seasonal_month',   'calendar',       '#8B5CF6', '#6366F1', 'Historical stats for this calendar month across past years — win rate, average move, and directional bias'],
-                ['seasonal_quarter', 'layers',         '#6366F1', '#8B5CF6', 'Historical stats for this calendar quarter across past years — win rate, average move, and directional bias'],
+                ['price_history',    'trending-up',    '#10B981', '#0EA5E9', 'Dataset high, dataset low, and percentage distance from each — the broadest price context across the full lookback for the requested timeframe'],
+                ['market_structure', 'activity',       '#0EA5E9', '#6366F1', 'Consecutive higher-highs, higher-lows, lower-highs, and lower-lows over recent bars — trend structure for the requested timeframe'],
+                ['range_position',   'maximize',       '#6366F1', '#8B5CF6', 'Where current price sits within the lookback high-to-low range, expressed as a percentage from the bottom of that range'],
+                ['percentile_ranking','bar-chart-2',   '#8B5CF6', '#EC4899', 'Price percentile across the full dataset — how current price compares to every bar close in the lookback window'],
+                ['drawdown',         'trending-down',  '#EF4444', '#F97316', 'Count, largest, and average peak-to-trough drawdowns in the dataset — measures the severity of past corrections for this symbol and timeframe'],
+                ['volatility',       'wind',           '#F59E0B', '#10B981', 'Current bar range vs. historical average — labels the volatility regime as ELEVATED, SUPPRESSED, or NORMAL with a percentile rank'],
+                ['moving_averages',  'sliders',        '#10B981', '#0EA5E9', 'Short and long SMA values (periods configurable in EA inputs) and their crossover state — momentum direction on the requested timeframe'],
+                ['candle_behaviour', 'grid',           '#0EA5E9', '#6366F1', 'Bullish vs bearish candle ratio and recent directional streaks across the lookback window'],
+                ['last_candle',      'check-square',   '#10B981', '#34D399', 'Open, high, low, close, and range of the most recently completed bar on the requested timeframe'],
+                ['current_candle',   'loader',         '#F59E0B', '#F97316', 'Open, current high, current low, and live close of the still-forming bar on the requested timeframe'],
+                ['seasonal_month',   'calendar',       '#8B5CF6', '#6366F1', 'Historical stats for this calendar month across past years — win rate, average move, and directional bias (MN1 only)'],
+                ['seasonal_quarter', 'layers',         '#6366F1', '#8B5CF6', 'Historical stats for this calendar quarter across past years — win rate, average move, and directional bias (MN1 only)'],
             ];
             foreach ($sections as $sec):
             ?>
@@ -262,7 +262,7 @@ ob_start();
                 <div class="p-4 rounded-xl" style="background-color: var(--bg-secondary); border-left: 3px solid #10B981;">
                     <div class="flex items-center mb-2">
                         <span class="method-badge mr-2" style="background: rgba(16,185,129,0.15); color: #10B981;">Price</span>
-                        <span class="text-xs" style="color: var(--text-secondary);">ATH / ATL / Percentile</span>
+                        <span class="text-xs" style="color: var(--text-secondary);">Dataset High / Low / Percentile</span>
                     </div>
                     <p class="text-xs" style="color: var(--text-secondary);"><code>current_close</code>, <code>dataset_high</code>, <code>dataset_low</code>, <code>pct_from_dataset_high</code>, <code>pct_from_dataset_low</code>, <code>percentile</code>, <code>candles_copied</code></p>
                 </div>
