@@ -215,7 +215,7 @@ ob_start();
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">timeframe</code></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--warning); color: white;">Conditional</span></td>
-                            <td class="py-4 px-6" style="color: var(--text-secondary);">Candle timeframe: M1, M5, M15, M30, H1, H4, D1, W1, MN1</td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Candle timeframe: M1, M2, M3, M4, M5, M6, M10, M12, M15, M20, M30, H1, H2, H3, H4, H6, H8, H12, D1, W1, MN1</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">count</code></td>
