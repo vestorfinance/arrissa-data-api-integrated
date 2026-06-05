@@ -583,25 +583,12 @@ string AnalyseTF(ENUM_TIMEFRAMES tf, int shift, int lookback)
         }
         double smAvg = (smCount > 0) ? smSum / smCount : 0;
 
-        if(smCount < 5)
+        if(smCount < 2)
+            s_month = StringFormat("**%d** recorded instance(s) of **%s** in this dataset.", smCount, MonthName(currentMonth));
+        else
             s_month = StringFormat(
-                "Only **%d** recorded instances of **%s** — not enough to identify seasonal patterns.",
-                smCount, MonthName(currentMonth));
-        else {
-            double smUpRate = (double)smUp / smCount * 100.0;
-            if(smUpRate > 65)
-                s_month = StringFormat(
-                    "**%s** has historically leaned toward up-closes (**%d** of **%d** instances, **%.0f%%**), averaging **%.2f%%**, from **+%.2f%%** (%d) to **%.2f%%** (%d).",
-                    MonthName(currentMonth), smUp, smCount, smUpRate, smAvg, smBest, smBestYear, smWorst, smWorstYear);
-            else if(smUpRate < 35)
-                s_month = StringFormat(
-                    "**%s** has historically leaned toward down-closes (**%d** of **%d** instances, **%.0f%%**), averaging **%.2f%%**, from **+%.2f%%** (%d) to **%.2f%%** (%d).",
-                    MonthName(currentMonth), smDn, smCount, 100.0-smUpRate, smAvg, smBest, smBestYear, smWorst, smWorstYear);
-            else
-                s_month = StringFormat(
-                    "**%s** shows no consistent directional tendency across **%d** instances — balanced, averaging **%.2f%%**, from **+%.2f%%** (%d) to **%.2f%%** (%d).",
-                    MonthName(currentMonth), smCount, smAvg, smBest, smBestYear, smWorst, smWorstYear);
-        }
+                "**%s** across **%d** recorded instances: **%d** closed above open, **%d** closed below open. Average change: **%.2f%%**. Best: **%+.2f%%** (%d). Worst: **%.2f%%** (%d).",
+                MonthName(currentMonth), smCount, smUp, smDn, smAvg, smBest, smBestYear, smWorst, smWorstYear);
 
         int    sqCount = 0, sqUp = 0, sqDn = 0;
         double sqSum = 0, sqBest = -DBL_MAX, sqWorst = DBL_MAX;
@@ -626,165 +613,60 @@ string AnalyseTF(ENUM_TIMEFRAMES tf, int shift, int lookback)
         }
         double sqAvg = (sqCount > 0) ? sqSum / sqCount : 0;
 
-        if(sqCount < 4)
+        if(sqCount < 2)
+            s_quarter = StringFormat("**%d** complete instance(s) of **%s** in this dataset.", sqCount, QuarterLabel(currentQuarter));
+        else
             s_quarter = StringFormat(
-                "Only **%d** complete instances of **%s** — not enough to identify seasonal patterns.",
-                sqCount, QuarterLabel(currentQuarter));
-        else {
-            double sqUpRate = (double)sqUp / sqCount * 100.0;
-            if(sqUpRate > 65)
-                s_quarter = StringFormat(
-                    "**%s** has historically leaned toward positive closes (**%d** of **%d**, **%.0f%%**), averaging **%.2f%%**, from **+%.2f%%** (%d) to **%.2f%%** (%d).",
-                    QuarterLabel(currentQuarter), sqUp, sqCount, sqUpRate, sqAvg, sqBest, sqBestYear, sqWorst, sqWorstYear);
-            else if(sqUpRate < 35)
-                s_quarter = StringFormat(
-                    "**%s** has historically leaned toward negative closes (**%d** of **%d**, **%.0f%%**), averaging **%.2f%%**, from **+%.2f%%** (%d) to **%.2f%%** (%d).",
-                    QuarterLabel(currentQuarter), sqDn, sqCount, 100.0-sqUpRate, sqAvg, sqBest, sqBestYear, sqWorst, sqWorstYear);
-            else
-                s_quarter = StringFormat(
-                    "**%s** shows no consistent directional tendency across **%d** instances — balanced, averaging **%.2f%%**, from **+%.2f%%** (%d) to **%.2f%%** (%d).",
-                    QuarterLabel(currentQuarter), sqCount, sqAvg, sqBest, sqBestYear, sqWorst, sqWorstYear);
-        }
+                "**%s** across **%d** recorded instances: **%d** closed positive, **%d** closed negative. Average change: **%.2f%%**. Best: **%+.2f%%** (%d). Worst: **%.2f%%** (%d).",
+                QuarterLabel(currentQuarter), sqCount, sqUp, sqDn, sqAvg, sqBest, sqBestYear, sqWorst, sqWorstYear);
     }
 
     //=======================================================================
     // NARRATIVE ENGINE
     //=======================================================================
-    string s_history;
-    if(athBar == 0)
-        s_history = StringFormat(
-            "**%s** is at the %s of this dataset (**%s**), up **%.1f%%** from the start of the dataset at **%s** on %s.",
-            g_symbol, highLabel, DoubleToString(currentClose, digits), netMovePct,
-            DoubleToString(firstOpen, digits), TimeToString(firstTime, TIME_DATE));
-    else if(pctFromATH < 5.0)
-        s_history = StringFormat(
-            "**%s** is near the %s of **%s**, having pulled back just **%.1f%%** from that level reached **%d %s ago**.",
-            g_symbol, highLabel, DoubleToString(allTimeHigh, digits), pctFromATH, athBar, barLabel);
-    else if(pctFromATH < 30.0)
-        s_history = StringFormat(
-            "**%s** is in a corrective phase from its %s of **%s** — currently **%.1f%%** below that level, reached **%d %s ago**.",
-            g_symbol, highLabel, DoubleToString(allTimeHigh, digits), pctFromATH, athBar, barLabel);
-    else
-        s_history = StringFormat(
-            "**%s** is well below its %s — **%.1f%%** from the %s of **%s** (%d %s ago), and **%.1f%%** above the %s of **%s**.",
-            g_symbol, highLabel, pctFromATH, highLabel, DoubleToString(allTimeHigh, digits), athBar, barLabel,
-            pctFromATL, lowLabel, DoubleToString(allTimeLow, digits));
+    string s_history = StringFormat(
+        "**%s** is at **%s**. Dataset high: **%s** (**%.1f%%** from current, **%d %s** ago). Dataset low: **%s** (**%.1f%%** from current, **%d %s** ago). Net change from dataset open (**%s** on %s): **%+.1f%%**.",
+        g_symbol, DoubleToString(currentClose, digits),
+        DoubleToString(allTimeHigh, digits), pctFromATH, athBar, barLabel,
+        DoubleToString(allTimeLow,  digits), pctFromATL, atlBar, barLabel,
+        DoubleToString(firstOpen,   digits), TimeToString(firstTime, TIME_DATE), netMovePct);
 
-    string s_structure;
-    bool hhOn = (consHH > 0), hlOn = (consHL > 0), lhOn = (consLH > 0), llOn = (consLL > 0);
-    if(hhOn && hlOn)
-        s_structure = StringFormat(
-            "Momentum is intact — **%d** consecutive %s of both higher highs and higher lows. The most recent **%d %s** have printed higher peaks and troughs than the **%d %s** before them.",
-            MathMin(consHH, consHL), barLabel, half, barLabel, half, barLabel);
-    else if(lhOn && llOn)
-        s_structure = StringFormat(
-            "Momentum is fading — **%d** consecutive %s of both lower highs and lower lows. The most recent **%d %s** have printed lower peaks and troughs than the **%d %s** before them.",
-            MathMin(consLH, consLL), barLabel, half, barLabel, half, barLabel);
-    else if(hhOn && llOn)
-        s_structure = StringFormat(
-            "The range is expanding — **%d** consecutive %s of higher highs alongside **%d** %s of lower lows, with no directional commitment.",
-            consHH, barLabel, consLL, barLabel);
-    else if(lhOn && hlOn)
-        s_structure = StringFormat(
-            "The range is contracting — falling highs for **%d %s** while lows have been rising for **%d %s**, compressing into a narrowing corridor.",
-            consLH, barLabel, consHL, barLabel);
-    else if(hhOn)
-        s_structure = StringFormat("Peaks have been climbing for **%d** consecutive %s, but lows have not confirmed a consistent direction.", consHH, barLabel);
-    else if(lhOn)
-        s_structure = StringFormat("Peaks have been declining for **%d** consecutive %s, but lows have not confirmed a consistent direction.", consLH, barLabel);
-    else if(hlOn)
-        s_structure = StringFormat("The floor has been rising for **%d** consecutive %s, but highs have not established a consistent pattern.", consHL, barLabel);
-    else if(llOn)
-        s_structure = StringFormat("The floor has been declining for **%d** consecutive %s, but highs have not established a consistent pattern.", consLL, barLabel);
-    else
-        s_structure = "No consecutive sequence in either highs or lows — structure is currently mixed with no clear directional pattern.";
+    string s_structure = StringFormat(
+        "Consecutive higher highs: **%d %s**. Consecutive higher lows: **%d %s**. Consecutive lower highs: **%d %s**. Consecutive lower lows: **%d %s**.",
+        consHH, barLabel, consHL, barLabel, consLH, barLabel, consLL, barLabel);
 
-    string s_range;
-    if(pctInLBRange >= 80)
-        s_range = StringFormat(
-            "Price is pressing against the upper end of its %s range, just **%.1f%%** from the range high of **%s** (%d %s ago).",
-            rangeDesc, distFromHighLB, DoubleToString(highLB, digits), highLBBar, barLabel);
-    else if(pctInLBRange >= 60)
-        s_range = StringFormat(
-            "Price is in the upper portion of its %s range (**%s** to **%s**), **%.1f%%** from the range high.",
-            rangeDesc, DoubleToString(lowLB, digits), DoubleToString(highLB, digits), distFromHighLB);
-    else if(pctInLBRange >= 40)
-        s_range = StringFormat(
-            "Price is near the midpoint of its %s range (**%s** to **%s**), **%.1f%%** from each extreme.",
-            rangeDesc, DoubleToString(lowLB, digits), DoubleToString(highLB, digits),
-            MathMin(distFromHighLB, distFromLowLB));
-    else if(pctInLBRange >= 20)
-        s_range = StringFormat(
-            "Price is in the lower portion of its %s range (**%s** to **%s**), **%.1f%%** from the range low.",
-            rangeDesc, DoubleToString(lowLB, digits), DoubleToString(highLB, digits), distFromLowLB);
-    else
-        s_range = StringFormat(
-            "Price is pressing against the lower end of its %s range, just **%.1f%%** from the range low of **%s** (%d %s ago).",
-            rangeDesc, distFromLowLB, DoubleToString(lowLB, digits), lowLBBar, barLabel);
+    string s_range = StringFormat(
+        "Current price is at **%.1f%%** of the %s range (**%s** – **%s**). Distance from range high (**%s**, **%d %s** ago): **%.1f%%**. Distance from range low (**%s**, **%d %s** ago): **%.1f%%**.",
+        pctInLBRange, rangeDesc,
+        DoubleToString(lowLB,  digits), DoubleToString(highLB, digits),
+        DoubleToString(highLB, digits), highLBBar, barLabel, distFromHighLB,
+        DoubleToString(lowLB,  digits), lowLBBar,  barLabel, distFromLowLB);
 
-    string s_percentile;
-    if(percentile >= 97)
-        s_percentile = StringFormat("This price is at the extreme upper end of the dataset — above **%.0f%%** of all %s closes recorded.", percentile, barLabel);
-    else if(percentile >= 85)
-        s_percentile = StringFormat("Price is historically elevated — higher than **%.0f%%** of all %s closes across **%d bars** of data.", percentile, barLabel, totalCloses);
-    else if(percentile >= 60)
-        s_percentile = StringFormat("Price sits in the upper portion of its historical distribution (**%.0fth percentile** of **%d** %s closes).", percentile, totalCloses, barLabel);
-    else if(percentile >= 40)
-        s_percentile = StringFormat("Price is near the historical median (**%.0fth percentile** of **%d** %s closes).", percentile, totalCloses, barLabel);
-    else if(percentile >= 15)
-        s_percentile = StringFormat("Price sits in the lower portion of its historical distribution (**%.0fth percentile** of **%d** %s closes).", percentile, totalCloses, barLabel);
-    else
-        s_percentile = StringFormat("Price is historically depressed — below **%.0f%%** of all %s closes across **%d bars** of data.", 100.0 - percentile, barLabel, totalCloses);
+    string s_percentile = StringFormat(
+        "Current close ranks at the **%.0fth percentile** of **%d** recorded %s closes.",
+        percentile, totalCloses, barLabel);
 
-    string s_dd, s_ddContext = "";
-    if(pctFromATH < 0.5)
-        s_dd = "There is no current drawdown — price is at the dataset high.";
-    else if(ddCount == 0 || pctFromATH < avgDD * 0.6)
-        s_dd = StringFormat("The current pullback of **%.1f%%** is shallow relative to this market's history. *(Average correction: **%.1f%%**, deepest: **%.1f%%.)*", pctFromATH, avgDD, largestDD);
-    else if(pctFromATH < avgDD)
-        s_dd = StringFormat("The current pullback of **%.1f%%** is approaching but has not yet reached the typical correction depth of **%.1f%%** in this dataset.", pctFromATH, avgDD);
-    else if(pctFromATH < largestDD)
-        s_dd = StringFormat("The current pullback of **%.1f%%** has exceeded the average correction depth (**%.1f%%**) but remains below the deepest on record (**%.1f%%**).", pctFromATH, avgDD, largestDD);
-    else
-        s_dd = StringFormat("The current pullback of **%.1f%%** matches or exceeds the deepest correction recorded in this dataset (**%.1f%%**).", pctFromATH, largestDD);
+    string s_dd = StringFormat(
+        "Distance from dataset high: **%.1f%%**. Recorded corrections >1%%: **%d**, average depth **%.1f%%**, deepest **%.1f%%**.",
+        pctFromATH, ddCount, avgDD, largestDD);
+    string s_ddContext = "";
     if(pctFromATH > 0.5)
         s_ddContext = (deepDDCount > 0)
-            ? StringFormat("A pullback of this depth has occurred **%d** time(s) in this dataset of **%d bars**.", deepDDCount, copied)
-            : StringFormat("No previous correction in this dataset of **%d bars** has reached this depth.", copied);
+            ? StringFormat("**%d** previous correction(s) in this **%d-bar** dataset reached or exceeded the current depth.", deepDDCount, copied)
+            : StringFormat("No previous correction in this **%d-bar** dataset reached the current depth.", copied);
 
-    string s_vol;
-    if(volPercentile >= 90)
-        s_vol = StringFormat("The market is in a high-activity regime — %s swings are larger than at nearly any point in this dataset. *(Volatility: **%.3f%%** vs avg **%.3f%%.)*", tfAdj, currentVol, historicalVol);
-    else if(volPercentile >= 65)
-        s_vol = StringFormat("Activity is running above the historical norm — %s swings have been wider than usual. *(Volatility: **%.3f%%** vs avg **%.3f%%.)*", tfAdj, currentVol, historicalVol);
-    else if(volPercentile <= 10)
-        s_vol = StringFormat("The market is in an unusually quiet regime — %s swings are narrower than at nearly any point in this dataset. *(Volatility: **%.3f%%** vs avg **%.3f%%.)*", tfAdj, currentVol, historicalVol);
-    else if(volPercentile <= 35)
-        s_vol = StringFormat("Activity is running below the historical norm — %s swings have been calmer than usual. *(Volatility: **%.3f%%** vs avg **%.3f%%.)*", tfAdj, currentVol, historicalVol);
-    else
-        s_vol = StringFormat("Activity is running close to the historical norm — %s swings are typical for this market. *(Volatility: **%.3f%%** vs avg **%.3f%%.)*", tfAdj, currentVol, historicalVol);
+    string s_vol = StringFormat(
+        "Current volatility: **%.3f%%**. Historical average: **%.3f%%**. Volatility percentile within rolling distribution: **%.0fth**.",
+        currentVol, historicalVol, volPercentile);
 
-    string s_ma;
-    if(vsShortMA > 0 && vsLongMA > 0)
-        s_ma = StringFormat("Price is above both the **%d-%s** SMA (**%s**) and the **%d-%s** SMA (**%s**).",
-            InpShortMAPeriod, barSing, DoubleToString(shortMA, digits), InpLongMAPeriod, barSing, DoubleToString(longMA, digits));
-    else if(vsShortMA < 0 && vsLongMA < 0)
-        s_ma = StringFormat("Price has fallen below both the **%d-%s** SMA (**%s**) and the **%d-%s** SMA (**%s**).",
-            InpShortMAPeriod, barSing, DoubleToString(shortMA, digits), InpLongMAPeriod, barSing, DoubleToString(longMA, digits));
-    else if(vsShortMA > 0 && vsLongMA < 0)
-        s_ma = StringFormat("Price is above the **%d-%s** SMA (**%s**) but below the **%d-%s** SMA (**%s**).",
-            InpShortMAPeriod, barSing, DoubleToString(shortMA, digits), InpLongMAPeriod, barSing, DoubleToString(longMA, digits));
-    else
-        s_ma = StringFormat("Price has slipped below the **%d-%s** SMA (**%s**) while remaining above the **%d-%s** SMA (**%s**).",
-            InpShortMAPeriod, barSing, DoubleToString(shortMA, digits), InpLongMAPeriod, barSing, DoubleToString(longMA, digits));
+    string s_ma = StringFormat(
+        "**%d-%s** SMA: **%s** (price difference: **%+.*f**). **%d-%s** SMA: **%s** (price difference: **%+.*f**).",
+        InpShortMAPeriod, barSing, DoubleToString(shortMA, digits), digits, vsShortMA,
+        InpLongMAPeriod,  barSing, DoubleToString(longMA,  digits), digits, vsLongMA);
 
-    string s_seq;
-    if(upCount > downCount + 1)
-        s_seq = StringFormat("Recent %s have leaned toward up-closes — **%d** up and **%d** down across the last **%d** completed bars: **%s**.", barLabel, upCount, downCount, recentWindow, recentBars);
-    else if(downCount > upCount + 1)
-        s_seq = StringFormat("Recent %s have leaned toward down-closes — **%d** down and **%d** up across the last **%d** completed bars: **%s**.", barLabel, downCount, upCount, recentWindow, recentBars);
-    else
-        s_seq = StringFormat("Recent %s are evenly split with no directional lean across **%d** completed bars: **%s**.", barLabel, recentWindow, recentBars);
+    string s_seq = StringFormat(
+        "Last **%d** completed %s: **%d** closed above their open, **%d** closed below their open. Sequence: **%s**.",
+        recentWindow, barLabel, upCount, downCount, recentBars);
 
     string s_last_candle = StringFormat(
         "Opened at **%s**, closed at **%s** (**%.2f%%**).",
