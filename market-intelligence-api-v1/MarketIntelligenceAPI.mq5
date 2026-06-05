@@ -30,8 +30,6 @@ input string AppBaseURL           = "http://127.0.0.1"; // Base URL
 input bool   InpEnableApi         = true;               // Enable API
 input int    InpApiPollingSeconds = 1;                  // Poll interval (s)
 input bool   InpDebugMode         = false;              // Debug output
-input int    InpShortMAPeriod     = 10;                 // Short MA period (bars)
-input int    InpLongMAPeriod      = 20;                 // Long MA period (bars)
 input int    InpLookbackMN1       = 24;                 // MN1 lookback (bars)
 input int    InpLookbackW1        = 52;                 // W1  lookback (bars)
 input int    InpLookbackD1        = 252;                // D1  lookback (bars)
@@ -109,40 +107,6 @@ string TFBarLabel(ENUM_TIMEFRAMES tf)
     if(tf == PERIOD_M5)  return "M5 bars";
     if(tf == PERIOD_M1)  return "M1 bars";
     return "months";
-}
-
-string TFAdj(ENUM_TIMEFRAMES tf)
-{
-    if(tf == PERIOD_W1)  return "Weekly";
-    if(tf == PERIOD_D1)  return "Daily";
-    if(tf == PERIOD_H4)  return "4-hour";
-    if(tf == PERIOD_H1)  return "Hourly";
-    if(tf == PERIOD_M30) return "30-minute";
-    if(tf == PERIOD_M15) return "15-minute";
-    if(tf == PERIOD_M5)  return "5-minute";
-    if(tf == PERIOD_M1)  return "1-minute";
-    return "Monthly";
-}
-
-string TFBarSingular(ENUM_TIMEFRAMES tf)
-{
-    if(tf == PERIOD_W1)  return "week";
-    if(tf == PERIOD_D1)  return "day";
-    if(tf == PERIOD_H4)  return "H4";
-    if(tf == PERIOD_H1)  return "hour";
-    if(tf == PERIOD_M30) return "M30";
-    if(tf == PERIOD_M15) return "M15";
-    if(tf == PERIOD_M5)  return "M5";
-    if(tf == PERIOD_M1)  return "minute";
-    return "month";
-}
-
-double CalcSMA(const MqlRates &rates[], int start, int period)
-{
-    if(period <= 0) return 0;
-    double s = 0;
-    for(int i = start; i < start + period; i++) s += rates[i].close;
-    return s / period;
 }
 
 double CalcStdDev(const double &arr[], int start, int count)
@@ -403,11 +367,6 @@ void ProcessApiRequest(string request_json)
 string AnalyseTF(ENUM_TIMEFRAMES tf, int shift, int lookback)
 {
     string barLabel   = TFBarLabel(tf);
-    string barSing    = TFBarSingular(tf);
-    string tfAdj      = TFAdj(tf);
-    bool   isHighTF   = (tf == PERIOD_MN1 || tf == PERIOD_W1 || tf == PERIOD_D1);
-    string highLabel  = isHighTF ? "all-time high" : "dataset high";
-    string lowLabel   = isHighTF ? "all-time low"  : "dataset low";
 
     int totalBars = iBars(g_symbol, tf);
     if(totalBars < 6)
@@ -470,14 +429,6 @@ string AnalyseTF(ENUM_TIMEFRAMES tf, int shift, int lookback)
     double pctFromATH = (allTimeHigh > 0) ? ((allTimeHigh - currentClose) / allTimeHigh) * 100.0 : 0.0;
     double pctFromATL = (allTimeLow  > 0) ? ((currentClose - allTimeLow)  / allTimeLow)  * 100.0 : 0.0;
 
-    // --- MA ---
-    int shortP = MathMin(InpShortMAPeriod, copied - 1);
-    int longP  = MathMin(InpLongMAPeriod,  copied - 1);
-    double shortMA  = CalcSMA(rates, 1, shortP);
-    double longMA   = CalcSMA(rates, 1, longP);
-    double vsShortMA = currentClose - shortMA;
-    double vsLongMA  = currentClose - longMA;
-
     // --- Recent candle sequence ---
     int recentWindow = MathMax(5, MathMin(lookback / 4, 20));
     recentWindow = MathMin(recentWindow, copied - 1);
@@ -526,7 +477,6 @@ string AnalyseTF(ENUM_TIMEFRAMES tf, int shift, int lookback)
     for(int i = 1; i < copied - 1; i++) { if(rates[i].low  > rates[i+1].low)  consHL++; else break; }
     for(int i = 1; i < copied - 1; i++) { if(rates[i].high < rates[i+1].high) consLH++; else break; }
     for(int i = 1; i < copied - 1; i++) { if(rates[i].low  < rates[i+1].low)  consLL++; else break; }
-    int half = MathMax(lookback / 2, 2);
 
     // --- Volatility (return StdDev) ---
     int retCount = MathMin(copied - 2, lookback);
@@ -659,11 +609,6 @@ string AnalyseTF(ENUM_TIMEFRAMES tf, int shift, int lookback)
         "Current volatility: **%.3f%%**. Historical average: **%.3f%%**. Volatility percentile within rolling distribution: **%.0fth**.",
         currentVol, historicalVol, volPercentile);
 
-    string s_ma = StringFormat(
-        "**%d-%s** SMA: **%s** (price difference: **%+.*f**). **%d-%s** SMA: **%s** (price difference: **%+.*f**).",
-        InpShortMAPeriod, barSing, DoubleToString(shortMA, digits), digits, vsShortMA,
-        InpLongMAPeriod,  barSing, DoubleToString(longMA,  digits), digits, vsLongMA);
-
     string s_seq = StringFormat(
         "Last **%d** completed %s: **%d** closed above their open, **%d** closed below their open. Sequence: **%s**.",
         recentWindow, barLabel, upCount, downCount, recentBars);
@@ -696,7 +641,6 @@ string AnalyseTF(ENUM_TIMEFRAMES tf, int shift, int lookback)
     j += "    \"drawdown\":           \"" + EscapeJson(s_dd)             + "\",\n";
     j += "    \"drawdown_context\":   \"" + EscapeJson(s_ddContext)      + "\",\n";
     j += "    \"volatility\":         \"" + EscapeJson(s_vol)            + "\",\n";
-    j += "    \"moving_averages\":    \"" + EscapeJson(s_ma)             + "\",\n";
     j += "    \"candle_behaviour\":   \"" + EscapeJson(s_seq)            + "\",\n";
     j += "    \"last_candle\":        \"" + EscapeJson(s_last_candle)    + "\",\n";
     j += "    \"current_candle\":     \"" + EscapeJson(s_current_candle) + "\",\n";
@@ -715,8 +659,6 @@ string AnalyseTF(ENUM_TIMEFRAMES tf, int shift, int lookback)
     j += "    \"current_volatility\":    " + DoubleToString(currentVol,    4)      + ",\n";
     j += "    \"historical_volatility\": " + DoubleToString(historicalVol, 4)      + ",\n";
     j += "    \"volatility_percentile\": " + DoubleToString(volPercentile, 2)      + ",\n";
-    j += "    \"short_ma\":              " + DoubleToString(shortMA,       digits) + ",\n";
-    j += "    \"long_ma\":               " + DoubleToString(longMA,        digits) + ",\n";
     j += "    \"range_high_lb\":         " + DoubleToString(highLB,        digits) + ",\n";
     j += "    \"range_low_lb\":          " + DoubleToString(lowLB,         digits) + ",\n";
     j += "    \"pct_in_lb_range\":       " + DoubleToString(pctInLBRange,  2)      + ",\n";
