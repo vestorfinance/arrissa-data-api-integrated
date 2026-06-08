@@ -229,7 +229,7 @@ ob_start();
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">currency</code></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
-                            <td class="py-4 px-6" style="color: var(--text-secondary);">Filter events by specific currency (e.g., USD, EUR)</td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Filter by one or more currencies (e.g., <code>USD</code> or <code>USD,GBP,CNY</code> — comma-separated)</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">currency_exclude</code></td>
@@ -476,6 +476,7 @@ ob_start();
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <?php
                 $advancedExamples = [
+                    ['title' => 'Multi-Currency Filter', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&currency=USD,GBP,CNY&period=this-week", 'desc' => 'USD, GBP and CNY events this week'],
                     ['title' => 'Exclude USD & GBP', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&currency_exclude=USD,GBP&period=last-month", 'desc' => 'Currency exclusion filter'],
                     ['title' => 'Custom Period (15 days)', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&period=last-15-days", 'desc' => 'Custom rolling period'],
                     ['title' => 'Date Range (No Time)', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&start_date=2025-01-01&end_date=2025-12-31", 'desc' => 'Full year with dates only'],

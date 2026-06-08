@@ -587,7 +587,8 @@ if (!empty($period)) {
 
 // Build the response_for descriptor
 if (!empty($period)) {
-    $response_for = ($currency ? strtoupper($currency) . ' ' : '') . strtolower(trim($period)) . ' events';
+    $currencyLabel = $currency ? implode(',', array_map('strtoupper', array_map('trim', explode(',', $currency)))) . ' ' : '';
+    $response_for = $currencyLabel . strtolower(trim($period)) . ' events';
     if (!empty($spit_out) && strtolower($spit_out) === 'all') {
         $response_for .= ' (all events - past and future)';
     }
@@ -595,7 +596,8 @@ if (!empty($period)) {
         $response_for .= ' (limited to ' . strtolower($future_limit) . ')';
     }
 } else {
-    $response_for = ($currency ? strtoupper($currency) . ' events from ' : 'events from ') . $start_datetime . ' to ' . $end_datetime;
+    $currencyLabel2 = $currency ? implode(',', array_map('strtoupper', array_map('trim', explode(',', $currency)))) . ' ' : '';
+    $response_for = ($currencyLabel2 ? $currencyLabel2 . 'events from ' : 'events from ') . $start_datetime . ' to ' . $end_datetime;
 }
 
 try {
@@ -620,8 +622,14 @@ try {
     ];
 
     if (!empty($currency)) {
-        $sql                .= " AND currency = :currency";
-        $params[':currency'] = strtoupper($currency);
+        $currencies       = array_filter(array_map('trim', explode(',', $currency)));
+        $currencyPlaceholders = [];
+        foreach ($currencies as $i => $code) {
+            $key                    = ":cur{$i}";
+            $currencyPlaceholders[] = $key;
+            $params[$key]           = strtoupper($code);
+        }
+        $sql .= " AND currency IN (" . implode(',', $currencyPlaceholders) . ")";
     }
 
     if (!empty($currency_exclude)) {
