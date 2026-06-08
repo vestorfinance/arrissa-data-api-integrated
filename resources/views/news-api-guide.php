@@ -238,6 +238,12 @@ ob_start();
                             <td class="py-4 px-6" style="color: var(--text-secondary);">Exclude currencies (comma-separated, e.g., USD,GBP)</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">impact</code></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Filter by impact level — one or more of <code>High</code>, <code>Medium</code>, <code>Low</code> (comma-separated, e.g., <code>High,Medium</code>)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">event_id</code></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
@@ -477,6 +483,8 @@ ob_start();
                 <?php
                 $advancedExamples = [
                     ['title' => 'Multi-Currency Filter', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&currency=USD,GBP,CNY&period=this-week", 'desc' => 'USD, GBP and CNY events this week'],
+                    ['title' => 'High Impact Only', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&impact=High&period=this-week", 'desc' => 'High impact events only'],
+                    ['title' => 'High & Medium Impact', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&impact=High,Medium&currency=USD&period=this-week", 'desc' => 'USD high and medium impact events'],
                     ['title' => 'Exclude USD & GBP', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&currency_exclude=USD,GBP&period=last-month", 'desc' => 'Currency exclusion filter'],
                     ['title' => 'Custom Period (15 days)', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&period=last-15-days", 'desc' => 'Custom rolling period'],
                     ['title' => 'Date Range (No Time)', 'url' => "{$baseUrl}/news-api-v1/news-api.php?api_key={$apiKey}&start_date=2025-01-01&end_date=2025-12-31", 'desc' => 'Full year with dates only'],
