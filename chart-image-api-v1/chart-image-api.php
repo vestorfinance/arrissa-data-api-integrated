@@ -563,13 +563,17 @@ $lows  = array_column($candles, 'low');
 $candleMaxP  = max($highs);  // Actual highest candle point
 $candleMinP  = min($lows);   // Actual lowest candle point
 
-// Only expand range for SL/TP/Entry if they are close to the candle range (within 50%).
-// Expanding unconditionally destroys the scale when entry prices are far from current market.
+// Expand range for SL/TP/Entry only when the overshoot beyond the candle range is
+// within 2x the candle range. This keeps SL/TP visible on normal trades while
+// preventing scale destruction when entry prices are wildly off (e.g. wrong test data).
 $_priceRange = $candleMaxP - $candleMinP ?: 1;
 foreach ([$entryPrice, $slPrice, $tpPrice] as $_p) {
-    if ($_p !== null && abs($_p - $candleMinP) < $_priceRange * 1.5 && abs($_p - $candleMaxP) < $_priceRange * 1.5) {
-        $candleMaxP = max($candleMaxP, $_p);
-        $candleMinP = min($candleMinP, $_p);
+    if ($_p !== null) {
+        $overshoot = max(0, $candleMinP - $_p, $_p - $candleMaxP);
+        if ($overshoot <= $_priceRange * 2) {
+            $candleMaxP = max($candleMaxP, $_p);
+            $candleMinP = min($candleMinP, $_p);
+        }
     }
 }
 
