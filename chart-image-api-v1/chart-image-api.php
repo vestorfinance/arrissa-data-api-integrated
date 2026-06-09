@@ -235,15 +235,13 @@ if ($forwardCount > 0 && ($pretendDate || $entryDate)) {
     elseif  ($tfUpper === 'MN1')                       $tfSeconds = 2592000;
 
     if ($forwardToNow) {
-        // Recalculate count as candles elapsed from entry to actual current time
-        $elapsed      = max(0, time() - $entryTsForForward);
-        $forwardCount = max(1, (int)ceil($elapsed / $tfSeconds));
-        // Fetch current (live) candles — no pretend_date so EA returns latest bars
+        // forward=now: fetch a generous fixed batch of live candles (no pretend_date)
+        // and keep every candle newer than the entry — no calculated count cap needed
         $fwdParams = [
             'api_key'   => $apiKey,
             'symbol'    => $symbol,
             'timeframe' => $timeframe,
-            'count'     => $forwardCount + 10,
+            'count'     => 500,
         ];
     } else {
         // Fixed count: set pretend time to entry + forward candles + small buffer
@@ -268,9 +266,11 @@ if ($forwardCount > 0 && ($pretendDate || $entryDate)) {
                 if ($candleTs !== null && $candleTs > $entryTsForForward) {
                     $candles[] = $fwdCandle;
                     $fwdAppended++;
-                    if ($fwdAppended >= $forwardCount) break;
+                    if (!$forwardToNow && $fwdAppended >= $forwardCount) break;
                 }
             }
+            // For forward=now update $forwardCount so SL/TP/badge logic downstream is correct
+            if ($forwardToNow) $forwardCount = $fwdAppended;
         }
     }
 }
