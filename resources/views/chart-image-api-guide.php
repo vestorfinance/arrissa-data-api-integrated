@@ -613,7 +613,7 @@ ob_start();
             <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Example — Entry view (no forward candles)</h3>
             <p class="text-xs mb-3" style="color: var(--text-secondary);">Shows the trade setup as it looked at entry. SL/TP zones extend to the right edge of the chart.</p>
             <div class="p-4 rounded-xl api-code text-xs overflow-x-auto" style="background-color: var(--bg-primary); color: var(--accent); border: 1px solid var(--input-border);">
-                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=BTCUSD&amp;timeframe=M1&amp;count=60&amp;entry_price=67826.31&amp;entry_date=2026-03-31&amp;entry_time=20:00&amp;sl=67454.80&amp;tp=68292.46</pre>
+                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=BTCUSD&amp;timeframe=M1&amp;count=60&amp;entry_price=61500&amp;entry_date=2026-06-09&amp;entry_time=15:07&amp;sl=61200&amp;tp=62100</pre>
             </div>
         </div>
 
@@ -621,7 +621,7 @@ ob_start();
             <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Example — With forward candles (fixed look-ahead)</h3>
             <p class="text-xs mb-3" style="color: var(--text-secondary);">Loads 100 candles after entry. Diagonal ends at the candle where price first hits TP or SL.</p>
             <div class="p-4 rounded-xl api-code text-xs overflow-x-auto" style="background-color: var(--bg-primary); color: var(--accent); border: 1px solid var(--input-border);">
-                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=BTCUSD&amp;timeframe=M1&amp;count=60&amp;entry_price=67826.31&amp;entry_date=2026-03-31&amp;entry_time=20:00&amp;sl=67454.80&amp;tp=68292.46&amp;forward=100</pre>
+                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=BTCUSD&amp;timeframe=M1&amp;count=60&amp;entry_price=61500&amp;entry_date=2026-06-09&amp;entry_time=15:07&amp;sl=61200&amp;tp=62100&amp;forward=100</pre>
             </div>
         </div>
 
@@ -629,7 +629,7 @@ ob_start();
             <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Example — <code>forward=now</code> (live trade outcome)</h3>
             <p class="text-xs mb-3" style="color: var(--text-secondary);">Automatically forwards from the entry candle to the current real-time candle — no need to count bars. The chart always shows the latest outcome.</p>
             <div class="p-4 rounded-xl api-code text-xs overflow-x-auto" style="background-color: var(--bg-primary); color: var(--accent); border: 1px solid var(--input-border);">
-                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=EURUSD&amp;timeframe=H1&amp;count=50&amp;entry_price=1.08500&amp;entry_date=2026-06-01&amp;entry_time=09:00&amp;sl=1.08100&amp;tp=1.09300&amp;forward=now</pre>
+                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=BTCUSD&amp;timeframe=M1&amp;count=60&amp;entry_price=61500&amp;entry_date=2026-06-09&amp;entry_time=15:07&amp;sl=61200&amp;tp=62100&amp;forward=now</pre>
             </div>
         </div>
     </div>
@@ -675,10 +675,10 @@ ob_start();
 
         <!-- Example request -->
         <div class="p-6 rounded-2xl mb-4" style="background-color: var(--card-bg); border: 1px solid var(--border);">
-            <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Example Request — EURUSD buy trade with outcome</h3>
+            <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Example Request — BTCUSD buy trade with outcome</h3>
             <p class="text-xs mb-3" style="color: var(--text-secondary);">Same as a normal SL/TP chart request — just append <code>&amp;data=json</code>. Include <code>forward</code> to resolve TP/SL hit.</p>
             <div class="p-4 rounded-xl api-code text-xs overflow-x-auto mb-2" style="background-color: var(--bg-primary); color: var(--accent); border: 1px solid var(--input-border);">
-                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=EURUSD&amp;timeframe=H1&amp;count=60&amp;entry_price=1.08450&amp;entry_date=2026-03-10&amp;entry_time=09:00&amp;sl=1.08200&amp;tp=1.09100&amp;forward=100&amp;data=json</pre>
+                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=BTCUSD&amp;timeframe=M1&amp;count=60&amp;entry_price=61500&amp;entry_date=2026-06-09&amp;entry_time=15:07&amp;sl=61200&amp;tp=62100&amp;forward=100&amp;data=json</pre>
             </div>
         </div>
 
@@ -689,13 +689,13 @@ ob_start();
             <div class="p-4 rounded-xl api-code text-xs overflow-x-auto" style="background-color: var(--bg-primary); color: var(--success); border: 1px solid var(--input-border);">
                 <pre style="margin:0;">{
   "image":       "data:image/png;base64,iVBORw0KGgo...",
-  "entry_price": 1.0845,
-  "sl":          1.082,
-  "tp":          1.091,
+  "entry_price": 61500,
+  "sl":          61200,
+  "tp":          62100,
   "result":      "tp-hit",
-  "gain":        650,
-  "point_size":  0.00001,
-  "precision":   5,
+  "gain":        600,
+  "point_size":  0.01,
+  "precision":   2,
   "direction":   "buy"
 }</pre>
             </div>
