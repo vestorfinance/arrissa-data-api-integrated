@@ -880,11 +880,6 @@ for ($i=0; $i<=5; $i++) {
     $x = intval($chartX0 + $i*$chartW/5);
     imageline($img,$x,$chartY0,$x,intval($chartY0+$chartH),$gridColor);
 }
-// axes borders
-for ($dx=0; $dx<2; $dx++){
-    imageline($img,$chartX0+$dx,$chartY0,$chartX0+$dx,intval($chartY0+$chartH),$textColor);
-    imageline($img,$chartX0,intval($chartY0+$chartH)-$dx,intval($chartX0+$chartW),intval($chartY0+$chartH)-$dx,$textColor);
-}
 
 //////////////////////////
 // 19) Title
