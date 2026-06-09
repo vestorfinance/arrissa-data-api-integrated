@@ -672,7 +672,9 @@ function drawDashedLine($img, $x1, $y1, $x2, $y2, $color, $dashLength = 5, $gapL
 //////////////////////////
 // 13) Setup image (16:9)
 //////////////////////////
-$W   = 1600; $H = 900;
+// Render at 2x resolution and downsample at output for smooth anti-aliased text/lines
+$SCALE = 2;
+$W   = 1600 * $SCALE; $H = 900 * $SCALE;
 $img = imagecreatetruecolor($W, $H);
 imageantialias($img, true);
 
@@ -714,12 +716,12 @@ imagefilledrectangle($img,0,0,$W,$H,$bgColor);
 //////////////////////////
 // 13) Font size definitions
 //////////////////////////
-$titleFontSize = 14;
-$labelFontSize = 12;
-$xAxisLabelSize = 9;  // Slightly smaller font for date/time labels
-$rangeFontSize = 10;
-$separatorLabelSize = 10;
-$highLowLabelSize = 9;
+$titleFontSize      = 14 * $SCALE;
+$labelFontSize      = 12 * $SCALE;
+$xAxisLabelSize     =  9 * $SCALE;
+$rangeFontSize      = 10 * $SCALE;
+$separatorLabelSize = 10 * $SCALE;
+$highLowLabelSize   =  9 * $SCALE;
 
 //////////////////////////
 // 14) Helper function to get text dimensions
@@ -791,10 +793,10 @@ for ($i=0; $i<$n; $i+=$stepCount) {
 }
 
 // margins - price scale on right side like trading charts
-$marginLeft   = max(40, $maxXLabelW + 10); // Minimal left margin
-$marginRight  = max($maxLabelW + 20, 150, $priceTextW + 20, $maxXLabelW + 10); // Price labels on right
-$marginTop    = 80; // Increased for separator labels
-$marginBottom = 80;
+$marginLeft   = max(40 * $SCALE, $maxXLabelW + 10 * $SCALE);
+$marginRight  = max($maxLabelW + 20 * $SCALE, 150 * $SCALE, $priceTextW + 20 * $SCALE, $maxXLabelW + 10 * $SCALE);
+$marginTop    = 80 * $SCALE;
+$marginBottom = 80 * $SCALE;
 
 // chart dims
 $chartWFull = $W - $marginLeft - $marginRight; // Total width available
@@ -948,16 +950,16 @@ $titleDims = getTextDimensions($title, $fontSemiBold, $titleFontSize);
 
 // Draw badge next to title if trade overlay is active
 if ($tradeBadgeText !== null) {
-    $badgeFontSize = 11;
-    $badgePadX = 10; $badgePadY = 5;
+    $badgeFontSize = 11 * $SCALE;
+    $badgePadX = 10 * $SCALE; $badgePadY = 5 * $SCALE;
     $badgeDims = getTextDimensions($tradeBadgeText, $fontBold, $badgeFontSize);
     $badgeW    = $badgeDims['width']  + $badgePadX * 2;
     $badgeH    = $badgeDims['height'] + $badgePadY * 2;
-    $gap       = 12;
+    $gap       = 12 * $SCALE;
     $totalW    = $titleDims['width'] + $gap + $badgeW;
     $titleX    = intval(($W - $totalW) / 2);
     $badgeX    = $titleX + $titleDims['width'] + $gap;
-    $badgeY1   = intval(35 - $titleDims['height'] - 2);
+    $badgeY1   = intval(35 * $SCALE - $titleDims['height'] - 2 * $SCALE);
     $badgeY2   = intval($badgeY1 + $badgeH);
     // Draw rounded-rectangle badge (simulate with filled rect)
     imagefilledrectangle($img, $badgeX, $badgeY1, $badgeX + $badgeW, $badgeY2, $tradeBadgeBgCol);
@@ -969,7 +971,7 @@ if ($tradeBadgeText !== null) {
 } else {
     $titleX = intval(($W - $titleDims['width']) / 2);
 }
-imagettftext($img, $titleFontSize, 0, $titleX, 35, $textColor, $fontSemiBold, $title);
+imagettftext($img, $titleFontSize, 0, $titleX, 35 * $SCALE, $textColor, $fontSemiBold, $title);
 
 //////////////////////////
 // 20) Y-axis labels (price scale on right)
@@ -1275,31 +1277,31 @@ if ($entryPrice !== null && $slPrice !== null && $tpPrice !== null) {
 
     // Draw R:R badge inside the TP zone (TradingView style)
     $rrText     = '1:' . $rr . ' ' . ($isBuy ? 'LONG' : 'SHORT');
-    $rrFontSize = 11;
+    $rrFontSize = 11 * $SCALE;
     $rrDims     = getTextDimensions($rrText, $fontBold, $rrFontSize);
-    $rrX        = intval($xEntry + 10);
+    $rrX        = intval($xEntry + 10 * $SCALE);
     // Vertically center in TP zone
     $rrY        = intval((min($yEntry, $yTP) + max($yEntry, $yTP)) / 2 + $rrDims['height'] / 2);
     // Only draw if zone is tall enough
-    if (abs($yEntry - $yTP) > $rrDims['height'] + 8) {
+    if (abs($yEntry - $yTP) > $rrDims['height'] + 8 * $SCALE) {
         imagettftext($img, $rrFontSize, 0, $rrX, $rrY, $tpLineColor, $fontBold, $rrText);
     }
 
     // Draw R label inside SL zone
     $riskText  = 'R';
     $riskDims  = getTextDimensions($riskText, $fontBold, $rrFontSize);
-    $riskX     = intval($xEntry + 10);
+    $riskX     = intval($xEntry + 10 * $SCALE);
     $riskY     = intval((min($yEntry, $ySL) + max($yEntry, $ySL)) / 2 + $riskDims['height'] / 2);
-    if (abs($yEntry - $ySL) > $riskDims['height'] + 8) {
+    if (abs($yEntry - $ySL) > $riskDims['height'] + 8 * $SCALE) {
         imagettftext($img, $rrFontSize, 0, $riskX, $riskY, $slLineColor, $fontBold, $riskText);
     }
 
     // Draw labeled colored boxes on right side for Entry, SL, TP
-    $tradeLabFontSize = 10;
-    $labPad = 4;
-    $drawTradeLabel = function(string $text, int $yPos, int $color) use (&$img, $xRight, $white, $fontMedium, $tradeLabFontSize, $labPad) {
+    $tradeLabFontSize = 10 * $SCALE;
+    $labPad = 4 * $SCALE;
+    $drawTradeLabel = function(string $text, int $yPos, int $color) use (&$img, $xRight, $white, $fontMedium, $tradeLabFontSize, $labPad, $SCALE) {
         $dims = getTextDimensions($text, $fontMedium, $tradeLabFontSize);
-        $lx   = $xRight + 6;
+        $lx   = $xRight + 6 * $SCALE;
         $ly1  = intval($yPos - $dims['height'] / 2 - $labPad);
         $lx2  = intval($lx + $dims['width'] + $labPad * 2);
         $ly2  = intval($yPos + $dims['height'] / 2 + $labPad);
@@ -1317,9 +1319,9 @@ if ($entryPrice !== null && $slPrice !== null && $tpPrice !== null) {
 
     // Draw R:R summary box (bottom-left of trade zone area)
     $rrSummary     = '1:' . $rr . ' R:R  |  Risk ' . number_format($risk, $precision, '.', '') . '  |  Reward ' . number_format($reward, $precision, '.', '');
-    $rrSummarySize = 10;
+    $rrSummarySize = 10 * $SCALE;
     $rrSummaryDims = getTextDimensions($rrSummary, $fontSemiBold, $rrSummarySize);
-    $rrSummaryX    = intval($xEntry + 8);
+    $rrSummaryX    = intval($xEntry + 8 * $SCALE);
     $rrSummaryY    = intval(max($yEntry, $ySL, $yTP) + $rrSummaryDims['height'] + 8);
     // Keep inside chart
     if ($rrSummaryY < intval($chartY0 + $chartH) - 4) {
@@ -1348,8 +1350,8 @@ $label = number_format($currentPrice, $precision, '.', '');
 $labelDims = getTextDimensions($label, $fontMedium, $labelFontSize);
 
 // Calculate rectangle position
-$rectX = intval($chartX0 + $chartW) + 6;
-$rectPadding = 4;
+$rectX = intval($chartX0 + $chartW) + 6 * $SCALE;
+$rectPadding = 4 * $SCALE;
 $rectWidth = $labelDims['width'] + ($rectPadding * 2);
 $rectHeight = $labelDims['height'] + ($rectPadding * 2);
 
@@ -1378,11 +1380,18 @@ imagettftext($img, $labelFontSize, 0,
 $rangeText = $firstCandle['time'] . ' - ' . $lastCandle['time'];
 $rangeDims = getTextDimensions($rangeText, $fontRegular, $rangeFontSize);
 $rangeX = intval(($W - $rangeDims['width']) / 2);
-imagettftext($img, $rangeFontSize, 0, $rangeX, $H - 20, $textColor, $fontRegular, $rangeText);
+imagettftext($img, $rangeFontSize, 0, $rangeX, $H - 20 * $SCALE, $textColor, $fontRegular, $rangeText);
 
 //////////////////////////
 // 28) Output PNG  —— or JSON envelope when data=json
 //////////////////////////
+// Downsample from 2x to final resolution for smooth anti-aliased output
+$outW = intval($W / $SCALE); $outH = intval($H / $SCALE);
+$finalImg = imagecreatetruecolor($outW, $outH);
+imagecopyresampled($finalImg, $img, 0, 0, 0, 0, $outW, $outH, $W, $H);
+imagedestroy($img);
+$img = $finalImg;
+
 if ($returnJson) {
     // Capture rendered chart as PNG bytes
     ob_start();
