@@ -157,10 +157,10 @@ if ($apiKey !== $validApiKey) {
 // 2) Font Setup
 //////////////////////////
 $fontDir = __DIR__ . '/fonts/';
-$fontRegular = $fontDir . 'Manrope-Regular.ttf';
-$fontMedium = $fontDir . 'Manrope-Medium.ttf';
-$fontSemiBold = $fontDir . 'Manrope-SemiBold.ttf';
-$fontBold = $fontDir . 'Manrope-Bold.ttf';
+$fontRegular  = $fontDir . 'Inter-Regular.ttf';
+$fontMedium   = $fontDir . 'Inter-Medium.ttf';
+$fontSemiBold = $fontDir . 'Inter-SemiBold.ttf';
+$fontBold     = $fontDir . 'Inter-Bold.ttf';
 
 // Check if fonts exist
 if (!file_exists($fontRegular)) {
