@@ -55,7 +55,7 @@
 //   entry_time    (HH:MM, optional)   - time of trade entry
 //   sl            (float, optional)   - stop loss price
 //   tp            (float, optional)   - take profit price
-//   forward       (int, optional)     - number of candles to load AFTER entry_date/time to show trade outcome
+//   forward       (int|"now", optional) - candles to load AFTER entry_date/time; "now" auto-calculates elapsed candles to current time
 // Fetches from vestorfinance API and draws a 16:9 candlestick chart via GD,
 // with optional EMAs, ATR, Fibonacci levels, dynamic height based solely on candle range,
 // padding on the right, full-price precision, left-aligned X-axis labels,
@@ -102,7 +102,9 @@ $entryDate   = $_GET['entry_date']         ?? null;
 $entryTime   = $_GET['entry_time']         ?? null;
 $slPrice     = isset($_GET['sl'])          ? (float)$_GET['sl']          : null;
 $tpPrice     = isset($_GET['tp'])          ? (float)$_GET['tp']          : null;
-$forwardCount = isset($_GET['forward'])   ? max(0, (int)$_GET['forward']) : 0;
+$forwardRaw   = $_GET['forward'] ?? null;
+$forwardToNow = ($forwardRaw === 'now');
+$forwardCount = $forwardToNow ? 1 : (isset($forwardRaw) ? max(0, (int)$forwardRaw) : 0);
 
 if (!$apiKey) {
     http_response_code(404);
@@ -223,7 +225,7 @@ if ($forwardCount > 0 && ($pretendDate || $entryDate)) {
         ($pretendDate ?? date('Y-m-d')) . ' ' . ($pretendTime ?? '00:00')
     );
 
-    // Compute timeframe interval in seconds so we can build a future pretend_date
+    // Compute timeframe interval in seconds
     $tfUpper = strtoupper($timeframe);
     $tfSeconds = 60; // default 1 minute
     if      (preg_match('/^M(\d+)$/', $tfUpper, $m))  $tfSeconds = (int)$m[1] * 60;
@@ -232,19 +234,29 @@ if ($forwardCount > 0 && ($pretendDate || $entryDate)) {
     elseif  ($tfUpper === 'W1')                        $tfSeconds = 604800;
     elseif  ($tfUpper === 'MN1')                       $tfSeconds = 2592000;
 
-    // Set pretend time to entry + forward candles + small buffer (5 extra candles)
-    $fwdEndTs    = $entryTsForForward + ($forwardCount + 5) * $tfSeconds;
-    $fwdEndDate  = date('Y-m-d', $fwdEndTs);
-    $fwdEndTime  = date('H:i', $fwdEndTs);
-
-    $fwdParams = [
-        'api_key'      => $apiKey,
-        'symbol'       => $symbol,
-        'timeframe'    => $timeframe,
-        'count'        => $forwardCount + 10,
-        'pretend_date' => $fwdEndDate,
-        'pretend_time' => $fwdEndTime,
-    ];
+    if ($forwardToNow) {
+        // Recalculate count as candles elapsed from entry to actual current time
+        $elapsed      = max(0, time() - $entryTsForForward);
+        $forwardCount = max(1, (int)ceil($elapsed / $tfSeconds));
+        // Fetch current (live) candles — no pretend_date so EA returns latest bars
+        $fwdParams = [
+            'api_key'   => $apiKey,
+            'symbol'    => $symbol,
+            'timeframe' => $timeframe,
+            'count'     => $forwardCount + 10,
+        ];
+    } else {
+        // Fixed count: set pretend time to entry + forward candles + small buffer
+        $fwdEndTs   = $entryTsForForward + ($forwardCount + 5) * $tfSeconds;
+        $fwdParams  = [
+            'api_key'      => $apiKey,
+            'symbol'       => $symbol,
+            'timeframe'    => $timeframe,
+            'count'        => $forwardCount + 10,
+            'pretend_date' => date('Y-m-d', $fwdEndTs),
+            'pretend_time' => date('H:i',   $fwdEndTs),
+        ];
+    }
     $fwdRaw = @file_get_contents($BASE_URL . '/market-data-api-v1/market-data-api.php?' . http_build_query($fwdParams));
     if ($fwdRaw !== false) {
         $fwdJson = json_decode($fwdRaw, true);

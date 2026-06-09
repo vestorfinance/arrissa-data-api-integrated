@@ -534,9 +534,9 @@ ob_start();
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: rgba(38,166,154,0.15); color: #26a69a;">forward</code></td>
-                            <td class="py-4 px-6" style="color: var(--text-secondary);">integer</td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">integer or <code>"now"</code></td>
                             <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-secondary);">Optional</span></td>
-                            <td class="py-4 px-6" style="color: var(--text-secondary);">Number of candles to load <strong>after</strong> entry time to show how the trade played out. The diagonal dashed line ends at the first candle that hits TP or SL, or at the last close if neither was hit.</td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Candles to load <strong>after</strong> entry time. Use an integer (e.g. <code>100</code>) for a fixed look-ahead, or <code>now</code> to automatically forward to the current real-time candles — the chart shows exactly how the trade has played out so far. The diagonal ends at the first TP/SL hit, or the last close if neither was hit.</td>
                         </tr>
                         <!-- Response Format -->
                         <tr style="border-bottom: 1px solid var(--border); background-color: rgba(99,102,241,0.04);">
@@ -617,11 +617,19 @@ ob_start();
             </div>
         </div>
 
-        <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
-            <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Example — With forward candles (trade outcome)</h3>
+        <div class="p-6 rounded-2xl mb-4" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Example — With forward candles (fixed look-ahead)</h3>
             <p class="text-xs mb-3" style="color: var(--text-secondary);">Loads 100 candles after entry. Diagonal ends at the candle where price first hits TP or SL.</p>
             <div class="p-4 rounded-xl api-code text-xs overflow-x-auto" style="background-color: var(--bg-primary); color: var(--accent); border: 1px solid var(--input-border);">
                 <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=BTCUSD&amp;timeframe=M1&amp;count=60&amp;entry_price=67826.31&amp;entry_date=2026-03-31&amp;entry_time=20:00&amp;sl=67454.80&amp;tp=68292.46&amp;forward=100</pre>
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Example — <code>forward=now</code> (live trade outcome)</h3>
+            <p class="text-xs mb-3" style="color: var(--text-secondary);">Automatically forwards from the entry candle to the current real-time candle — no need to count bars. The chart always shows the latest outcome.</p>
+            <div class="p-4 rounded-xl api-code text-xs overflow-x-auto" style="background-color: var(--bg-primary); color: var(--accent); border: 1px solid var(--input-border);">
+                <pre style="margin:0;white-space:pre-wrap;word-wrap:break-word;"><?php echo htmlspecialchars($baseUrl); ?>/chart-image-api-v1/chart-image-api.php?api_key=<?php echo htmlspecialchars($apiKey); ?>&amp;symbol=EURUSD&amp;timeframe=H1&amp;count=50&amp;entry_price=1.08500&amp;entry_date=2026-06-01&amp;entry_time=09:00&amp;sl=1.08100&amp;tp=1.09300&amp;forward=now</pre>
             </div>
         </div>
     </div>
