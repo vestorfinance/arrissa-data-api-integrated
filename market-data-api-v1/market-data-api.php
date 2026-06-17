@@ -470,10 +470,36 @@ foreach (glob("$queueDir/*.res.json") as $f) {
 }
 
 //--------------------------------------------
-// 1) EA POST: receive candle data & write response
+// 1) EA POST: receive candle data (or ticker data) & write response
 //--------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $request_id   = $_POST['request_id']   ?? '';
+
+    // --- Ticker response path ---
+    if (!empty($_POST['ticker_data'])) {
+        if (!$request_id) {
+            http_response_code(400);
+            echo json_encode(['vestor_data' => ['error' => 'Missing request_id for ticker response']]);
+            exit;
+        }
+        $tickerArray = json_decode($_POST['ticker_data'], true);
+        if (!is_array($tickerArray)) {
+            http_response_code(400);
+            echo json_encode(['vestor_data' => ['error' => 'Invalid ticker_data JSON']]);
+            exit;
+        }
+        $responseData = [
+            'request_id' => $request_id,
+            'tickers'    => $tickerArray
+        ];
+        $resFile = "$queueDir/{$request_id}.res.json";
+        file_put_contents($resFile, json_encode($responseData, JSON_UNESCAPED_SLASHES));
+        debug_log("EA POST wrote ticker response for request_id=$request_id with " . count($tickerArray) . " symbols");
+        echo json_encode(['vestor_data' => ['status' => 'ok', 'tickers_received' => count($tickerArray)]]);
+        exit;
+    }
+
+    // --- Candle response path ---
     $symbol       = $_POST['symbol']       ?? '';
     $candlesRaw   = $_POST['candles']      ?? '';
     $currentPrice = $_POST['currentPrice'] ?? null;
@@ -565,7 +591,59 @@ function consume_quota() {
 }
 
 //--------------------------------------------
-// 2) Client GET: expanded‐mode with direct indicator parameters
+// 2) Client GET: ticker mode — multi-symbol price + daily % change
+//--------------------------------------------
+$tickerSymbols = isset($_GET['ticker-symbols']) ? trim($_GET['ticker-symbols']) : null;
+
+if ($tickerSymbols) {
+    authenticate();
+
+    $symbols = array_values(array_filter(array_map('trim', explode(',', $tickerSymbols))));
+    if (empty($symbols)) {
+        echo json_encode(['vestor_data' => ['error' => 'No valid symbols provided in ticker-symbols']]);
+        exit;
+    }
+    if (count($symbols) > 50) {
+        echo json_encode(['vestor_data' => ['error' => 'Too many symbols (max 50)']]);
+        exit;
+    }
+
+    $request_id = uniqid('ticker_', true);
+    $reqFile    = "$queueDir/{$request_id}.req.json";
+    $resFile    = "$queueDir/{$request_id}.res.json";
+
+    $requestData = [
+        'request_id'   => $request_id,
+        'request_type' => 'ticker',
+        'symbols'      => implode(',', $symbols)
+    ];
+    file_put_contents($reqFile, json_encode($requestData, JSON_UNESCAPED_SLASHES));
+    debug_log("Client GET ticker request_id=$request_id symbols=" . implode(',', $symbols));
+
+    $start   = time();
+    $timeout = 30;
+    while (time() - $start < $timeout) {
+        if (file_exists($resFile)) {
+            $response = json_decode(file_get_contents($resFile), true);
+            if (!empty($response['request_id']) && $response['request_id'] === $request_id) {
+                @unlink($resFile);
+                consume_quota();
+                echo json_encode(['vestor_data' => $response], JSON_UNESCAPED_SLASHES);
+                exit;
+            }
+        }
+        usleep(200000);
+    }
+
+    @unlink($reqFile);
+    http_response_code(504);
+    debug_log("Client GET ticker timeout for request_id=$request_id");
+    echo json_encode(['vestor_data' => ['error' => 'Timeout waiting for Data Server']]);
+    exit;
+}
+
+//--------------------------------------------
+// 2b) Client GET: expanded‐mode with direct indicator parameters
 //--------------------------------------------
 $symbol     = $_GET['symbol']     ?? null;
 $rangeType  = $_GET['rangeType']  ?? null;
