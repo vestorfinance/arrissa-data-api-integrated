@@ -105,6 +105,7 @@ $tpPrice     = isset($_GET['tp'])          ? (float)$_GET['tp']          : null;
 $forwardRaw   = $_GET['forward'] ?? null;
 $forwardToNow = ($forwardRaw === 'now');
 $forwardCount = $forwardToNow ? 1 : (isset($forwardRaw) ? max(0, (int)$forwardRaw) : 0);
+$detailClean  = isset($_GET['detail']) && strtolower($_GET['detail']) === 'clean';
 
 if (!$apiKey) {
     http_response_code(404);
@@ -157,10 +158,10 @@ if ($apiKey !== $validApiKey) {
 // 2) Font Setup
 //////////////////////////
 $fontDir = __DIR__ . '/fonts/';
-$fontRegular  = $fontDir . 'Inter-Regular.ttf';
-$fontMedium   = $fontDir . 'Inter-Medium.ttf';
-$fontSemiBold = $fontDir . 'Inter-SemiBold.ttf';
-$fontBold     = $fontDir . 'Inter-Bold.ttf';
+$fontRegular  = $fontDir . 'HostGrotesk-Regular.ttf';
+$fontMedium   = $fontDir . 'HostGrotesk-Medium.ttf';
+$fontSemiBold = $fontDir . 'HostGrotesk-SemiBold.ttf';
+$fontBold     = $fontDir . 'HostGrotesk-Bold.ttf';
 
 // Check if fonts exist
 if (!file_exists($fontRegular)) {
@@ -943,33 +944,69 @@ if ($entryPrice !== null && $slPrice !== null && $tpPrice !== null) {
     }
 }
 
-$title = "{$symbol} {$timeframe} Chart by flowbase.com";
-$titleDims = getTextDimensions($title, $fontSemiBold, $titleFontSize);
+// In clean mode: title is just "SYMBOL TIMEFRAME" in a larger font, no branding
+if ($detailClean) {
+    $title          = "{$symbol} {$timeframe}";
+    $cleanTitleSize = 22;
+    $titleDims      = getTextDimensions($title, $fontBold, $cleanTitleSize);
+    $titleX         = intval(($W - $titleDims['width']) / 2);
+    // Draw badge next to clean title if trade overlay is active
+    if ($tradeBadgeText !== null) {
+        $badgeFontSize = 11;
+        $badgePadX = 10; $badgePadY = 5;
+        $badgeDims = getTextDimensions($tradeBadgeText, $fontBold, $badgeFontSize);
+        $badgeW    = $badgeDims['width']  + $badgePadX * 2;
+        $badgeH    = $badgeDims['height'] + $badgePadY * 2;
+        $gap       = 14;
+        $totalW    = $titleDims['width'] + $gap + $badgeW;
+        $titleX    = intval(($W - $totalW) / 2);
+        $badgeX    = $titleX + $titleDims['width'] + $gap;
+        $badgeY1   = intval(50 - $titleDims['height'] - 2);
+        $badgeY2   = intval($badgeY1 + $badgeH);
+        imagefilledrectangle($img, $badgeX, $badgeY1, $badgeX + $badgeW, $badgeY2, $tradeBadgeBgCol);
+        imagettftext($img, $badgeFontSize, 0,
+            $badgeX + $badgePadX,
+            intval($badgeY1 + $badgePadY + $badgeDims['height']),
+            $white, $fontBold, $tradeBadgeText
+        );
+    }
+    imagettftext($img, $cleanTitleSize, 0, $titleX, 55, $textColor, $fontBold, $title);
 
-// Draw badge next to title if trade overlay is active
-if ($tradeBadgeText !== null) {
-    $badgeFontSize = 11;
-    $badgePadX = 10; $badgePadY = 5;
-    $badgeDims = getTextDimensions($tradeBadgeText, $fontBold, $badgeFontSize);
-    $badgeW    = $badgeDims['width']  + $badgePadX * 2;
-    $badgeH    = $badgeDims['height'] + $badgePadY * 2;
-    $gap       = 12;
-    $totalW    = $titleDims['width'] + $gap + $badgeW;
-    $titleX    = intval(($W - $totalW) / 2);
-    $badgeX    = $titleX + $titleDims['width'] + $gap;
-    $badgeY1   = intval(35 - $titleDims['height'] - 2);
-    $badgeY2   = intval($badgeY1 + $badgeH);
-    // Draw rounded-rectangle badge (simulate with filled rect)
-    imagefilledrectangle($img, $badgeX, $badgeY1, $badgeX + $badgeW, $badgeY2, $tradeBadgeBgCol);
-    imagettftext($img, $badgeFontSize, 0,
-        $badgeX + $badgePadX,
-        intval($badgeY1 + $badgePadY + $badgeDims['height']),
-        $white, $fontBold, $tradeBadgeText
-    );
+    // Centered watermark: large semi-transparent "SYMBOL TIMEFRAME"
+    $wmSize  = 80;
+    $wmText  = "{$symbol} {$timeframe}";
+    $wmDims  = getTextDimensions($wmText, $fontBold, $wmSize);
+    $wmX     = intval(($W - $wmDims['width'])  / 2);
+    $wmY     = intval(($H + $wmDims['height']) / 2);
+    $wmColor = imagecolorallocatealpha($img, $theme === 'dark' ? 255 : 0, $theme === 'dark' ? 255 : 0, $theme === 'dark' ? 255 : 0, 110);
+    imagettftext($img, $wmSize, 0, $wmX, $wmY, $wmColor, $fontBold, $wmText);
 } else {
-    $titleX = intval(($W - $titleDims['width']) / 2);
+    $title     = "{$symbol} {$timeframe} Chart by flowbase.com";
+    $titleDims = getTextDimensions($title, $fontSemiBold, $titleFontSize);
+    // Draw badge next to title if trade overlay is active
+    if ($tradeBadgeText !== null) {
+        $badgeFontSize = 11;
+        $badgePadX = 10; $badgePadY = 5;
+        $badgeDims = getTextDimensions($tradeBadgeText, $fontBold, $badgeFontSize);
+        $badgeW    = $badgeDims['width']  + $badgePadX * 2;
+        $badgeH    = $badgeDims['height'] + $badgePadY * 2;
+        $gap       = 12;
+        $totalW    = $titleDims['width'] + $gap + $badgeW;
+        $titleX    = intval(($W - $totalW) / 2);
+        $badgeX    = $titleX + $titleDims['width'] + $gap;
+        $badgeY1   = intval(35 - $titleDims['height'] - 2);
+        $badgeY2   = intval($badgeY1 + $badgeH);
+        imagefilledrectangle($img, $badgeX, $badgeY1, $badgeX + $badgeW, $badgeY2, $tradeBadgeBgCol);
+        imagettftext($img, $badgeFontSize, 0,
+            $badgeX + $badgePadX,
+            intval($badgeY1 + $badgePadY + $badgeDims['height']),
+            $white, $fontBold, $tradeBadgeText
+        );
+    } else {
+        $titleX = intval(($W - $titleDims['width']) / 2);
+    }
+    imagettftext($img, $titleFontSize, 0, $titleX, 35, $textColor, $fontSemiBold, $title);
 }
-imagettftext($img, $titleFontSize, 0, $titleX, 35, $textColor, $fontSemiBold, $title);
 
 //////////////////////////
 // 20) Y-axis labels (price scale on right)
@@ -1378,7 +1415,9 @@ imagettftext($img, $labelFontSize, 0,
 $rangeText = $firstCandle['time'] . ' - ' . $lastCandle['time'];
 $rangeDims = getTextDimensions($rangeText, $fontRegular, $rangeFontSize);
 $rangeX = intval(($W - $rangeDims['width']) / 2);
-imagettftext($img, $rangeFontSize, 0, $rangeX, $H - 20, $textColor, $fontRegular, $rangeText);
+if (!$detailClean) {
+    imagettftext($img, $rangeFontSize, 0, $rangeX, $H - 20, $textColor, $fontRegular, $rangeText);
+}
 
 //////////////////////////
 // 28) Output PNG  —— or JSON envelope when data=json
