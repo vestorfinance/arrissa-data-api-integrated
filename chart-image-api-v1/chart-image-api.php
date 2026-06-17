@@ -1014,10 +1014,10 @@ if ($detailClean) {
 for ($i=0; $i<=10; $i++){
     $p   = $maxP - ($range/10)*$i;
     $lbl = number_format($p, $precision, '.', '');
-    $dims = getTextDimensions($lbl, $fontRegular, $labelFontSize);
+    $dims = getTextDimensions($lbl, $fontBold, $labelFontSize);
     $y   = intval($chartY0 + $i*$chartH/10 + $dims['height']/2);
     $x   = intval($chartX0 + $chartW + 10); // Right side of chart
-    imagettftext($img, $labelFontSize, 0, $x, $y, $textColor, $fontRegular, $lbl);
+    imagettftext($img, $labelFontSize, 0, $x, $y, $textColor, $fontBold, $lbl);
 }
 
 //////////////////////////
