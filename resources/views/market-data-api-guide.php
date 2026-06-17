@@ -81,7 +81,7 @@ ob_start();
             <div>
                 <h1 class="text-4xl font-bold mb-3 tracking-tight" style="color: var(--text-primary);">
                     MT5 Market Data API
-                    <span class="section-badge ml-3" style="background-color: var(--success); color: var(--bg-primary);">v1.4</span>
+                    <span class="section-badge ml-3" style="background-color: var(--success); color: var(--bg-primary);">v1.5</span>
                 </h1>
                 <p class="text-lg" style="color: var(--text-secondary);">Comprehensive MT5 data retrieval with advanced technical indicators and volume analysis</p>
             </div>
@@ -96,8 +96,12 @@ ob_start();
                     </div>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">What's New in v1.4</h3>
+                    <h3 class="text-lg font-semibold mb-3" style="color: var(--text-primary);">What's New in v1.5</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm" style="color: var(--text-secondary);">
+                        <div class="flex items-start">
+                            <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: var(--success);"></i>
+                            <span><strong style="color: var(--text-primary);">Ticker Mode:</strong> <code style="background-color: var(--input-bg); padding: 1px 5px; border-radius: 4px;">ticker-symbols=GBPUSD,US30,EURUSD</code> — get live price &amp; daily % change for multiple symbols in one call, no candle data needed</span>
+                        </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: var(--success);"></i>
                             <span><strong style="color: var(--text-primary);">Multiple Volume Parameters:</strong> Support for candle-volume, candlevolume, and volume</span>
@@ -108,11 +112,7 @@ ob_start();
                         </div>
                         <div class="flex items-start">
                             <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: var(--success);"></i>
-                            <span><strong style="color: var(--text-primary);">Fixed dataField:</strong> Corrected single field output handling</span>
-                        </div>
-                        <div class="flex items-start">
-                            <i data-feather="check-circle" class="mr-2 flex-shrink-0" style="width: 16px; height: 16px; color: var(--success);"></i>
-                            <span><strong style="color: var(--text-primary);">Backward Compatible:</strong> All v1.3 calls work unchanged</span>
+                            <span><strong style="color: var(--text-primary);">Backward Compatible:</strong> All v1.4 calls work unchanged</span>
                         </div>
                     </div>
                 </div>
@@ -208,8 +208,17 @@ ob_start();
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">symbol</code></td>
                             <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
-                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--success); color: white;">Always</span></td>
-                            <td class="py-4 px-6" style="color: var(--text-secondary);">Trading symbol (e.g., EURUSD). Max 20 characters</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--warning); color: white;">Conditional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Trading symbol for candle requests (e.g., EURUSD). Not needed when using ticker-symbols. Max 20 characters</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-4 px-6">
+                                <code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--success); color: white;">ticker-symbols</code>
+                                <span class="ml-2 section-badge" style="background-color: var(--success); color: white; font-size: 0.65rem; padding: 2px 8px;">NEW</span>
+                            </td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">string</td>
+                            <td class="py-4 px-6"><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: var(--warning); color: white;">Conditional</span></td>
+                            <td class="py-4 px-6" style="color: var(--text-secondary);">Comma-separated list of symbols for ticker mode (e.g., <code>GBPUSD,US30,EURUSD</code>). Returns live price + daily % change. Max 50 symbols. Cannot be combined with candle parameters.</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td class="py-4 px-6"><code class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background-color: var(--input-bg); color: var(--text-primary);">timeframe</code></td>
@@ -330,6 +339,173 @@ ob_start();
                     <span>All three parameter names work identically - choose based on your preference</span>
                 </li>
             </ul>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Ticker Mode Section -->
+    <div class="mb-10">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mr-4" style="background: linear-gradient(135deg, var(--success), #0ea5e9);">
+                <i data-feather="activity" style="width: 24px; height: 24px; color: white;"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold" style="color: var(--text-primary);">Ticker Mode</h2>
+                <p class="text-sm" style="color: var(--text-secondary);">Live price &amp; daily % change for multiple symbols — no candle data, instant response <span class="section-badge ml-2" style="background-color: var(--success); color: white;">NEW v1.5</span></p>
+            </div>
+        </div>
+
+        <!-- How it works -->
+        <div class="p-6 rounded-2xl mb-6 highlight-box" style="background-color: rgba(16, 185, 129, 0.05); border: 1px solid var(--success);">
+            <h4 class="text-sm font-semibold mb-3 flex items-center" style="color: var(--success);">
+                <i data-feather="info" class="mr-2" style="width: 16px; height: 16px;"></i>
+                How Ticker Mode Works
+            </h4>
+            <ul class="space-y-2 text-sm" style="color: var(--text-secondary);">
+                <li class="flex items-start">
+                    <i data-feather="chevron-right" class="mr-2 flex-shrink-0 mt-0.5" style="width: 14px; height: 14px; color: var(--success);"></i>
+                    <span>Pass <code style="background-color: var(--input-bg); padding: 2px 6px; border-radius: 4px;">ticker-symbols=GBPUSD,US30,EURUSD</code> instead of a single <code style="background-color: var(--input-bg); padding: 2px 6px; border-radius: 4px;">symbol</code></span>
+                </li>
+                <li class="flex items-start">
+                    <i data-feather="chevron-right" class="mr-2 flex-shrink-0 mt-0.5" style="width: 14px; height: 14px; color: var(--success);"></i>
+                    <span>The EA reads the current bid price and today's D1 open for each symbol and computes the daily % change</span>
+                </li>
+                <li class="flex items-start">
+                    <i data-feather="chevron-right" class="mr-2 flex-shrink-0 mt-0.5" style="width: 14px; height: 14px; color: var(--success);"></i>
+                    <span>Up to 50 symbols per request. No <code style="background-color: var(--input-bg); padding: 2px 6px; border-radius: 4px;">timeframe</code>, <code style="background-color: var(--input-bg); padding: 2px 6px; border-radius: 4px;">count</code> or <code style="background-color: var(--input-bg); padding: 2px 6px; border-radius: 4px;">rangeType</code> required</span>
+                </li>
+                <li class="flex items-start">
+                    <i data-feather="chevron-right" class="mr-2 flex-shrink-0 mt-0.5" style="width: 14px; height: 14px; color: var(--success);"></i>
+                    <span>Perfect for market watch widgets, dashboards, and screeners</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Request & Response -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Request -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-base font-semibold mb-4 flex items-center" style="color: var(--text-primary);">
+                    <i data-feather="send" class="mr-2" style="width: 18px; height: 18px; color: var(--accent);"></i>
+                    Request
+                </h3>
+                <div class="p-4 rounded-xl api-code text-xs overflow-x-auto" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--input-border);">
+                    <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">GET <?php echo htmlspecialchars($baseUrl); ?>/market-data-api-v1/market-data-api.php
+  ?api_key=<?php echo htmlspecialchars($apiKey); ?>
+  &ticker-symbols=GBPUSD,EURUSD,USTEC,US30</pre>
+                </div>
+            </div>
+
+            <!-- Response -->
+            <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+                <h3 class="text-base font-semibold mb-4 flex items-center" style="color: var(--text-primary);">
+                    <i data-feather="package" class="mr-2" style="width: 18px; height: 18px; color: var(--success);"></i>
+                    Response
+                </h3>
+                <div class="p-4 rounded-xl api-code text-xs overflow-x-auto" style="background-color: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--input-border);">
+                    <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">{
+  "vestor_data": {
+    "request_id": "ticker_...",
+    "tickers": [
+      {
+        "symbol": "GBPUSD",
+        "price": 1.26543,
+        "daily_open": 1.26487,
+        "change_pct": 0.0443,
+        "change_pct_str": "+0.04%",
+        "change_points": 0.00056
+      },
+      {
+        "symbol": "EURUSD",
+        "price": 1.08421,
+        "daily_open": 1.08907,
+        "change_pct": -0.4463,
+        "change_pct_str": "-0.45%",
+        "change_points": -0.00486
+      }
+    ]
+  }
+}</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Response Fields Table -->
+        <div class="rounded-2xl overflow-hidden mb-6" style="background-color: var(--card-bg); border: 1px solid var(--border);">
+            <div class="px-6 py-4" style="border-bottom: 1px solid var(--border);">
+                <h3 class="text-base font-semibold" style="color: var(--text-primary);">Ticker Response Fields</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr style="background-color: var(--bg-secondary); border-bottom: 2px solid var(--border);">
+                            <th class="text-left py-3 px-6 font-semibold" style="color: var(--text-primary);">Field</th>
+                            <th class="text-left py-3 px-6 font-semibold" style="color: var(--text-primary);">Type</th>
+                            <th class="text-left py-3 px-6 font-semibold" style="color: var(--text-primary);">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-3 px-6"><code style="color: var(--accent);">symbol</code></td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">string</td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">Trading symbol name</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-3 px-6"><code style="color: var(--accent);">price</code></td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">float</td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">Current live bid price</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-3 px-6"><code style="color: var(--accent);">daily_open</code></td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">float</td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">Today's D1 open price</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-3 px-6"><code style="color: var(--accent);">change_pct</code></td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">float</td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">Daily % change as a number (e.g., <code>-0.4463</code> means −0.45%)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td class="py-3 px-6"><code style="color: var(--accent);">change_pct_str</code></td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">string</td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">Formatted daily % change ready to display (e.g., <code>"+0.04%"</code>, <code>"-0.45%"</code>)</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-6"><code style="color: var(--accent);">change_points</code></td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">float</td>
+                            <td class="py-3 px-6" style="color: var(--text-secondary);">Daily change in price units (current price − daily open)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Ticker Examples -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <?php
+            $tickerExamples = [
+                ['title' => 'Forex Majors', 'url' => "{$baseUrl}/market-data-api-v1/market-data-api.php?api_key={$apiKey}&ticker-symbols=EURUSD,GBPUSD,USDJPY,USDCHF,AUDUSD,USDCAD,NZDUSD", 'desc' => 'All 7 major forex pairs in one call'],
+                ['title' => 'Indices + Gold', 'url' => "{$baseUrl}/market-data-api-v1/market-data-api.php?api_key={$apiKey}&ticker-symbols=US30,USTEC,US500,XAUUSD,UK100,GER40", 'desc' => 'Global indices and gold'],
+                ['title' => 'Mixed Market Watch', 'url' => "{$baseUrl}/market-data-api-v1/market-data-api.php?api_key={$apiKey}&ticker-symbols=GBPUSD,EURUSD,USTEC,US30,XAUUSD,BTCUSD", 'desc' => 'Forex, indices, gold, and crypto'],
+            ];
+            foreach ($tickerExamples as $example):
+            ?>
+            <a href="<?php echo htmlspecialchars($example['url']); ?>" target="_blank" class="example-card block p-5 rounded-2xl" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(14, 165, 233, 0.05) 100%); border: 1px solid var(--border);">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <h4 class="text-sm font-semibold" style="color: var(--text-primary);"><?php echo $example['title']; ?></h4>
+                        <span class="text-xs section-badge mt-1" style="background-color: var(--success); color: white;">TICKER</span>
+                    </div>
+                    <i data-feather="external-link" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
+                </div>
+                <p class="text-xs mb-3" style="color: var(--text-secondary);"><?php echo $example['desc']; ?></p>
+                <div class="flex items-center text-xs font-medium" style="color: var(--success);">
+                    <span>Try Example</span>
+                    <i data-feather="arrow-right" class="ml-2" style="width: 14px; height: 14px;"></i>
+                </div>
+            </a>
+            <?php endforeach; ?>
         </div>
     </div>
 
@@ -520,6 +696,40 @@ ob_start();
         </div>
 
         <div class="grid grid-cols-1 gap-6">
+            <!-- Ticker Mode -->
+            <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(14, 165, 233, 0.05) 100%); border: 1px solid var(--success);">
+                <h3 class="text-lg font-semibold mb-4 flex items-center" style="color: var(--text-primary);">
+                    Ticker Mode
+                    <span class="ml-2 section-badge" style="background-color: var(--success); color: white;">NEW v1.5</span>
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Forex Majors — live price + daily % change</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&ticker-symbols=EURUSD,GBPUSD,USDJPY,USDCHF,AUDUSD,USDCAD,NZDUSD&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&ticker-symbols=EURUSD,GBPUSD,USDJPY,USDCHF,AUDUSD,USDCAD,NZDUSD"</code>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold" style="color: var(--text-secondary);">Mixed market watch — indices, gold, crypto</label>
+                            <button onclick="copyToClipboard('curl &quot;<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&ticker-symbols=GBPUSD,EURUSD,USTEC,US30,XAUUSD,BTCUSD&quot;')" class="text-xs px-2 py-1 rounded-lg transition-colors flex items-center gap-1" style="background-color: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border);">
+                                <i data-feather="copy" style="width: 12px; height: 12px;"></i>
+                                Copy
+                            </button>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--input-bg); border: 1px solid var(--input-border); font-family: 'Fira Code', monospace; font-size: 0.75rem; overflow-x: auto;">
+                            <code style="color: var(--text-primary);">curl "<?= htmlspecialchars($baseUrl) ?>/market-data-api-v1/market-data-api.php?api_key=<?= htmlspecialchars($apiKey) ?>&ticker-symbols=GBPUSD,EURUSD,USTEC,US30,XAUUSD,BTCUSD"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Basic Candle Data -->
             <div class="p-6 rounded-2xl" style="background-color: var(--card-bg); border: 1px solid var(--border);">
                 <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Basic Candle Data</h3>
@@ -745,13 +955,13 @@ ob_start();
     <!-- Footer Note -->
     <div class="p-8 rounded-2xl text-center" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%); border: 1px solid var(--border);">
         <div class="mb-4">
-            <span class="section-badge" style="background-color: var(--accent); color: white;">API v1.4</span>
+            <span class="section-badge" style="background-color: var(--accent); color: white;">API v1.5</span>
         </div>
         <h3 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">Ready to Start Trading?</h3>
         <p class="text-sm mb-4" style="color: var(--text-secondary);">All examples use your configured API key and endpoint. Click any example above to test in real-time.</p>
         <div class="text-xs" style="color: var(--text-secondary);">
-            <p class="mb-1"><strong style="color: var(--text-primary);">New Features:</strong> Multiple volume parameter names, enhanced validation, fixed dataField support, improved parameter detection</p>
-            <p><strong style="color: var(--text-primary);">Compatibility:</strong> Fully backward compatible with v1.3, v1.2, and v1.1</p>
+            <p class="mb-1"><strong style="color: var(--text-primary);">New in v1.5:</strong> Ticker mode — live price &amp; daily % change for up to 50 symbols in a single call using <code style="background-color: var(--input-bg); padding: 1px 5px; border-radius: 4px;">ticker-symbols</code></p>
+            <p><strong style="color: var(--text-primary);">Compatibility:</strong> Fully backward compatible with v1.4, v1.3, v1.2, and v1.1</p>
         </div>
     </div>
 </div>
