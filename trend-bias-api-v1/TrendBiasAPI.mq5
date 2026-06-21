@@ -153,7 +153,7 @@ void ProcessRequest(string json)
             if(ArraySize(tp) > 1) m = (int)StringToInteger(tp[1]);
         }
 
-        StringToTime(pre_date, pretendDT);
+        pretendDT = StringToTime(pre_date);
         MqlDateTime mdt;
         TimeToStruct(pretendDT, mdt);
         mdt.hour = h; mdt.min = m; mdt.sec = 0;
