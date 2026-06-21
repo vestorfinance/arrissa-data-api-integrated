@@ -642,31 +642,35 @@ if ($showFib) {
 // 12) Helper function for dashed lines (cross-platform compatible)
 //////////////////////////
 function drawDashedLine($img, $x1, $y1, $x2, $y2, $color, $dashLength = 5, $gapLength = 3) {
-    $distance = sqrt(pow($x2 - $x1, 2) + pow($y2 - $y1, 2));
+    $period = $dashLength + $gapLength;
+    // Fast path: horizontal line
+    if ($y1 === $y2) {
+        if ($x1 > $x2) { $t = $x1; $x1 = $x2; $x2 = $t; }
+        for ($x = $x1; $x < $x2; $x += $period) {
+            imageline($img, $x, $y1, min($x + $dashLength - 1, $x2), $y1, $color);
+        }
+        return;
+    }
+    // Fast path: vertical line
+    if ($x1 === $x2) {
+        if ($y1 > $y2) { $t = $y1; $y1 = $y2; $y2 = $t; }
+        for ($y = $y1; $y < $y2; $y += $period) {
+            imageline($img, $x1, $y, $x1, min($y + $dashLength - 1, $y2), $color);
+        }
+        return;
+    }
+    // General diagonal case: segment-based (not pixel-by-pixel)
+    $distance = sqrt(($x2 - $x1) ** 2 + ($y2 - $y1) ** 2);
+    if ($distance == 0) return;
     $dx = ($x2 - $x1) / $distance;
     $dy = ($y2 - $y1) / $distance;
-    
-    $drawn = 0;
-    $drawing = true;
-    
-    for ($i = 0; $i < $distance; $i++) {
-        if ($drawing) {
-            $drawn++;
-            $x = intval($x1 + $dx * $i);
-            $y = intval($y1 + $dy * $i);
-            imagesetpixel($img, $x, $y, $color);
-            
-            if ($drawn >= $dashLength) {
-                $drawing = false;
-                $drawn = 0;
-            }
-        } else {
-            $drawn++;
-            if ($drawn >= $gapLength) {
-                $drawing = true;
-                $drawn = 0;
-            }
-        }
+    for ($i = 0; $i < $distance; $i += $period) {
+        $de = min($i + $dashLength, $distance);
+        imageline($img,
+            (int)($x1 + $dx * $i),  (int)($y1 + $dy * $i),
+            (int)($x1 + $dx * $de), (int)($y1 + $dy * $de),
+            $color
+        );
     }
 }
 
@@ -728,11 +732,13 @@ $highLowLabelSize   = intval( 9 * $RES);
 // 14) Helper function to get text dimensions
 //////////////////////////
 function getTextDimensions($text, $font, $size) {
-    $bbox = imagettfbbox($size, 0, $font, $text);
-    return [
-        'width' => $bbox[4] - $bbox[0],
-        'height' => $bbox[1] - $bbox[7]
-    ];
+    static $cache = [];
+    $key = $size . '|' . $font . '|' . $text;
+    if (!isset($cache[$key])) {
+        $bbox = imagettfbbox($size, 0, $font, $text);
+        $cache[$key] = ['width' => $bbox[4] - $bbox[0], 'height' => $bbox[1] - $bbox[7]];
+    }
+    return $cache[$key];
 }
 
 //////////////////////////
@@ -1428,7 +1434,7 @@ if (!$detailClean) {
 if ($returnJson) {
     // Capture rendered chart as PNG bytes
     ob_start();
-    imagepng($img);
+    imagepng($img, null, 1);
     $pngBytes = ob_get_clean();
     imagedestroy($img);
 
@@ -1480,7 +1486,7 @@ if ($returnJson) {
     ]);
 } else {
     header('Content-Type: image/png');
-    imagepng($img);
+    imagepng($img, null, 1);
     imagedestroy($img);
 }
 ?>
