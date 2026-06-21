@@ -244,6 +244,9 @@ switch ($uri) {
     case '/risk-management-api-guide':
         $page = 'risk-management-api-guide';
         break;
+    case '/trend-bias-api-guide':
+        $page = 'trend-bias-api-guide';
+        break;
     case '/markets-brain-api-guide':
         $page = 'markets-brain-api-guide';
         break;
