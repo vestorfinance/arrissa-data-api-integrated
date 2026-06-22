@@ -748,6 +748,14 @@ ob_start();
 </div>
 
 <script>
+function escHtml(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 function testNewsAPI(card, url) {
     if (!card) return;
     const responseDiv = card.querySelector('.test-response');
@@ -761,7 +769,7 @@ function testNewsAPI(card, url) {
         .then(r => r.json())
         .then(data => {
             if (data.status === 'error') {
-                responseDiv.innerHTML = '<div style="padding:12px;background-color:rgba(239,68,68,0.1);border-radius:8px;border:1px solid #EF4444;color:#EF4444;"><strong><i data-feather="alert-triangle" style="width:14px;height:14px;display:inline;"></i> ' + data.error + '</strong></div>';
+                responseDiv.innerHTML = '<div style="padding:12px;background-color:rgba(239,68,68,0.1);border-radius:8px;border:1px solid #EF4444;color:#EF4444;"><strong><i data-feather="alert-triangle" style="width:14px;height:14px;display:inline;"></i> ' + escHtml(data.error) + '</strong></div>';
                 feather.replace();
                 return;
             }
@@ -773,13 +781,13 @@ function testNewsAPI(card, url) {
             if (data.items && data.items.length > 0) {
                 data.items.forEach(function(item, i) {
                     html += '<div style="margin-bottom:8px;padding:8px;border-radius:6px;background:var(--bg-secondary);border:1px solid var(--border);">';
-                    html += '<div style="font-size:0.8rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;">' + (i+1) + '. ' + (item.title || '—') + '</div>';
+                    html += '<div style="font-size:0.8rem;font-weight:600;color:var(--text-primary);margin-bottom:4px;">' + (i+1) + '. ' + escHtml(item.title || '—') + '</div>';
                     html += '<div style="font-size:0.7rem;color:var(--text-secondary);">';
-                    if (item.source) html += '<span style="margin-right:10px;"><strong>' + item.source + '</strong></span>';
-                    if (item.pubDate) html += '<span>' + item.pubDate + '</span>';
+                    if (item.source) html += '<span style="margin-right:10px;"><strong>' + escHtml(item.source) + '</strong></span>';
+                    if (item.pubDate) html += '<span>' + escHtml(item.pubDate) + '</span>';
                     if (item.ageMinutes !== undefined) html += ' <span style="color:#EF4444;">• ' + item.ageMinutes + ' min ago</span>';
                     html += '</div>';
-                    if (item.description) html += '<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:4px;">' + item.description.substring(0, 160) + '...</div>';
+                    if (item.description) html += '<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:4px;">' + escHtml(item.description.substring(0, 160)) + '...</div>';
                     if (item.articleContent && item.articleContent.body) {
                         html += '<div style="font-size:0.7rem;color:#0EA5E9;margin-top:4px;"><i data-feather="file-text" style="width:11px;height:11px;display:inline;"></i> ' + item.articleContent.wordCount + ' words extracted</div>';
                     }
@@ -788,13 +796,13 @@ function testNewsAPI(card, url) {
             }
 
             html += '<details style="margin-top:8px;"><summary style="font-size:0.75rem;color:var(--text-secondary);cursor:pointer;">View raw JSON</summary>';
-            html += '<pre style="margin-top:8px;max-height:300px;overflow-y:auto;color:var(--text-secondary);font-size:0.7rem;">' + JSON.stringify(data, null, 2) + '</pre></details>';
+            html += '<pre style="margin-top:8px;max-height:300px;overflow-y:auto;color:var(--text-secondary);font-size:0.7rem;">' + escHtml(JSON.stringify(data, null, 2)) + '</pre></details>';
             html += '</div>';
             responseDiv.innerHTML = html;
             feather.replace();
         })
         .catch(function(err) {
-            responseDiv.innerHTML = '<div style="padding:12px;background-color:rgba(239,68,68,0.1);border-radius:8px;border:1px solid #EF4444;color:#EF4444;"><i data-feather="alert-circle" style="width:14px;height:14px;display:inline;"></i> ' + err.message + '</div>';
+            responseDiv.innerHTML = '<div style="padding:12px;background-color:rgba(239,68,68,0.1);border-radius:8px;border:1px solid #EF4444;color:#EF4444;"><i data-feather="alert-circle" style="width:14px;height:14px;display:inline;"></i> ' + escHtml(err.message) + '</div>';
             feather.replace();
         });
 }
