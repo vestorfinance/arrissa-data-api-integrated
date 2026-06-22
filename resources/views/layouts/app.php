@@ -842,6 +842,10 @@ _Tz8wKpN4::_v();
                     <i data-feather="trending-up" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Trend Bias API Guide</span>
                 </a>
+                <a href="/google-news-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'google-news-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'google-news-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
+                    <i data-feather="rss" style="width: 20px; height: 20px;"></i>
+                    <span class="text-base font-medium">Google News API Guide</span>
+                </a>
                 <a href="/markets-brain-api-guide" class="sidebar-link <?php echo ($page ?? '') == 'markets-brain-api-guide' ? 'active' : ''; ?> flex items-center space-x-3 px-4 py-2 rounded-full mb-1" style="color: <?php echo ($page ?? '') == 'markets-brain-api-guide' ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>;">
                     <i data-feather="cpu" style="width: 20px; height: 20px;"></i>
                     <span class="text-base font-medium">Markets Brain API Guide</span>

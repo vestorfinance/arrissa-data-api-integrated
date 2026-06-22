@@ -195,8 +195,8 @@ For licensing inquiries, written permission requests, or compliance questions:
 
 **Arrissa Pty Ltd**
 Author: Ngonidzashe Jiji (David Richchild)
-Email: [contact@arrissa.com]
-Website: [https://arrissa.com]
+Email: [contact@arrissadata.com]
+Website: [https://arrissadata.com]
 Jurisdiction: Republic of South Africa
 
 ---
